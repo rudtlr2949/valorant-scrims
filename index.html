@@ -519,6 +519,198 @@ body {
 
 
 
+
+/* ===== 검색 & 고급 필터 ===== */
+.search-filter-bar {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    align-items: center;
+}
+
+.search-input {
+    flex: 1;
+    padding: 12px 15px;
+    background: var(--val-dark-3);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 8px;
+    color: var(--val-text);
+    font-size: 0.9rem;
+}
+
+.search-input::placeholder {
+    color: var(--val-text-muted);
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: var(--val-red);
+}
+
+.filter-settings-btn {
+    width: 44px;
+    height: 44px;
+    background: var(--val-dark-3);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    position: relative;
+}
+
+.filter-settings-btn:hover {
+    background: var(--val-dark-2);
+    border-color: var(--val-red);
+}
+
+.filter-settings-btn.active {
+    background: var(--val-red);
+    border-color: var(--val-red);
+}
+
+.filter-settings-btn svg {
+    width: 20px;
+    height: 20px;
+    fill: var(--val-text);
+}
+
+.filter-settings-btn.active svg {
+    fill: white;
+    animation: rotate 0.5s ease;
+}
+
+@keyframes rotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(180deg); }
+}
+
+/* 고급 필터 패널 */
+.advanced-filter-panel {
+    background: var(--val-dark-2);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    display: none;
+    animation: slideDown 0.3s ease;
+}
+
+.advanced-filter-panel.show {
+    display: block;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.filter-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+}
+
+.filter-item {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.filter-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--val-text);
+}
+
+.filter-select {
+    padding: 10px 12px;
+    background: var(--val-dark-3);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 8px;
+    color: var(--val-text);
+    font-size: 0.85rem;
+    cursor: pointer;
+}
+
+.filter-select:focus {
+    outline: none;
+    border-color: var(--val-red);
+}
+
+.filter-checkbox-group {
+    display: flex;
+    gap: 15px;
+}
+
+.filter-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+}
+
+.filter-checkbox input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    accent-color: var(--val-red);
+}
+
+.filter-checkbox label {
+    font-size: 0.85rem;
+    color: var(--val-text);
+    cursor: pointer;
+}
+
+.filter-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid rgba(255,255,255,0.05);
+}
+
+.btn-filter-apply {
+    flex: 1;
+    padding: 10px;
+    background: var(--val-red);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-filter-apply:hover {
+    background: #cc2233;
+}
+
+.btn-filter-reset {
+    padding: 10px 20px;
+    background: var(--val-dark-3);
+    color: var(--val-text-muted);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-filter-reset:hover {
+    background: var(--val-dark-2);
+    color: var(--val-text);
+}
+
 /* ===== 랭크 필터 드롭다운 ===== */
 .rank-filter-wrapper {
     position: relative;
@@ -1183,6 +1375,82 @@ body {
             <div class="tab-content active" id="scrims">
                 <div class="filters">
                     <h2>스크림 목록</h2>
+                    
+                    <!-- 검색 & 고급 필터 -->
+                    <div class="search-filter-bar">
+                        <input type="text" class="search-input" id="searchInput" placeholder="🔍 팀명, 설명 검색..." onkeyup="applyAllFilters()">
+                        <button class="filter-settings-btn" id="filterSettingsBtn" onclick="toggleAdvancedFilter()">
+                            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M3 17v2h6v-2H3zM3 5v2h10V5H3zm10 16v-2h8v-2h-8v-2h-2v6h2zM7 9v2H3v2h4v2h2V9H7zm14 4v-2H11v2h10zm-6-4h2V7h4V5h-4V3h-2v6z"/>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <!-- 고급 필터 패널 -->
+                    <div class="advanced-filter-panel" id="advancedFilterPanel">
+                        <div class="filter-grid">
+                            <div class="filter-item">
+                                <label class="filter-label">티어</label>
+                                <select class="filter-select" id="advTierFilter">
+                                    <option value="">전체</option>
+                                    <option value="6">Diamond</option>
+                                    <option value="7">Ascendant</option>
+                                    <option value="8">Immortal</option>
+                                    <option value="9">Radiant</option>
+                                </select>
+                            </div>
+                            <div class="filter-item">
+                                <label class="filter-label">시간</label>
+                                <select class="filter-select" id="advTimeFilter">
+                                    <option value="">전체</option>
+                                    <option value="morning">오전 (06:00-12:00)</option>
+                                    <option value="afternoon">오후 (12:00-18:00)</option>
+                                    <option value="evening">저녁 (18:00-24:00)</option>
+                                    <option value="night">심야 (00:00-06:00)</option>
+                                </select>
+                            </div>
+                            <div class="filter-item">
+                                <label class="filter-label">서버</label>
+                                <select class="filter-select" id="advServerFilter">
+                                    <option value="">전체</option>
+                                    <option value="kr">한국 서버</option>
+                                    <option value="jp">일본 서버</option>
+                                    <option value="sea">동남아 서버</option>
+                                </select>
+                            </div>
+                            <div class="filter-item">
+                                <label class="filter-label">맵</label>
+                                <select class="filter-select" id="advMapFilter">
+                                    <option value="">전체</option>
+                                    <option value="Ascent">Ascent</option>
+                                    <option value="Bind">Bind</option>
+                                    <option value="Haven">Haven</option>
+                                    <option value="Split">Split</option>
+                                    <option value="Icebox">Icebox</option>
+                                    <option value="Breeze">Breeze</option>
+                                    <option value="Fracture">Fracture</option>
+                                    <option value="Pearl">Pearl</option>
+                                    <option value="Lotus">Lotus</option>
+                                    <option value="Sunset">Sunset</option>
+                                    <option value="Abyss">Abyss</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="filter-checkbox-group" style="margin-top: 15px;">
+                            <div class="filter-checkbox">
+                                <input type="checkbox" id="advGcFilter">
+                                <label for="advGcFilter">GC 선택가능만</label>
+                            </div>
+                            <div class="filter-checkbox">
+                                <input type="checkbox" id="advCoachFilter">
+                                <label for="advCoachFilter">코치 있음만</label>
+                            </div>
+                        </div>
+                        <div class="filter-actions">
+                            <button class="btn-filter-apply" onclick="applyAllFilters()">필터 적용</button>
+                            <button class="btn-filter-reset" onclick="resetAdvancedFilters()">초기화</button>
+                        </div>
+                    </div>
                     <div class="filter-group">
                         <label>랭크 필터:</label>
                         <div class="rank-filter-wrapper">
@@ -1556,6 +1824,80 @@ function loadKovTier() {
 }
 
 
+
+
+// ===== 고급 필터 시스템 =====
+let advancedFilters = {
+    search: '',
+    tier: '',
+    time: '',
+    server: '',
+    map: '',
+    gcOnly: false,
+    coachOnly: false
+};
+
+function toggleAdvancedFilter() {
+    const panel = document.getElementById('advancedFilterPanel');
+    const btn = document.getElementById('filterSettingsBtn');
+    
+    panel.classList.toggle('show');
+    btn.classList.toggle('active');
+}
+
+function applyAllFilters() {
+    // 검색어
+    advancedFilters.search = document.getElementById('searchInput').value.toLowerCase();
+    
+    // 고급 필터
+    advancedFilters.tier = document.getElementById('advTierFilter').value;
+    advancedFilters.time = document.getElementById('advTimeFilter').value;
+    advancedFilters.server = document.getElementById('advServerFilter').value;
+    advancedFilters.map = document.getElementById('advMapFilter').value;
+    advancedFilters.gcOnly = document.getElementById('advGcFilter').checked;
+    advancedFilters.coachOnly = document.getElementById('advCoachFilter').checked;
+    
+    filterScrims();
+}
+
+function resetAdvancedFilters() {
+    // 검색창 초기화
+    document.getElementById('searchInput').value = '';
+    
+    // 고급 필터 초기화
+    document.getElementById('advTierFilter').value = '';
+    document.getElementById('advTimeFilter').value = '';
+    document.getElementById('advServerFilter').value = '';
+    document.getElementById('advMapFilter').value = '';
+    document.getElementById('advGcFilter').checked = false;
+    document.getElementById('advCoachFilter').checked = false;
+    
+    // 기존 필터도 초기화
+    document.getElementById('rankFilter').value = '';
+    document.getElementById('mapFilter').value = '';
+    
+    // 필터 객체 초기화
+    advancedFilters = {
+        search: '',
+        tier: '',
+        time: '',
+        server: '',
+        map: '',
+        gcOnly: false,
+        coachOnly: false
+    };
+    
+    filterScrims();
+}
+
+function getTimeCategory(timeStr) {
+    if (!timeStr) return '';
+    const hour = parseInt(timeStr.split(':')[0]);
+    if (hour >= 6 && hour < 12) return 'morning';
+    if (hour >= 12 && hour < 18) return 'afternoon';
+    if (hour >= 18 && hour < 24) return 'evening';
+    return 'night';
+}
 
 // ===== 랭크 필터 드롭다운 =====
 let selectedRankIcon = null;
