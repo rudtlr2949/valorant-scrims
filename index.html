@@ -1462,29 +1462,12 @@ body {
                             </div>
                             <div class="filter-item">
                                 <label class="filter-label">서버</label>
-                                <div class="server-filter-wrapper">
-                                    <div class="server-select-display" id="advServerDisplay" onclick="toggleAdvServerDropdown()">
-                                        <span id="advServerDisplayText">전체</span>
-                                    </div>
-                                    <div class="server-dropdown" id="advServerDropdown">
-                                        <div class="server-option" data-value="" onclick="selectAdvServer('', '전체', null)">
-                                            <span>전체</span>
-                                        </div>
-                                        <div class="server-option" data-value="kr" onclick="selectAdvServer('kr', 'KR', 'https://flagcdn.com/w40/kr.png')">
-                                            <img src="https://flagcdn.com/w40/kr.png" alt="KR">
-                                            <span>KR</span>
-                                        </div>
-                                        <div class="server-option" data-value="jp" onclick="selectAdvServer('jp', 'JP', 'https://flagcdn.com/w40/jp.png')">
-                                            <img src="https://flagcdn.com/w40/jp.png" alt="JP">
-                                            <span>JP</span>
-                                        </div>
-                                        <div class="server-option" data-value="cn" onclick="selectAdvServer('cn', 'CN', 'https://flagcdn.com/w40/cn.png')">
-                                            <img src="https://flagcdn.com/w40/cn.png" alt="CN">
-                                            <span>CN</span>
-                                        </div>
-                                    </div>
-                                    <input type="hidden" id="advServerFilter" value="">
-                                </div>
+                                <select class="filter-select" id="advServerFilter">
+                                    <option value="">전체</option>
+                                    <option value="kr">KR</option>
+                                    <option value="jp">JP</option>
+                                    <option value="cn">CN</option>
+                                </select>
                             </div>
                             <div class="filter-item">
                                 <label class="filter-label">맵</label>
@@ -1940,61 +1923,6 @@ document.addEventListener('click', (e) => {
     }
 });
 
-
-// ===== 서버 필터 드롭다운 =====
-function toggleAdvServerDropdown() {
-    const dropdown = document.getElementById('advServerDropdown');
-    
-    // 다른 드롭다운들 닫기
-    const rankDropdown = document.getElementById('rankDropdown');
-    const advTierDropdown = document.getElementById('advTierDropdown');
-    if (rankDropdown) rankDropdown.classList.remove('show');
-    if (advTierDropdown) advTierDropdown.classList.remove('show');
-    
-    dropdown.classList.toggle('show');
-}
-
-function selectAdvServer(value, text, flagUrl) {
-    // hidden input 업데이트
-    document.getElementById('advServerFilter').value = value;
-    
-    // 디스플레이 업데이트
-    const display = document.getElementById('advServerDisplay');
-    const displayText = document.getElementById('advServerDisplayText');
-    
-    // 기존 이미지 제거
-    const existingImg = display.querySelector('img');
-    if (existingImg) existingImg.remove();
-    
-    // 새 국기 이미지 추가
-    if (flagUrl) {
-        const img = document.createElement('img');
-        img.src = flagUrl;
-        img.alt = text;
-        display.insertBefore(img, displayText);
-    }
-    
-    displayText.textContent = text;
-    
-    // selected 클래스 업데이트
-    const allOptions = document.querySelectorAll('#advServerDropdown .server-option');
-    allOptions.forEach(opt => opt.classList.remove('selected'));
-    const selected = document.querySelector(`#advServerDropdown [data-value="${value}"]`);
-    if (selected) selected.classList.add('selected');
-    
-    // 드롭다운 닫기
-    document.getElementById('advServerDropdown').classList.remove('show');
-}
-
-// 외부 클릭시 서버 드롭다운 닫기
-document.addEventListener('click', (e) => {
-    const serverWrapper = document.querySelector('.server-filter-wrapper');
-    const serverDropdown = document.getElementById('advServerDropdown');
-    if (serverWrapper && serverDropdown && !serverWrapper.contains(e.target)) {
-        serverDropdown.classList.remove('show');
-    }
-});
-
 // ===== 고급 필터 시스템 =====
 let advancedFilters = {
     search: '',
@@ -2040,13 +1968,7 @@ function resetAdvancedFilters() {
     document.getElementById('advTimeFilter').value = '';
     document.getElementById('advServerFilter').value = '';
     document.getElementById('advMapFilter').value = '';
-    
-    // 서버 디스플레이 초기화
-    const advServerDisplay = document.getElementById('advServerDisplay');
-    const advServerText = document.getElementById('advServerDisplayText');
-    const serverImg = advServerDisplay?.querySelector('img');
-    if (serverImg) serverImg.remove();
-    if (advServerText) advServerText.textContent = '전체';
+
 
     
     // 고급 티어 디스플레이 초기화
