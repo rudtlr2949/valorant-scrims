@@ -1462,70 +1462,46 @@ body {
                             </div>
                             <div class="filter-item">
                                 <label class="filter-label">서버</label>
-                                <select class="filter-select" id="advServerFilter">
-                                    <option value="">전체</option>
-                                    <option value="kr">KR</option>
-                                    <option value="jp">JP</option>
-                                    <option value="cn">CN</option>
-                                </select>
+                                <div class="server-filter-wrapper">
+                                    <div class="server-select-display" id="advServerDisplay" onclick="toggleAdvServerDropdown()">
+                                        <span id="advServerDisplayText">전체</span>
+                                    </div>
+                                    <div class="server-dropdown" id="advServerDropdown">
+                                        <div class="server-option" data-value="" onclick="selectAdvServer('', '전체', null)">
+                                            <span>전체</span>
+                                        </div>
+                                        <div class="server-option" data-value="kr" onclick="selectAdvServer('kr', 'KR', 'https://flagcdn.com/w40/kr.png')">
+                                            <img src="https://flagcdn.com/w40/kr.png" alt="KR">
+                                            <span>KR</span>
+                                        </div>
+                                        <div class="server-option" data-value="jp" onclick="selectAdvServer('jp', 'JP', 'https://flagcdn.com/w40/jp.png')">
+                                            <img src="https://flagcdn.com/w40/jp.png" alt="JP">
+                                            <span>JP</span>
+                                        </div>
+                                        <div class="server-option" data-value="cn" onclick="selectAdvServer('cn', 'CN', 'https://flagcdn.com/w40/cn.png')">
+                                            <img src="https://flagcdn.com/w40/cn.png" alt="CN">
+                                            <span>CN</span>
+                                        </div>
+                                    </div>
+                                    <input type="hidden" id="advServerFilter" value="">
+                                </div>
                             </div>
                             <div class="filter-item">
                                 <label class="filter-label">맵</label>
-                                <div class="map-filter-wrapper">
-                                    <div class="map-select-display" id="advMapDisplay" onclick="toggleAdvMapDropdown()">
-                                        <span id="advMapDisplayText">전체</span>
-                                    </div>
-                                    <div class="map-dropdown" id="advMapDropdown">
-                                        <div class="map-option" data-value="" onclick="selectAdvMap('', '전체', null)">
-                                            <span>전체</span>
-                                        </div>
-                                        <div class="map-option" data-value="Ascent" onclick="selectAdvMap('Ascent', 'Ascent', 'https://media.valorant-api.com/maps/7eaecc1b-4337-bbf6-6ab9-04b8f06b3319/displayicon.png')">
-                                            <img src="https://media.valorant-api.com/maps/7eaecc1b-4337-bbf6-6ab9-04b8f06b3319/displayicon.png" alt="Ascent">
-                                            <span>Ascent</span>
-                                        </div>
-                                        <div class="map-option" data-value="Bind" onclick="selectAdvMap('Bind', 'Bind', 'https://media.valorant-api.com/maps/2c9d57ec-4431-9c5e-2939-8f9ef6dd5cba/displayicon.png')">
-                                            <img src="https://media.valorant-api.com/maps/2c9d57ec-4431-9c5e-2939-8f9ef6dd5cba/displayicon.png" alt="Bind">
-                                            <span>Bind</span>
-                                        </div>
-                                        <div class="map-option" data-value="Haven" onclick="selectAdvMap('Haven', 'Haven', 'https://media.valorant-api.com/maps/2bee0dc9-4ffe-519b-1cbd-7fbe763a6047/displayicon.png')">
-                                            <img src="https://media.valorant-api.com/maps/2bee0dc9-4ffe-519b-1cbd-7fbe763a6047/displayicon.png" alt="Haven">
-                                            <span>Haven</span>
-                                        </div>
-                                        <div class="map-option" data-value="Split" onclick="selectAdvMap('Split', 'Split', 'https://media.valorant-api.com/maps/d960549e-485c-e861-8d71-aa9d1aed12a2/displayicon.png')">
-                                            <img src="https://media.valorant-api.com/maps/d960549e-485c-e861-8d71-aa9d1aed12a2/displayicon.png" alt="Split">
-                                            <span>Split</span>
-                                        </div>
-                                        <div class="map-option" data-value="Icebox" onclick="selectAdvMap('Icebox', 'Icebox', 'https://media.valorant-api.com/maps/e2ad5c54-4114-a870-9641-8ea21279579a/displayicon.png')">
-                                            <img src="https://media.valorant-api.com/maps/e2ad5c54-4114-a870-9641-8ea21279579a/displayicon.png" alt="Icebox">
-                                            <span>Icebox</span>
-                                        </div>
-                                        <div class="map-option" data-value="Breeze" onclick="selectAdvMap('Breeze', 'Breeze', 'https://media.valorant-api.com/maps/2fb9a4fd-47b8-4e7d-a969-74b4046ebd53/displayicon.png')">
-                                            <img src="https://media.valorant-api.com/maps/2fb9a4fd-47b8-4e7d-a969-74b4046ebd53/displayicon.png" alt="Breeze">
-                                            <span>Breeze</span>
-                                        </div>
-                                        <div class="map-option" data-value="Fracture" onclick="selectAdvMap('Fracture', 'Fracture', 'https://media.valorant-api.com/maps/b529448b-4d60-346e-e89e-00a4c527a405/displayicon.png')">
-                                            <img src="https://media.valorant-api.com/maps/b529448b-4d60-346e-e89e-00a4c527a405/displayicon.png" alt="Fracture">
-                                            <span>Fracture</span>
-                                        </div>
-                                        <div class="map-option" data-value="Pearl" onclick="selectAdvMap('Pearl', 'Pearl', 'https://media.valorant-api.com/maps/fd267378-4d1d-484f-ff52-77821ed10dc2/displayicon.png')">
-                                            <img src="https://media.valorant-api.com/maps/fd267378-4d1d-484f-ff52-77821ed10dc2/displayicon.png" alt="Pearl">
-                                            <span>Pearl</span>
-                                        </div>
-                                        <div class="map-option" data-value="Lotus" onclick="selectAdvMap('Lotus', 'Lotus', 'https://media.valorant-api.com/maps/2fe4ed3a-450a-948b-6d6b-e89a78e680a9/displayicon.png')">
-                                            <img src="https://media.valorant-api.com/maps/2fe4ed3a-450a-948b-6d6b-e89a78e680a9/displayicon.png" alt="Lotus">
-                                            <span>Lotus</span>
-                                        </div>
-                                        <div class="map-option" data-value="Sunset" onclick="selectAdvMap('Sunset', 'Sunset', 'https://media.valorant-api.com/maps/92584fbe-486a-b1b2-9faa-39b0f486b498/displayicon.png')">
-                                            <img src="https://media.valorant-api.com/maps/92584fbe-486a-b1b2-9faa-39b0f486b498/displayicon.png" alt="Sunset">
-                                            <span>Sunset</span>
-                                        </div>
-                                        <div class="map-option" data-value="Abyss" onclick="selectAdvMap('Abyss', 'Abyss', 'https://media.valorant-api.com/maps/224b0a95-48b9-f703-1bd8-67aca101a61f/displayicon.png')">
-                                            <img src="https://media.valorant-api.com/maps/224b0a95-48b9-f703-1bd8-67aca101a61f/displayicon.png" alt="Abyss">
-                                            <span>Abyss</span>
-                                        </div>
-                                    </div>
-                                    <input type="hidden" id="advMapFilter" value="">
-                                </div>
+                                <select class="filter-select" id="advMapFilter">
+                                    <option value="">전체</option>
+                                    <option value="Ascent">Ascent</option>
+                                    <option value="Bind">Bind</option>
+                                    <option value="Haven">Haven</option>
+                                    <option value="Split">Split</option>
+                                    <option value="Icebox">Icebox</option>
+                                    <option value="Breeze">Breeze</option>
+                                    <option value="Fracture">Fracture</option>
+                                    <option value="Pearl">Pearl</option>
+                                    <option value="Lotus">Lotus</option>
+                                    <option value="Sunset">Sunset</option>
+                                    <option value="Abyss">Abyss</option>
+                                </select>
                             </div>
                         </div>
 
@@ -1965,9 +1941,9 @@ document.addEventListener('click', (e) => {
 });
 
 
-// ===== 맵 필터 드롭다운 =====
-function toggleAdvMapDropdown() {
-    const dropdown = document.getElementById('advMapDropdown');
+// ===== 서버 필터 드롭다운 =====
+function toggleAdvServerDropdown() {
+    const dropdown = document.getElementById('advServerDropdown');
     
     // 다른 드롭다운들 닫기
     const rankDropdown = document.getElementById('rankDropdown');
@@ -1978,22 +1954,22 @@ function toggleAdvMapDropdown() {
     dropdown.classList.toggle('show');
 }
 
-function selectAdvMap(value, text, imageUrl) {
+function selectAdvServer(value, text, flagUrl) {
     // hidden input 업데이트
-    document.getElementById('advMapFilter').value = value;
+    document.getElementById('advServerFilter').value = value;
     
     // 디스플레이 업데이트
-    const display = document.getElementById('advMapDisplay');
-    const displayText = document.getElementById('advMapDisplayText');
+    const display = document.getElementById('advServerDisplay');
+    const displayText = document.getElementById('advServerDisplayText');
     
     // 기존 이미지 제거
     const existingImg = display.querySelector('img');
     if (existingImg) existingImg.remove();
     
-    // 새 이미지 추가
-    if (imageUrl) {
+    // 새 국기 이미지 추가
+    if (flagUrl) {
         const img = document.createElement('img');
-        img.src = imageUrl;
+        img.src = flagUrl;
         img.alt = text;
         display.insertBefore(img, displayText);
     }
@@ -2001,21 +1977,21 @@ function selectAdvMap(value, text, imageUrl) {
     displayText.textContent = text;
     
     // selected 클래스 업데이트
-    const allOptions = document.querySelectorAll('#advMapDropdown .map-option');
+    const allOptions = document.querySelectorAll('#advServerDropdown .server-option');
     allOptions.forEach(opt => opt.classList.remove('selected'));
-    const selected = document.querySelector(`#advMapDropdown [data-value="${value}"]`);
+    const selected = document.querySelector(`#advServerDropdown [data-value="${value}"]`);
     if (selected) selected.classList.add('selected');
     
     // 드롭다운 닫기
-    document.getElementById('advMapDropdown').classList.remove('show');
+    document.getElementById('advServerDropdown').classList.remove('show');
 }
 
-// 외부 클릭시 맵 드롭다운 닫기
+// 외부 클릭시 서버 드롭다운 닫기
 document.addEventListener('click', (e) => {
-    const mapWrapper = document.querySelector('.map-filter-wrapper');
-    const mapDropdown = document.getElementById('advMapDropdown');
-    if (mapWrapper && mapDropdown && !mapWrapper.contains(e.target)) {
-        mapDropdown.classList.remove('show');
+    const serverWrapper = document.querySelector('.server-filter-wrapper');
+    const serverDropdown = document.getElementById('advServerDropdown');
+    if (serverWrapper && serverDropdown && !serverWrapper.contains(e.target)) {
+        serverDropdown.classList.remove('show');
     }
 });
 
@@ -2065,12 +2041,13 @@ function resetAdvancedFilters() {
     document.getElementById('advServerFilter').value = '';
     document.getElementById('advMapFilter').value = '';
     
-    // 맵 디스플레이 초기화
-    const advMapDisplay = document.getElementById('advMapDisplay');
-    const advMapText = document.getElementById('advMapDisplayText');
-    const mapImg = advMapDisplay?.querySelector('img');
-    if (mapImg) mapImg.remove();
-    if (advMapText) advMapText.textContent = '전체';
+    // 서버 디스플레이 초기화
+    const advServerDisplay = document.getElementById('advServerDisplay');
+    const advServerText = document.getElementById('advServerDisplayText');
+    const serverImg = advServerDisplay?.querySelector('img');
+    if (serverImg) serverImg.remove();
+    if (advServerText) advServerText.textContent = '전체';
+
     
     // 고급 티어 디스플레이 초기화
     const advTierDisplay = document.getElementById('advTierDisplay');
