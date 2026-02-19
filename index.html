@@ -715,6 +715,7 @@ body {
 .rank-filter-wrapper {
     position: relative;
     min-width: 180px;
+    z-index: 100;
 }
 
 .rank-select-display {
@@ -755,7 +756,7 @@ body {
     margin-top: 4px;
     max-height: 300px;
     overflow-y: auto;
-    z-index: 1000;
+    z-index: 2000;
     display: none;
     box-shadow: 0 4px 12px rgba(0,0,0,0.5);
 }
@@ -1399,17 +1400,41 @@ body {
                                         <div class="rank-option" data-value="" onclick="selectAdvTier('', '전체', null)">
                                             <span>전체</span>
                                         </div>
-                                        <div class="rank-option" data-value="6" onclick="selectAdvTier('6', 'Diamond', 'https://trackercdn.com/cdn/tracker.gg/valorant/icons/tiersv2/18.png')">
+                                        <div class="rank-option" data-value="6-1" onclick="selectAdvTier('6-1', 'Diamond I', 'https://trackercdn.com/cdn/tracker.gg/valorant/icons/tiersv2/18.png')">
                                             <img src="https://trackercdn.com/cdn/tracker.gg/valorant/icons/tiersv2/18.png" alt="Diamond">
-                                            <span>Diamond</span>
+                                            <span>Diamond I</span>
                                         </div>
-                                        <div class="rank-option" data-value="7" onclick="selectAdvTier('7', 'Ascendant', 'https://trackercdn.com/cdn/tracker.gg/valorant/icons/tiersv2/21.png')">
+                                        <div class="rank-option" data-value="6-2" onclick="selectAdvTier('6-2', 'Diamond II', 'https://trackercdn.com/cdn/tracker.gg/valorant/icons/tiersv2/19.png')">
+                                            <img src="https://trackercdn.com/cdn/tracker.gg/valorant/icons/tiersv2/19.png" alt="Diamond">
+                                            <span>Diamond II</span>
+                                        </div>
+                                        <div class="rank-option" data-value="6-3" onclick="selectAdvTier('6-3', 'Diamond III', 'https://trackercdn.com/cdn/tracker.gg/valorant/icons/tiersv2/20.png')">
+                                            <img src="https://trackercdn.com/cdn/tracker.gg/valorant/icons/tiersv2/20.png" alt="Diamond">
+                                            <span>Diamond III</span>
+                                        </div>
+                                        <div class="rank-option" data-value="7-1" onclick="selectAdvTier('7-1', 'Ascendant I', 'https://trackercdn.com/cdn/tracker.gg/valorant/icons/tiersv2/21.png')">
                                             <img src="https://trackercdn.com/cdn/tracker.gg/valorant/icons/tiersv2/21.png" alt="Ascendant">
-                                            <span>Ascendant</span>
+                                            <span>Ascendant I</span>
                                         </div>
-                                        <div class="rank-option" data-value="8" onclick="selectAdvTier('8', 'Immortal', 'https://trackercdn.com/cdn/tracker.gg/valorant/icons/tiersv2/24.png')">
+                                        <div class="rank-option" data-value="7-2" onclick="selectAdvTier('7-2', 'Ascendant II', 'https://trackercdn.com/cdn/tracker.gg/valorant/icons/tiersv2/22.png')">
+                                            <img src="https://trackercdn.com/cdn/tracker.gg/valorant/icons/tiersv2/22.png" alt="Ascendant">
+                                            <span>Ascendant II</span>
+                                        </div>
+                                        <div class="rank-option" data-value="7-3" onclick="selectAdvTier('7-3', 'Ascendant III', 'https://trackercdn.com/cdn/tracker.gg/valorant/icons/tiersv2/23.png')">
+                                            <img src="https://trackercdn.com/cdn/tracker.gg/valorant/icons/tiersv2/23.png" alt="Ascendant">
+                                            <span>Ascendant III</span>
+                                        </div>
+                                        <div class="rank-option" data-value="8-1" onclick="selectAdvTier('8-1', 'Immortal I', 'https://trackercdn.com/cdn/tracker.gg/valorant/icons/tiersv2/24.png')">
                                             <img src="https://trackercdn.com/cdn/tracker.gg/valorant/icons/tiersv2/24.png" alt="Immortal">
-                                            <span>Immortal</span>
+                                            <span>Immortal I</span>
+                                        </div>
+                                        <div class="rank-option" data-value="8-2" onclick="selectAdvTier('8-2', 'Immortal II', 'https://trackercdn.com/cdn/tracker.gg/valorant/icons/tiersv2/25.png')">
+                                            <img src="https://trackercdn.com/cdn/tracker.gg/valorant/icons/tiersv2/25.png" alt="Immortal">
+                                            <span>Immortal II</span>
+                                        </div>
+                                        <div class="rank-option" data-value="8-3" onclick="selectAdvTier('8-3', 'Immortal III', 'https://trackercdn.com/cdn/tracker.gg/valorant/icons/tiersv2/26.png')">
+                                            <img src="https://trackercdn.com/cdn/tracker.gg/valorant/icons/tiersv2/26.png" alt="Immortal">
+                                            <span>Immortal III</span>
                                         </div>
                                         <div class="rank-option" data-value="9" onclick="selectAdvTier('9', 'Radiant', 'https://trackercdn.com/cdn/tracker.gg/valorant/icons/tiersv2/27.png')">
                                             <img src="https://trackercdn.com/cdn/tracker.gg/valorant/icons/tiersv2/27.png" alt="Radiant">
@@ -2024,12 +2049,13 @@ function selectRank(value, text, iconUrl) {
     filterScrims();
 }
 
-// 드롭다운 외부 클릭시 닫기
+// 드롭다운 외부 클릭시 닫기 (랭크 필터)
 document.addEventListener('click', (e) => {
-    const wrapper = document.querySelector('.rank-filter-wrapper');
-    const dropdown = document.getElementById('rankDropdown');
-    if (wrapper && dropdown && !wrapper.contains(e.target)) {
-        dropdown.classList.remove('show');
+    // 기본 랭크 필터
+    const rankWrapper = document.getElementById('rankSelectDisplay')?.parentElement;
+    const rankDropdown = document.getElementById('rankDropdown');
+    if (rankWrapper && rankDropdown && !rankWrapper.contains(e.target)) {
+        rankDropdown.classList.remove('show');
     }
 });
 
