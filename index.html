@@ -1471,20 +1471,61 @@ body {
                             </div>
                             <div class="filter-item">
                                 <label class="filter-label">맵</label>
-                                <select class="filter-select" id="advMapFilter">
-                                    <option value="">전체</option>
-                                    <option value="Ascent">Ascent</option>
-                                    <option value="Bind">Bind</option>
-                                    <option value="Haven">Haven</option>
-                                    <option value="Split">Split</option>
-                                    <option value="Icebox">Icebox</option>
-                                    <option value="Breeze">Breeze</option>
-                                    <option value="Fracture">Fracture</option>
-                                    <option value="Pearl">Pearl</option>
-                                    <option value="Lotus">Lotus</option>
-                                    <option value="Sunset">Sunset</option>
-                                    <option value="Abyss">Abyss</option>
-                                </select>
+                                <div class="map-filter-wrapper">
+                                    <div class="map-select-display" id="advMapDisplay" onclick="toggleAdvMapDropdown()">
+                                        <span id="advMapDisplayText">전체</span>
+                                    </div>
+                                    <div class="map-dropdown" id="advMapDropdown">
+                                        <div class="map-option" data-value="" onclick="selectAdvMap('', '전체', null)">
+                                            <span>전체</span>
+                                        </div>
+                                        <div class="map-option" data-value="Ascent" onclick="selectAdvMap('Ascent', 'Ascent', 'https://static.wikia.nocookie.net/valorant/images/e/e7/Ascent_minimap.png')">
+                                            <img src="https://static.wikia.nocookie.net/valorant/images/e/e7/Ascent_minimap.png" alt="Ascent">
+                                            <span>Ascent</span>
+                                        </div>
+                                        <div class="map-option" data-value="Bind" onclick="selectAdvMap('Bind', 'Bind', 'https://static.wikia.nocookie.net/valorant/images/2/23/Bind_minimap.png')">
+                                            <img src="https://static.wikia.nocookie.net/valorant/images/2/23/Bind_minimap.png" alt="Bind">
+                                            <span>Bind</span>
+                                        </div>
+                                        <div class="map-option" data-value="Haven" onclick="selectAdvMap('Haven', 'Haven', 'https://static.wikia.nocookie.net/valorant/images/7/70/Haven_minimap.png')">
+                                            <img src="https://static.wikia.nocookie.net/valorant/images/7/70/Haven_minimap.png" alt="Haven">
+                                            <span>Haven</span>
+                                        </div>
+                                        <div class="map-option" data-value="Split" onclick="selectAdvMap('Split', 'Split', 'https://static.wikia.nocookie.net/valorant/images/d/d6/Split_minimap.png')">
+                                            <img src="https://static.wikia.nocookie.net/valorant/images/d/d6/Split_minimap.png" alt="Split">
+                                            <span>Split</span>
+                                        </div>
+                                        <div class="map-option" data-value="Icebox" onclick="selectAdvMap('Icebox', 'Icebox', 'https://static.wikia.nocookie.net/valorant/images/3/35/Icebox_minimap.png')">
+                                            <img src="https://static.wikia.nocookie.net/valorant/images/3/35/Icebox_minimap.png" alt="Icebox">
+                                            <span>Icebox</span>
+                                        </div>
+                                        <div class="map-option" data-value="Breeze" onclick="selectAdvMap('Breeze', 'Breeze', 'https://static.wikia.nocookie.net/valorant/images/1/10/Breeze_minimap.png')">
+                                            <img src="https://static.wikia.nocookie.net/valorant/images/1/10/Breeze_minimap.png" alt="Breeze">
+                                            <span>Breeze</span>
+                                        </div>
+                                        <div class="map-option" data-value="Fracture" onclick="selectAdvMap('Fracture', 'Fracture', 'https://static.wikia.nocookie.net/valorant/images/f/fc/Fracture_minimap.png')">
+                                            <img src="https://static.wikia.nocookie.net/valorant/images/f/fc/Fracture_minimap.png" alt="Fracture">
+                                            <span>Fracture</span>
+                                        </div>
+                                        <div class="map-option" data-value="Pearl" onclick="selectAdvMap('Pearl', 'Pearl', 'https://static.wikia.nocookie.net/valorant/images/a/af/Pearl_minimap.png')">
+                                            <img src="https://static.wikia.nocookie.net/valorant/images/a/af/Pearl_minimap.png" alt="Pearl">
+                                            <span>Pearl</span>
+                                        </div>
+                                        <div class="map-option" data-value="Lotus" onclick="selectAdvMap('Lotus', 'Lotus', 'https://static.wikia.nocookie.net/valorant/images/d/d0/Lotus_minimap.png')">
+                                            <img src="https://static.wikia.nocookie.net/valorant/images/d/d0/Lotus_minimap.png" alt="Lotus">
+                                            <span>Lotus</span>
+                                        </div>
+                                        <div class="map-option" data-value="Sunset" onclick="selectAdvMap('Sunset', 'Sunset', 'https://static.wikia.nocookie.net/valorant/images/5/5c/Sunset_minimap.png')">
+                                            <img src="https://static.wikia.nocookie.net/valorant/images/5/5c/Sunset_minimap.png" alt="Sunset">
+                                            <span>Sunset</span>
+                                        </div>
+                                        <div class="map-option" data-value="Abyss" onclick="selectAdvMap('Abyss', 'Abyss', 'https://static.wikia.nocookie.net/valorant/images/b/bd/Abyss_minimap.png')">
+                                            <img src="https://static.wikia.nocookie.net/valorant/images/b/bd/Abyss_minimap.png" alt="Abyss">
+                                            <span>Abyss</span>
+                                        </div>
+                                    </div>
+                                    <input type="hidden" id="advMapFilter" value="">
+                                </div>
                             </div>
                         </div>
 
@@ -1923,6 +1964,61 @@ document.addEventListener('click', (e) => {
     }
 });
 
+
+// ===== 맵 필터 드롭다운 =====
+function toggleAdvMapDropdown() {
+    const dropdown = document.getElementById('advMapDropdown');
+    
+    // 다른 드롭다운들 닫기
+    const rankDropdown = document.getElementById('rankDropdown');
+    const advTierDropdown = document.getElementById('advTierDropdown');
+    if (rankDropdown) rankDropdown.classList.remove('show');
+    if (advTierDropdown) advTierDropdown.classList.remove('show');
+    
+    dropdown.classList.toggle('show');
+}
+
+function selectAdvMap(value, text, imageUrl) {
+    // hidden input 업데이트
+    document.getElementById('advMapFilter').value = value;
+    
+    // 디스플레이 업데이트
+    const display = document.getElementById('advMapDisplay');
+    const displayText = document.getElementById('advMapDisplayText');
+    
+    // 기존 이미지 제거
+    const existingImg = display.querySelector('img');
+    if (existingImg) existingImg.remove();
+    
+    // 새 이미지 추가
+    if (imageUrl) {
+        const img = document.createElement('img');
+        img.src = imageUrl;
+        img.alt = text;
+        display.insertBefore(img, displayText);
+    }
+    
+    displayText.textContent = text;
+    
+    // selected 클래스 업데이트
+    const allOptions = document.querySelectorAll('#advMapDropdown .map-option');
+    allOptions.forEach(opt => opt.classList.remove('selected'));
+    const selected = document.querySelector(`#advMapDropdown [data-value="${value}"]`);
+    if (selected) selected.classList.add('selected');
+    
+    // 드롭다운 닫기
+    document.getElementById('advMapDropdown').classList.remove('show');
+}
+
+// 외부 클릭시 맵 드롭다운 닫기
+document.addEventListener('click', (e) => {
+    const mapWrapper = document.querySelector('.map-filter-wrapper');
+    const mapDropdown = document.getElementById('advMapDropdown');
+    if (mapWrapper && mapDropdown && !mapWrapper.contains(e.target)) {
+        mapDropdown.classList.remove('show');
+    }
+});
+
 // ===== 고급 필터 시스템 =====
 let advancedFilters = {
     search: '',
@@ -1968,6 +2064,13 @@ function resetAdvancedFilters() {
     document.getElementById('advTimeFilter').value = '';
     document.getElementById('advServerFilter').value = '';
     document.getElementById('advMapFilter').value = '';
+    
+    // 맵 디스플레이 초기화
+    const advMapDisplay = document.getElementById('advMapDisplay');
+    const advMapText = document.getElementById('advMapDisplayText');
+    const mapImg = advMapDisplay?.querySelector('img');
+    if (mapImg) mapImg.remove();
+    if (advMapText) advMapText.textContent = '전체';
     
     // 고급 티어 디스플레이 초기화
     const advTierDisplay = document.getElementById('advTierDisplay');
