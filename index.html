@@ -1487,12 +1487,7 @@ body {
                                 </select>
                             </div>
                         </div>
-                        <div class="filter-checkbox-group" style="margin-top: 15px;">
-                            <div class="filter-checkbox">
-                                <input type="checkbox" id="advCoachFilter">
-                                <label for="advCoachFilter">코치 있음</label>
-                            </div>
-                        </div>
+
                         <div class="filter-actions">
                             <button class="btn-filter-apply" onclick="applyAllFilters()">필터 적용</button>
                             <button class="btn-filter-reset" onclick="resetAdvancedFilters()">초기화</button>
@@ -1934,8 +1929,7 @@ let advancedFilters = {
     tier: '',
     time: '',
     server: '',
-    map: '',
-    coachOnly: false
+    map: ''
 };
 
 function toggleAdvancedFilter() {
@@ -1961,7 +1955,6 @@ function applyAllFilters() {
     advancedFilters.time = document.getElementById('advTimeFilter').value;
     advancedFilters.server = document.getElementById('advServerFilter').value;
     advancedFilters.map = document.getElementById('advMapFilter').value;
-    advancedFilters.coachOnly = document.getElementById('advCoachFilter').checked;
     
     filterScrims();
 }
@@ -1975,7 +1968,6 @@ function resetAdvancedFilters() {
     document.getElementById('advTimeFilter').value = '';
     document.getElementById('advServerFilter').value = '';
     document.getElementById('advMapFilter').value = '';
-    document.getElementById('advCoachFilter').checked = false;
     
     // 고급 티어 디스플레이 초기화
     const advTierDisplay = document.getElementById('advTierDisplay');
@@ -2001,8 +1993,7 @@ function resetAdvancedFilters() {
         tier: '',
         time: '',
         server: '',
-        map: '',
-        coachOnly: false
+        map: ''
     };
     
     filterScrims();
