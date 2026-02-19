@@ -1391,13 +1391,33 @@ body {
                         <div class="filter-grid">
                             <div class="filter-item">
                                 <label class="filter-label">티어</label>
-                                <select class="filter-select" id="advTierFilter">
-                                    <option value="">전체</option>
-                                    <option value="6">Diamond</option>
-                                    <option value="7">Ascendant</option>
-                                    <option value="8">Immortal</option>
-                                    <option value="9">Radiant</option>
-                                </select>
+                                <div class="rank-filter-wrapper" style="min-width:auto;">
+                                    <div class="rank-select-display" id="advTierDisplay" onclick="toggleAdvTierDropdown()">
+                                        <span id="advTierDisplayText">전체</span>
+                                    </div>
+                                    <div class="rank-dropdown" id="advTierDropdown">
+                                        <div class="rank-option" data-value="" onclick="selectAdvTier('', '전체', null)">
+                                            <span>전체</span>
+                                        </div>
+                                        <div class="rank-option" data-value="6" onclick="selectAdvTier('6', 'Diamond', 'https://trackercdn.com/cdn/tracker.gg/valorant/icons/tiersv2/18.png')">
+                                            <img src="https://trackercdn.com/cdn/tracker.gg/valorant/icons/tiersv2/18.png" alt="Diamond">
+                                            <span>Diamond</span>
+                                        </div>
+                                        <div class="rank-option" data-value="7" onclick="selectAdvTier('7', 'Ascendant', 'https://trackercdn.com/cdn/tracker.gg/valorant/icons/tiersv2/21.png')">
+                                            <img src="https://trackercdn.com/cdn/tracker.gg/valorant/icons/tiersv2/21.png" alt="Ascendant">
+                                            <span>Ascendant</span>
+                                        </div>
+                                        <div class="rank-option" data-value="8" onclick="selectAdvTier('8', 'Immortal', 'https://trackercdn.com/cdn/tracker.gg/valorant/icons/tiersv2/24.png')">
+                                            <img src="https://trackercdn.com/cdn/tracker.gg/valorant/icons/tiersv2/24.png" alt="Immortal">
+                                            <span>Immortal</span>
+                                        </div>
+                                        <div class="rank-option" data-value="9" onclick="selectAdvTier('9', 'Radiant', 'https://trackercdn.com/cdn/tracker.gg/valorant/icons/tiersv2/27.png')">
+                                            <img src="https://trackercdn.com/cdn/tracker.gg/valorant/icons/tiersv2/27.png" alt="Radiant">
+                                            <span>Radiant</span>
+                                        </div>
+                                    </div>
+                                    <input type="hidden" id="advTierFilter" value="">
+                                </div>
                             </div>
                             <div class="filter-item">
                                 <label class="filter-label">시간</label>
@@ -1825,6 +1845,54 @@ function loadKovTier() {
 
 
 
+
+// ===== 고급 필터 티어 드롭다운 =====
+function toggleAdvTierDropdown() {
+    const dropdown = document.getElementById('advTierDropdown');
+    dropdown.classList.toggle('show');
+}
+
+function selectAdvTier(value, text, iconUrl) {
+    // hidden input 업데이트
+    document.getElementById('advTierFilter').value = value;
+    
+    // 디스플레이 업데이트
+    const display = document.getElementById('advTierDisplay');
+    const displayText = document.getElementById('advTierDisplayText');
+    
+    // 기존 아이콘 제거
+    const existingIcon = display.querySelector('img');
+    if (existingIcon) existingIcon.remove();
+    
+    // 새 아이콘 추가
+    if (iconUrl) {
+        const icon = document.createElement('img');
+        icon.src = iconUrl;
+        icon.alt = text;
+        display.insertBefore(icon, displayText);
+    }
+    
+    displayText.textContent = text;
+    
+    // selected 클래스 업데이트
+    const allOptions = document.querySelectorAll('#advTierDropdown .rank-option');
+    allOptions.forEach(opt => opt.classList.remove('selected'));
+    const selected = document.querySelector(`#advTierDropdown [data-value="${value}"]`);
+    if (selected) selected.classList.add('selected');
+    
+    // 드롭다운 닫기
+    document.getElementById('advTierDropdown').classList.remove('show');
+}
+
+// 드롭다운 외부 클릭시 닫기 (고급 필터용)
+document.addEventListener('click', (e) => {
+    const advTierWrapper = document.querySelector('#advTierDisplay')?.parentElement;
+    const advDropdown = document.getElementById('advTierDropdown');
+    if (advTierWrapper && advDropdown && !advTierWrapper.contains(e.target)) {
+        advDropdown.classList.remove('show');
+    }
+});
+
 // ===== 고급 필터 시스템 =====
 let advancedFilters = {
     search: '',
@@ -1871,9 +1939,23 @@ function resetAdvancedFilters() {
     document.getElementById('advGcFilter').checked = false;
     document.getElementById('advCoachFilter').checked = false;
     
+    // 고급 티어 디스플레이 초기화
+    const advTierDisplay = document.getElementById('advTierDisplay');
+    const advTierText = document.getElementById('advTierDisplayText');
+    const existingIcon = advTierDisplay?.querySelector('img');
+    if (existingIcon) existingIcon.remove();
+    if (advTierText) advTierText.textContent = '전체';
+    
     // 기존 필터도 초기화
     document.getElementById('rankFilter').value = '';
     document.getElementById('mapFilter').value = '';
+    
+    // 랭크 필터 디스플레이 초기화
+    const rankDisplay = document.getElementById('rankSelectDisplay');
+    const rankText = document.getElementById('rankDisplayText');
+    const rankIcon = rankDisplay?.querySelector('img');
+    if (rankIcon) rankIcon.remove();
+    if (rankText) rankText.textContent = '전체';
     
     // 필터 객체 초기화
     advancedFilters = {
