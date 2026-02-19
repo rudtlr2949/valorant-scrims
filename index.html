@@ -1466,6 +1466,7 @@ body {
                                     <option value="">전체</option>
                                     <option value="kr">KR</option>
                                     <option value="jp">JP</option>
+                                    <option value="cn">CN</option>
                                 </select>
                             </div>
                             <div class="filter-item">
@@ -1488,12 +1489,8 @@ body {
                         </div>
                         <div class="filter-checkbox-group" style="margin-top: 15px;">
                             <div class="filter-checkbox">
-                                <input type="checkbox" id="advGcFilter">
-                                <label for="advGcFilter">GC 선택가능만</label>
-                            </div>
-                            <div class="filter-checkbox">
                                 <input type="checkbox" id="advCoachFilter">
-                                <label for="advCoachFilter">코치 있음만</label>
+                                <label for="advCoachFilter">코치 있음</label>
                             </div>
                         </div>
                         <div class="filter-actions">
@@ -1938,7 +1935,6 @@ let advancedFilters = {
     time: '',
     server: '',
     map: '',
-    gcOnly: false,
     coachOnly: false
 };
 
@@ -1965,7 +1961,6 @@ function applyAllFilters() {
     advancedFilters.time = document.getElementById('advTimeFilter').value;
     advancedFilters.server = document.getElementById('advServerFilter').value;
     advancedFilters.map = document.getElementById('advMapFilter').value;
-    advancedFilters.gcOnly = document.getElementById('advGcFilter').checked;
     advancedFilters.coachOnly = document.getElementById('advCoachFilter').checked;
     
     filterScrims();
@@ -1980,7 +1975,6 @@ function resetAdvancedFilters() {
     document.getElementById('advTimeFilter').value = '';
     document.getElementById('advServerFilter').value = '';
     document.getElementById('advMapFilter').value = '';
-    document.getElementById('advGcFilter').checked = false;
     document.getElementById('advCoachFilter').checked = false;
     
     // 고급 티어 디스플레이 초기화
@@ -2008,7 +2002,6 @@ function resetAdvancedFilters() {
         time: '',
         server: '',
         map: '',
-        gcOnly: false,
         coachOnly: false
     };
     
