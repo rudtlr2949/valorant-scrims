@@ -1874,6 +1874,13 @@ function loadKovTier() {
 // ===== 고급 필터 티어 드롭다운 =====
 function toggleAdvTierDropdown() {
     const dropdown = document.getElementById('advTierDropdown');
+    
+    // 고급 티어 드롭다운 열 때 기본 랭크 드롭다운 닫기
+    const rankDropdown = document.getElementById('rankDropdown');
+    if (rankDropdown) {
+        rankDropdown.classList.remove('show');
+    }
+    
     dropdown.classList.toggle('show');
 }
 
@@ -1932,6 +1939,12 @@ let advancedFilters = {
 function toggleAdvancedFilter() {
     const panel = document.getElementById('advancedFilterPanel');
     const btn = document.getElementById('filterSettingsBtn');
+    
+    // 고급 필터 열 때 기본 랭크 드롭다운 닫기
+    const rankDropdown = document.getElementById('rankDropdown');
+    if (rankDropdown) {
+        rankDropdown.classList.remove('show');
+    }
     
     panel.classList.toggle('show');
     btn.classList.toggle('active');
@@ -2010,6 +2023,21 @@ let selectedRankIcon = null;
 
 function toggleRankDropdown() {
     const dropdown = document.getElementById('rankDropdown');
+    
+    // 랭크 드롭다운 열 때 고급 필터 닫기
+    const advPanel = document.getElementById('advancedFilterPanel');
+    const advBtn = document.getElementById('filterSettingsBtn');
+    if (advPanel && advPanel.classList.contains('show')) {
+        advPanel.classList.remove('show');
+        advBtn.classList.remove('active');
+    }
+    
+    // 고급 티어 드롭다운 닫기
+    const advTierDropdown = document.getElementById('advTierDropdown');
+    if (advTierDropdown) {
+        advTierDropdown.classList.remove('show');
+    }
+    
     dropdown.classList.toggle('show');
 }
 
