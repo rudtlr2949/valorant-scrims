@@ -598,6 +598,7 @@ body {
     animation: slideDown 0.3s ease;
     position: relative;
     z-index: 500;
+    overflow: visible;
 }
 
 .advanced-filter-panel.show {
@@ -619,6 +620,7 @@ body {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 15px;
+    overflow: visible;
 }
 
 .filter-item {
@@ -758,9 +760,9 @@ body {
     border: 1px solid rgba(255,255,255,0.2);
     border-radius: 8px;
     margin-top: 4px;
-    max-height: 300px;
+    max-height: 400px;
     overflow-y: auto;
-    z-index: 2000;
+    z-index: 3000;
     display: none;
     box-shadow: 0 4px 12px rgba(0,0,0,0.5);
 }
