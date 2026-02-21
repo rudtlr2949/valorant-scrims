@@ -62,8 +62,9 @@ body {
 
 .user-info {
     display: flex;
+    flex-direction: row;
     align-items: center;
-    gap: 15px;
+    gap: 12px;
     user-select: none;
     -webkit-user-drag: none;
 }
@@ -71,6 +72,14 @@ body {
 .user-info * {
     user-select: none;
     -webkit-user-drag: none;
+}
+
+.user-info img {
+    flex-shrink: 0;
+}
+
+.user-info .user-name {
+    flex-shrink: 0;
 }
 
 .user-name {
@@ -1835,17 +1844,24 @@ function updateUserUI() {
             : '<span style="margin-right:8px;font-size:1.2rem;">👤</span>';
         
         // 기존 유저 정보 제거 (톱니바퀴 제외)
-        const existingInfo = userInfo.querySelectorAll('img, .user-name');
+        const existingInfo = userInfo.querySelectorAll('img:not(.user-menu-button img), .user-name');
         existingInfo.forEach(el => el.remove());
         
-        // 톱니바퀴 앞에 추가
+        // 로그인 버튼 뒤에 추가 (톱니바퀴 앞에)
         const tempDiv = document.createElement('div');
-        tempDiv.innerHTML = avatarHtml + '<span class="user-name" style="font-weight:600;margin-right:12px;">' + state.currentUser.name + '</span>';
+        tempDiv.style.display = 'flex';
+        tempDiv.style.alignItems = 'center';
+        tempDiv.style.gap = '12px';
+        tempDiv.innerHTML = avatarHtml + '<span class="user-name" style="font-weight:600;">' + state.currentUser.name + '</span>';
         
-        // 첫 번째 자식(로그인 버튼 또는 톱니바퀴)  앞에 삽입
-        const firstChild = userInfo.firstChild;
-        while (tempDiv.firstChild) {
-            userInfo.insertBefore(tempDiv.firstChild, firstChild);
+        // userMenuWrapper 찾기
+        const menuWrapper = userInfo.querySelector('#userMenuWrapper');
+        
+        // 톱니바퀴 앞에 삽입
+        if (menuWrapper) {
+            userInfo.insertBefore(tempDiv, menuWrapper);
+        } else {
+            userInfo.appendChild(tempDiv);
         }
         
         updateSidebar();
