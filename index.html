@@ -1818,11 +1818,32 @@ function checkDiscordLogin() {
 
 function updateUserUI() {
     const userInfo = document.getElementById('userInfo');
+    const loginBtn = document.getElementById('loginBtn');
+    const userMenuWrapper = document.getElementById('userMenuWrapper');
+    
     if (state.currentUser) {
+        // 로그인 버튼 숨기기
+        if (loginBtn) loginBtn.style.display = 'none';
+        
+        // 아바타와 이름 업데이트
         const avatarHtml = state.currentUser.avatar 
             ? '<img src="' + state.currentUser.avatar + '" style="width:32px;height:32px;border-radius:50%;border:2px solid var(--val-red);margin-right:8px;vertical-align:middle;">'
             : '<span style="margin-right:8px;font-size:1.2rem;">👤</span>';
-        userInfo.innerHTML = avatarHtml + '<span class="user-name" style="font-weight:600;">' + state.currentUser.name + '</span>';
+        
+        // 기존 유저 정보 요소 찾기 또는 생성
+        let userNameSpan = userInfo.querySelector('.user-name');
+        let userAvatar = userInfo.querySelector('img, span');
+        
+        if (!userNameSpan) {
+            userInfo.innerHTML = avatarHtml + '<span class="user-name" style="font-weight:600;">' + state.currentUser.name + '</span>';
+        } else {
+            if (userAvatar) userAvatar.outerHTML = avatarHtml;
+            userNameSpan.textContent = state.currentUser.name;
+        }
+        
+        // 톱니바퀴 메뉴 표시
+        if (userMenuWrapper) userMenuWrapper.style.display = 'block';
+        
         updateSidebar();
     } else {
         userInfo.innerHTML = '<button class="btn btn-primary" id="loginBtn">Discord 로그인</button>';
