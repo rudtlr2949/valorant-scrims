@@ -1821,28 +1821,39 @@ function updateUserUI() {
     const loginBtn = document.getElementById('loginBtn');
     const userMenuWrapper = document.getElementById('userMenuWrapper');
     
+    console.log('updateUserUI 호출됨!', state.currentUser);
+    console.log('userMenuWrapper:', userMenuWrapper);
+    
     if (state.currentUser) {
         // 로그인 버튼 숨기기
         if (loginBtn) loginBtn.style.display = 'none';
         
-        // 아바타와 이름 업데이트
+        // 톱니바퀴 메뉴 표시
+        if (userMenuWrapper) {
+            userMenuWrapper.style.display = 'block';
+            console.log('✅ 톱니바퀴 표시됨!');
+        } else {
+            console.error('❌ userMenuWrapper 없음!');
+        }
+        
+        // 아바타와 이름은 userInfo의 첫 번째 자식으로 추가 (톱니바퀴 앞에)
         const avatarHtml = state.currentUser.avatar 
             ? '<img src="' + state.currentUser.avatar + '" style="width:32px;height:32px;border-radius:50%;border:2px solid var(--val-red);margin-right:8px;vertical-align:middle;">'
             : '<span style="margin-right:8px;font-size:1.2rem;">👤</span>';
         
-        // 기존 유저 정보 요소 찾기 또는 생성
-        let userNameSpan = userInfo.querySelector('.user-name');
-        let userAvatar = userInfo.querySelector('img, span');
+        // 기존 유저 정보 제거 (톱니바퀴 제외)
+        const existingInfo = userInfo.querySelectorAll('img, .user-name');
+        existingInfo.forEach(el => el.remove());
         
-        if (!userNameSpan) {
-            userInfo.innerHTML = avatarHtml + '<span class="user-name" style="font-weight:600;">' + state.currentUser.name + '</span>';
-        } else {
-            if (userAvatar) userAvatar.outerHTML = avatarHtml;
-            userNameSpan.textContent = state.currentUser.name;
+        // 톱니바퀴 앞에 추가
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = avatarHtml + '<span class="user-name" style="font-weight:600;margin-right:12px;">' + state.currentUser.name + '</span>';
+        
+        // 첫 번째 자식(로그인 버튼 또는 톱니바퀴)  앞에 삽입
+        const firstChild = userInfo.firstChild;
+        while (tempDiv.firstChild) {
+            userInfo.insertBefore(tempDiv.firstChild, firstChild);
         }
-        
-        // 톱니바퀴 메뉴 표시
-        if (userMenuWrapper) userMenuWrapper.style.display = 'block';
         
         updateSidebar();
     } else {
