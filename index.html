@@ -1328,19 +1328,6 @@ body {
                             </svg>
                             <span>설정</span>
                         </div>
-                        <div class="user-menu-item" onclick="openLanguage()">
-                            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M12.87,15.07L10.33,12.56L10.36,12.53C12.1,10.59 13.34,8.36 14.07,6H17V4H10V2H8V4H1V6H12.17C11.5,7.92 10.44,9.75 9,11.35C8.07,10.32 7.3,9.19 6.69,8H4.69C5.42,9.63 6.42,11.17 7.67,12.56L2.58,17.58L4,19L9,14L12.11,17.11L12.87,15.07M18.5,10H16.5L12,22H14L15.12,19H19.87L21,22H23L18.5,10M15.88,17L17.5,12.67L19.12,17H15.88Z"/>
-                            </svg>
-                            <span>언어</span>
-                        </div>
-                        <div class="user-menu-divider"></div>
-                        <div class="user-menu-item danger" onclick="logout()">
-                            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M16,17V14H9V10H16V7L21,12L16,17M14,2A2,2 0 0,1 16,4V6H14V4H5V20H14V18H16V20A2,2 0 0,1 14,22H5A2,2 0 0,1 3,20V4A2,2 0 0,1 5,2H14Z"/>
-                            </svg>
-                            <span>로그아웃</span>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -1992,20 +1979,6 @@ function toggleUserMenu() {
 
 function openSettings() {
     alert('설정 기능은 곧 추가될 예정입니다!');
-    document.getElementById('userMenuDropdown').classList.remove('show');
-}
-
-function openLanguage() {
-    alert('언어 설정 기능은 곧 추가될 예정입니다!');
-    document.getElementById('userMenuDropdown').classList.remove('show');
-}
-
-function logout() {
-    if (confirm('로그아웃 하시겠습니까?')) {
-        localStorage.removeItem('discord_token');
-        localStorage.removeItem('user_data');
-        window.location.reload();
-    }
     document.getElementById('userMenuDropdown').classList.remove('show');
 }
 
