@@ -1483,7 +1483,7 @@ body {
         <header class="header">
             <div class="logo">
                 <h1>VALORANT SCRIMS</h1>
-                <p class="tagline">팀 스크림 매칭 플랫폼</p>
+                <p class="tagline" data-i18n="site_subtitle">팀 스크림 매칭 플랫폼</p>
             </div>
             <div class="user-info" id="userInfo">
                 <button class="btn btn-primary" id="loginBtn" data-i18n="btn_login">Discord 로그인</button>
@@ -1583,7 +1583,7 @@ body {
                         </div>
                     </div>
 
-                    <button class="btn btn-secondary sidebar-logout" onclick="showLogoutConfirm()">로그아웃</button>
+                    <button class="btn btn-secondary sidebar-logout" onclick="showLogoutConfirm()" data-i18n="btn_logout">로그아웃</button>
                 </div>
             </aside>
 
@@ -1606,7 +1606,7 @@ body {
                     <div class="advanced-filter-panel" id="advancedFilterPanel">
                         <div class="filter-grid">
                             <div class="filter-item">
-                                <label class="filter-label">티어</label>
+                                <label class="filter-label" data-i18n="filter_tier_label">티어</label>
                                 <div class="rank-filter-wrapper" style="min-width:auto;">
                                     <div class="rank-select-display" id="advTierDisplay" onclick="toggleAdvTierDropdown()">
                                         <span id="advTierDisplayText">전체</span>
@@ -1660,7 +1660,7 @@ body {
                                 </div>
                             </div>
                             <div class="filter-item">
-                                <label class="filter-label">시간</label>
+                                <label class="filter-label" data-i18n="filter_time_label">시간</label>
                                 <select class="filter-select" id="advTimeFilter">
                                     <option value="" data-i18n="filter_all">전체</option>
                                     <option value="morning">06:00-12:00</option>
@@ -1670,7 +1670,7 @@ body {
                                 </select>
                             </div>
                             <div class="filter-item">
-                                <label class="filter-label">서버</label>
+                                <label class="filter-label" data-i18n="filter_server_label">서버</label>
                                 <select class="filter-select" id="advServerFilter">
                                     <option value="" data-i18n="filter_all">전체</option>
                                     <option value="kr">KR</option>
@@ -1679,7 +1679,7 @@ body {
                                 </select>
                             </div>
                             <div class="filter-item">
-                                <label class="filter-label">맵</label>
+                                <label class="filter-label" data-i18n="filter_map_label">맵</label>
                                 <select class="filter-select" id="advMapFilter">
                                     <option value="" data-i18n="filter_all">전체</option>
                                     <option value="Ascent">Ascent</option>
@@ -1698,7 +1698,7 @@ body {
                         </div>
 
                         <div class="filter-actions">
-                            <button class="btn-filter-apply" onclick="applyAllFilters()">필터 적용</button>
+                            <button class="btn-filter-apply" onclick="applyAllFilters()" data-i18n="btn_apply">필터 적용</button>
                             <button class="btn-filter-reset" onclick="resetAdvancedFilters()">초기화</button>
                         </div>
                     </div>
@@ -2986,7 +2986,7 @@ function handleLogout() {
     hideLogoutConfirm();
     updateUserUI();
 }
- 
+
 function handleCreateTeam(e) {
     e.preventDefault();
     if (!state.currentUser) {
