@@ -1577,7 +1577,7 @@ body {
                             <div class="riot-input-row">
                                 <input type="text" id="riotName" placeholder="닉네임" />
                                 <input type="text" id="riotTag" placeholder="#KR1" style="width:70px;flex:none;" />
-                                <button class="btn-verify" id="verifyBtn" onclick="verifyRiotAccount()">인증</button>
+                                <button class="btn-verify" id="verifyBtn" onclick="verifyRiotAccount()" data-i18n="btn_verify">인증</button>
                             </div>
                             <div class="verify-status" id="verifyStatus"></div>
                         </div>
@@ -1699,7 +1699,7 @@ body {
 
                         <div class="filter-actions">
                             <button class="btn-filter-apply" onclick="applyAllFilters()" data-i18n="btn_apply">필터 적용</button>
-                            <button class="btn-filter-reset" onclick="resetAdvancedFilters()">초기화</button>
+                            <button class="btn-filter-reset" onclick="resetAdvancedFilters()" data-i18n="btn_reset">초기화</button>
                         </div>
                     </div>
                     <div class="filter-group">
@@ -1755,7 +1755,7 @@ body {
                             </div>
                             <input type="hidden" id="rankFilter" value="">
                         </div>
-                        <button class="btn btn-secondary" id="refreshBtn">새로고침</button>
+                        <button class="btn btn-secondary" id="refreshBtn" data-i18n="btn_refresh">새로고침</button>
                     </div>
                 </div>
                 
@@ -1935,7 +1935,14 @@ const translations = {
         "select_tier": "전체",
         "select_time": "All",
         "select_server": "All",
-        "select_map": "All"
+        "select_map": "All",
+        "sidebar_profile_tag": "Discord 연동",
+        "sidebar_team_label": "팀:",
+        "sidebar_team_none": "없음",
+        "status_verified_tier": "✅ 인증됨",
+        "tier_display_all": "전체",
+        "btn_reset": "초기화",
+        "btn_refresh": "새로고침"
     },
     "en": {
         "nav_find": "Find Scrims",
@@ -1998,7 +2005,14 @@ const translations = {
         "select_tier": "All",
         "select_time": "All",
         "select_server": "All",
-        "select_map": "All"
+        "select_map": "All",
+        "sidebar_profile_tag": "Discord Verified",
+        "sidebar_team_label": "Team:",
+        "sidebar_team_none": "None",
+        "status_verified_tier": "✅ Verified",
+        "tier_display_all": "All",
+        "btn_reset": "Reset",
+        "btn_refresh": "Refresh"
     },
     "ja": {
         "nav_find": "スクリム検索",
@@ -2061,7 +2075,14 @@ const translations = {
         "select_tier": "すべて",
         "select_time": "すべて",
         "select_server": "すべて",
-        "select_map": "すべて"
+        "select_map": "すべて",
+        "sidebar_profile_tag": "Discord連携済み",
+        "sidebar_team_label": "チーム:",
+        "sidebar_team_none": "なし",
+        "status_verified_tier": "✅ 認証済み",
+        "tier_display_all": "すべて",
+        "btn_reset": "リセット",
+        "btn_refresh": "更新"
     },
     "zh": {
         "nav_find": "查找训练赛",
@@ -2124,7 +2145,14 @@ const translations = {
         "select_tier": "全部",
         "select_time": "全部",
         "select_server": "全部",
-        "select_map": "全部"
+        "select_map": "全部",
+        "sidebar_profile_tag": "Discord已验证",
+        "sidebar_team_label": "战队:",
+        "sidebar_team_none": "无",
+        "status_verified_tier": "✅ 已验证",
+        "tier_display_all": "全部",
+        "btn_reset": "重置",
+        "btn_refresh": "刷新"
     }
 };
 
@@ -2166,7 +2194,6 @@ function updateAllTranslations() {
         const key = element.getAttribute('data-i18n');
         const translated = t(key);
         element.textContent = translated;
-        console.log('번역:', key, '→', translated);
     });
     
     // 2. placeholder 번역
@@ -2178,24 +2205,54 @@ function updateAllTranslations() {
     // 3. 페이지 제목
     document.title = t('site_title');
     
-    // 4. 네비게이션 탭 강제 번역 (동적 생성된 요소)
+    // 4. 네비게이션 탭 강제 번역
     const navBtns = document.querySelectorAll('.nav-btn');
     if (navBtns[0]) navBtns[0].textContent = t('nav_find');
     if (navBtns[1]) navBtns[1].textContent = t('nav_myteam');
     if (navBtns[2]) navBtns[2].textContent = t('nav_register');
     if (navBtns[3]) navBtns[3].textContent = t('nav_history');
     
-    // 5. 사이드바 통계 레이블 강제 번역
+    // 5. 사이드바 통계 레이블
     const statLabels = document.querySelectorAll('.stat-label');
     if (statLabels[0]) statLabels[0].textContent = t('stats_scrims');
     if (statLabels[1]) statLabels[1].textContent = t('stats_matches');
     if (statLabels[2]) statLabels[2].textContent = t('stats_noshow');
     
-    // 6. 메시지/제목
-    const scrimListTitle = document.querySelector('.tab-content h2');
-    if (scrimListTitle && scrimListTitle.textContent.includes('Scrim')) {
-        scrimListTitle.textContent = t('msg_scrimlist');
+    // 6. 사이드바 프로필 태그 (Discord 연동)
+    const profileTag = document.getElementById('profileTag');
+    if (profileTag && !profileTag.innerHTML.includes('KOV')) {
+        profileTag.textContent = t('sidebar_profile_tag');
     }
+    
+    // 7. 사이드바 팀 정보의 "팀:" 레이블
+    const profileTeam = document.getElementById('profileTeam');
+    if (profileTeam) {
+        const teamName = profileTeam.querySelector('span')?.textContent || t('sidebar_team_none');
+        profileTeam.innerHTML = t('sidebar_team_label') + ' <span>' + teamName + '</span>';
+    }
+    
+    // 8. 고급 필터의 "전체" 텍스트들
+    const advTierText = document.getElementById('advTierDisplayText');
+    if (advTierText && (advTierText.textContent === '전체' || advTierText.textContent === 'All' || advTierText.textContent === 'すべて' || advTierText.textContent === '全部')) {
+        advTierText.textContent = t('tier_display_all');
+    }
+    
+    // 9. Select 옵션의 "All" 번역
+    document.querySelectorAll('select option[value=""]').forEach(option => {
+        if (option.textContent === 'All' || option.textContent === '전체' || option.textContent === 'すべて' || option.textContent === '全部') {
+            option.textContent = t('select_all');
+        }
+    });
+    
+    // 10. 언어 메뉴의 언어 이름들
+    const langKo = document.querySelector('.submenu-item[onclick*="ko"] span');
+    const langEn = document.querySelector('.submenu-item[onclick*="en"] span');
+    const langJa = document.querySelector('.submenu-item[onclick*="ja"] span');
+    const langZh = document.querySelector('.submenu-item[onclick*="zh"] span');
+    if (langKo) langKo.textContent = '🇰🇷 한국어';
+    if (langEn) langEn.textContent = '🇺🇸 English';
+    if (langJa) langJa.textContent = '🇯🇵 日本語';
+    if (langZh) langZh.textContent = '🇨🇳 中文';
     
     console.log('언어 업데이트 완료');
 }
