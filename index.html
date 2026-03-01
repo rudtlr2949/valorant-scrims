@@ -1486,7 +1486,7 @@ body {
                 <p class="tagline">팀 스크림 매칭 플랫폼</p>
             </div>
             <div class="user-info" id="userInfo">
-                <button class="btn btn-primary" id="loginBtn">Discord 로그인</button>
+                <button class="btn btn-primary" id="loginBtn" data-i18n="btn_login">Discord 로그인</button>
                 <div class="user-menu-wrapper" id="userMenuWrapper" style="display: flex;">
                     <button class="user-menu-button" onclick="toggleUserMenu()">
                         <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -1495,11 +1495,11 @@ body {
                     </button>
                     <div class="user-menu-dropdown" id="userMenuDropdown">
                         <div class="user-menu-item" onclick="openSettings()">
-                            <span>설정</span>
+                            <span data-i18n="btn_settings">설정</span>
                         </div>
                         <div class="user-menu-divider"></div>
                         <div class="user-menu-item has-submenu">
-                            <span>언어</span>
+                            <span data-i18n="btn_language">언어</span>
                             <svg class="arrow-right" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z"/>
                             </svg>
@@ -1520,7 +1520,7 @@ body {
                         </div>
                         <div class="user-menu-divider"></div>
                         <div class="user-menu-item danger" onclick="logout()">
-                            <span>로그아웃</span>
+                            <span data-i18n="btn_logout">로그아웃</span>
                         </div>
                     </div>
                 </div>
@@ -1528,10 +1528,10 @@ body {
         </header>
 
         <nav class="nav">
-            <button class="nav-btn active" data-tab="scrims">스크림 찾기</button>
-            <button class="nav-btn" data-tab="myteam">내 팀</button>
+            <button class="nav-btn active" data-tab="scrims" data-i18n="nav_find">스크림 찾기</button>
+            <button class="nav-btn" data-tab="myteam" data-i18n="nav_myteam">내 팀</button>
             <button class="nav-btn" data-tab="create">스크림 등록</button>
-            <button class="nav-btn" data-tab="history">매칭 내역</button>
+            <button class="nav-btn" data-tab="history" data-i18n="nav_history">매칭 내역</button>
         </nav>
 
         <div class="app-layout">
@@ -1590,7 +1590,7 @@ body {
         <main class="main-content main-area">
             <div class="tab-content active" id="scrims">
                 <div class="filters">
-                    <h2>스크림 목록</h2>
+                    <h2 data-i18n="msg_scrimlist">스크림 목록</h2>
                     
                     <!-- 검색 & 고급 필터 -->
                     <div class="search-filter-bar">
@@ -1662,7 +1662,7 @@ body {
                             <div class="filter-item">
                                 <label class="filter-label">시간</label>
                                 <select class="filter-select" id="advTimeFilter">
-                                    <option value="">전체</option>
+                                    <option value="" data-i18n="filter_all">전체</option>
                                     <option value="morning">06:00-12:00</option>
                                     <option value="afternoon">12:00-18:00</option>
                                     <option value="evening">18:00-24:00</option>
@@ -1672,7 +1672,7 @@ body {
                             <div class="filter-item">
                                 <label class="filter-label">서버</label>
                                 <select class="filter-select" id="advServerFilter">
-                                    <option value="">전체</option>
+                                    <option value="" data-i18n="filter_all">전체</option>
                                     <option value="kr">KR</option>
                                     <option value="jp">JP</option>
                                     <option value="cn">CN</option>
@@ -1681,7 +1681,7 @@ body {
                             <div class="filter-item">
                                 <label class="filter-label">맵</label>
                                 <select class="filter-select" id="advMapFilter">
-                                    <option value="">전체</option>
+                                    <option value="" data-i18n="filter_all">전체</option>
                                     <option value="Ascent">Ascent</option>
                                     <option value="Bind">Bind</option>
                                     <option value="Haven">Haven</option>
@@ -1703,7 +1703,7 @@ body {
                         </div>
                     </div>
                     <div class="filter-group">
-                        <label>랭크 필터:</label>
+                        <label data-i18n="filter_rank">랭크 필터:</label>
                         <div class="rank-filter-wrapper">
                             <div class="rank-select-display" id="rankSelectDisplay" onclick="toggleRankDropdown()">
                                 <span id="rankDisplayText">전체</span>
@@ -1871,6 +1871,188 @@ body {
     <script>
 const state = {currentUser: null, currentTeam: null, scrims: [], filteredScrims: []};
 const RANKS = {'6-1': 'Diamond I', '6-2': 'Diamond II', '6-3': 'Diamond III', '7-1': 'Ascendant I', '7-2': 'Ascendant II', '7-3': 'Ascendant III', '8-1': 'Immortal I', '8-2': 'Immortal II', '8-3': 'Immortal III', 9: 'Radiant'};
+
+// ===== 다국어 시스템 =====
+const translations = {
+    "ko": {
+        "nav_find": "스크림 찾기",
+        "nav_myteam": "내 팀",
+        "nav_register": "스크림 등록",
+        "nav_history": "매칭 내역",
+        "profile_discord": "Discord 연동",
+        "profile_player": "Valorant Player",
+        "profile_rank": "미티어 경쟁자",
+        "profile_scrims": "스크림",
+        "profile_matches": "매칭",
+        "profile_noshow": "노쇼",
+        "search_placeholder": "팀명, 설명 검색...",
+        "filter_rank": "랭크 필터:",
+        "filter_all": "전체",
+        "filter_advanced": "세부고정",
+        "filter_time": "시간",
+        "filter_server": "서버",
+        "filter_map": "맵",
+        "btn_login": "Discord 로그인",
+        "btn_hostoptions": "호스트옵션",
+        "btn_createteam": "팀 생성하기",
+        "btn_settings": "설정",
+        "btn_language": "언어",
+        "btn_logout": "로그아웃",
+        "msg_scrimlist": "스크림 목록",
+        "msg_noteam": "아직 팀이 없습니다.",
+        "msg_createteam": "팀 생성하기",
+        "msg_loading": "스크림 로드 중...",
+        "site_title": "VALORANT 스크림 매칭",
+        "site_subtitle": "팀 스크림 매칭 플랫폼"
+    },
+    "en": {
+        "nav_find": "Find Scrims",
+        "nav_myteam": "My Team",
+        "nav_register": "Register Scrim",
+        "nav_history": "Match History",
+        "profile_discord": "Discord Verified",
+        "profile_player": "Valorant Player",
+        "profile_rank": "Mythic Contender",
+        "profile_scrims": "Scrims",
+        "profile_matches": "Matches",
+        "profile_noshow": "No-show",
+        "search_placeholder": "Search team name, description...",
+        "filter_rank": "Rank Filter:",
+        "filter_all": "All",
+        "filter_advanced": "Advanced",
+        "filter_time": "Time",
+        "filter_server": "Server",
+        "filter_map": "Map",
+        "btn_login": "Login with Discord",
+        "btn_hostoptions": "Host Options",
+        "btn_createteam": "Create Team",
+        "btn_settings": "Settings",
+        "btn_language": "Language",
+        "btn_logout": "Logout",
+        "msg_scrimlist": "Scrim List",
+        "msg_noteam": "You don't have a team yet.",
+        "msg_createteam": "Create Team",
+        "msg_loading": "Loading scrims...",
+        "site_title": "VALORANT SCRIMS",
+        "site_subtitle": "Team Scrim Matching Platform"
+    },
+    "ja": {
+        "nav_find": "スクリム検索",
+        "nav_myteam": "マイチーム",
+        "nav_register": "スクリム登録",
+        "nav_history": "マッチ履歴",
+        "profile_discord": "Discord連携済み",
+        "profile_player": "Valorantプレイヤー",
+        "profile_rank": "ミシック競技者",
+        "profile_scrims": "スクリム",
+        "profile_matches": "マッチ",
+        "profile_noshow": "不参加",
+        "search_placeholder": "チーム名、説明を検索...",
+        "filter_rank": "ランクフィルター:",
+        "filter_all": "すべて",
+        "filter_advanced": "詳細設定",
+        "filter_time": "時間",
+        "filter_server": "サーバー",
+        "filter_map": "マップ",
+        "btn_login": "Discordでログイン",
+        "btn_hostoptions": "ホストオプション",
+        "btn_createteam": "チーム作成",
+        "btn_settings": "設定",
+        "btn_language": "言語",
+        "btn_logout": "ログアウト",
+        "msg_scrimlist": "スクリムリスト",
+        "msg_noteam": "まだチームがありません。",
+        "msg_createteam": "チーム作成",
+        "msg_loading": "スクリム読み込み中...",
+        "site_title": "VALORANTスクリム",
+        "site_subtitle": "チームスクリムマッチングプラットフォーム"
+    },
+    "zh": {
+        "nav_find": "查找训练赛",
+        "nav_myteam": "我的战队",
+        "nav_register": "注册训练赛",
+        "nav_history": "比赛历史",
+        "profile_discord": "Discord已验证",
+        "profile_player": "Valorant玩家",
+        "profile_rank": "神秘竞争者",
+        "profile_scrims": "训练赛",
+        "profile_matches": "比赛",
+        "profile_noshow": "缺席",
+        "search_placeholder": "搜索队名、说明...",
+        "filter_rank": "段位筛选:",
+        "filter_all": "全部",
+        "filter_advanced": "高级设置",
+        "filter_time": "时间",
+        "filter_server": "服务器",
+        "filter_map": "地图",
+        "btn_login": "使用Discord登录",
+        "btn_hostoptions": "主持选项",
+        "btn_createteam": "创建战队",
+        "btn_settings": "设置",
+        "btn_language": "语言",
+        "btn_logout": "登出",
+        "msg_scrimlist": "训练赛列表",
+        "msg_noteam": "您还没有战队。",
+        "msg_createteam": "创建战队",
+        "msg_loading": "加载训练赛中...",
+        "site_title": "VALORANT训练赛",
+        "site_subtitle": "战队训练赛匹配平台"
+    }
+};
+
+let currentLanguage = localStorage.getItem('language') || 'ko';
+
+// 번역 함수
+function t(key) {
+    return translations[currentLanguage][key] || translations['ko'][key] || key;
+}
+
+// 언어 변경 함수
+function changeLanguage(lang) {
+    const langNames = {
+        'ko': '🇰🇷 한국어',
+        'en': '🇺🇸 English',
+        'ja': '🇯🇵 日本語',
+        'zh': '🇨🇳 中文'
+    };
+    
+    currentLanguage = lang;
+    localStorage.setItem('language', lang);
+    
+    // 페이지 전체 번역 업데이트
+    updateAllTranslations();
+    
+    // 메뉴 닫기
+    document.getElementById('userMenuDropdown').classList.remove('show');
+    
+    // 알림
+    console.log('언어 변경:', langNames[lang]);
+}
+
+// 모든 번역 업데이트
+function updateAllTranslations() {
+    // data-i18n 속성을 가진 모든 요소 업데이트
+    document.querySelectorAll('[data-i18n]').forEach(element => {
+        const key = element.getAttribute('data-i18n');
+        element.textContent = t(key);
+    });
+    
+    // data-i18n-placeholder 속성을 가진 요소 업데이트
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(element => {
+        const key = element.getAttribute('data-i18n-placeholder');
+        element.placeholder = t(key);
+    });
+    
+    // title 태그 업데이트
+    document.title = t('site_title');
+}
+
+// 페이지 로드 시 언어 적용
+document.addEventListener('DOMContentLoaded', function() {
+    updateAllTranslations();
+});
+
+
 
 document.addEventListener('DOMContentLoaded', () => {
     initializeApp();
@@ -2045,7 +2227,7 @@ function updateUserUI() {
         
         updateSidebar();
     } else {
-        userInfo.innerHTML = '<button class="btn btn-primary" id="loginBtn">Discord 로그인</button>';
+        userInfo.innerHTML = '<button class="btn btn-primary" id="loginBtn" data-i18n="btn_login">Discord 로그인</button>';
         document.getElementById('loginBtn').addEventListener('click', handleLogin);
         hideSidebar();
     }
@@ -2203,17 +2385,7 @@ let advancedFilters = {
 
 
 
-function changeLanguage(lang) {
-    const langNames = {
-        'ko': '한국어',
-        'en': 'English',
-        'ja': '日本語',
-        'zh': '中文'
-    };
-    
-    alert(langNames[lang] + ' 언어는 곧 추가될 예정입니다!');
-    document.getElementById('userMenuDropdown').classList.remove('show');
-}
+
 
 
 function logout() {
