@@ -1530,7 +1530,7 @@ body {
         <nav class="nav">
             <button class="nav-btn active" data-tab="scrims" data-i18n="nav_find">스크림 찾기</button>
             <button class="nav-btn" data-tab="myteam" data-i18n="nav_myteam">내 팀</button>
-            <button class="nav-btn" data-tab="create">스크림 등록</button>
+            <button class="nav-btn" data-tab="create" data-i18n="nav_register">스크림 등록</button>
             <button class="nav-btn" data-tab="history" data-i18n="nav_history">매칭 내역</button>
         </nav>
 
@@ -1764,11 +1764,11 @@ body {
 
             <div class="tab-content" id="myteam">
                 <div class="team-section">
-                    <h2>팀 관리</h2>
+                    <h2 data-i18n="team_management">팀 관리</h2>
                     <div id="teamInfo">
                         <div class="no-team">
                             <p data-i18n="msg_no_team">아직 팀이 없습니다.</p>
-                            <button class="btn btn-primary" id="createTeamBtn">팀 생성하기</button>
+                            <button class="btn btn-primary" id="createTeamBtn" data-i18n="btn_createteam">팀 생성하기</button>
                         </div>
                     </div>
                 </div>
@@ -1776,16 +1776,16 @@ body {
 
             <div class="tab-content" id="create">
                 <div class="create-form">
-                    <h2>스크림 등록</h2>
+                    <h2 data-i18n="scrim_registration">스크림 등록</h2>
                     <form id="createScrimForm">
                         <div class="form-group">
-                            <label>날짜 및 시간</label>
+                            <label data-i18n="form_date_time">날짜 및 시간</label>
                             <input type="datetime-local" id="scrimDate" required>
                         </div>
                         
                         <div class="form-row">
                             <div class="form-group">
-                                <label>최소 랭크</label>
+                                <label data-i18n="form_min_rank">최소 랭크</label>
                                 <select id="minRank" required>
                                     <option value="6-1" selected>Diamond I</option>
                                     <option value="6-1">Diamond I</option>
@@ -1802,7 +1802,7 @@ body {
                             </div>
                             
                             <div class="form-group">
-                                <label>최대 랭크</label>
+                                <label data-i18n="form_max_rank">최대 랭크</label>
                                 <select id="maxRank" required>
                                     <option value="6-1">Diamond I</option>
                                     <option value="6-2">Diamond II</option>
@@ -1818,7 +1818,7 @@ body {
                             </div>
                         </div>
                         
-                        <button type="submit" class="btn btn-primary btn-large">스크림 등록</button>
+                        <button type="submit" class="btn btn-primary btn-large" data-i18n="btn_register_scrim">스크림 등록</button>
                     </form>
                 </div>
             </div>
@@ -1949,7 +1949,13 @@ const translations = {
         "msg_no_team": "아직 팀이 없습니다.",
         "msg_no_history": "매칭 내역이 없습니다.",
         "rank_filter_label": "Rank Filter:",
-        "team_label": "Team:"
+        "team_label": "Team:",
+        "team_management": "팀 관리",
+        "form_date_time": "날짜 및 시간",
+        "form_min_rank": "최소 랭크",
+        "form_max_rank": "최대 랭크",
+        "btn_register_scrim": "스크림 등록",
+        "scrim_registration": "스크림 등록"
     },
     "en": {
         "nav_find": "Find Scrims",
@@ -2026,7 +2032,13 @@ const translations = {
         "msg_no_team": "You don't have a team yet.",
         "msg_no_history": "No match history.",
         "rank_filter_label": "Rank Filter:",
-        "team_label": "Team:"
+        "team_label": "Team:",
+        "team_management": "Team Management",
+        "form_date_time": "Date and Time",
+        "form_min_rank": "Minimum Rank",
+        "form_max_rank": "Maximum Rank",
+        "btn_register_scrim": "Register Scrim",
+        "scrim_registration": "Scrim Registration"
     },
     "ja": {
         "nav_find": "スクリム検索",
@@ -2103,7 +2115,13 @@ const translations = {
         "msg_no_team": "まだチームがありません。",
         "msg_no_history": "マッチ履歴がありません。",
         "rank_filter_label": "ランクフィルター:",
-        "team_label": "チーム:"
+        "team_label": "チーム:",
+        "team_management": "チーム管理",
+        "form_date_time": "日時",
+        "form_min_rank": "最小ランク",
+        "form_max_rank": "最大ランク",
+        "btn_register_scrim": "スクリム登録",
+        "scrim_registration": "スクリム登録"
     },
     "zh": {
         "nav_find": "查找训练赛",
@@ -2180,7 +2198,13 @@ const translations = {
         "msg_no_team": "您还没有战队。",
         "msg_no_history": "无比赛历史。",
         "rank_filter_label": "段位筛选:",
-        "team_label": "战队:"
+        "team_label": "战队:",
+        "team_management": "战队管理",
+        "form_date_time": "日期和时间",
+        "form_min_rank": "最低段位",
+        "form_max_rank": "最高段位",
+        "btn_register_scrim": "注册训练赛",
+        "scrim_registration": "训练赛注册"
     }
 };
 
