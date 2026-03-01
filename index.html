@@ -1411,6 +1411,68 @@ body {
 }
 
 
+
+/* 화살표 아이콘 */
+.arrow-right {
+    width: 16px;
+    height: 16px;
+    fill: var(--val-text);
+    margin-left: auto;
+    opacity: 0.6;
+}
+
+/* 서브메뉴가 있는 아이템 */
+.has-submenu {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* 서브메뉴 컨테이너 */
+.submenu {
+    position: absolute;
+    left: 100%;
+    top: 0;
+    background: var(--val-dark-2);
+    border: 1px solid rgba(255,70,85,0.3);
+    border-radius: 8px;
+    min-width: 160px;
+    padding: 6px;
+    margin-left: 8px;
+    display: none;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.5);
+    z-index: 3000;
+}
+
+/* 서브메뉴 표시 */
+.has-submenu:hover .submenu {
+    display: block;
+}
+
+/* 서브메뉴 아이템 */
+.submenu-item {
+    padding: 10px 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    transition: all 0.2s;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    color: var(--val-text);
+    white-space: nowrap;
+}
+
+.submenu-item:hover {
+    background: var(--val-dark-3);
+}
+
+.submenu-item span {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
 </style>
 </head>
 <body>
@@ -1433,8 +1495,25 @@ body {
                             <span>설정</span>
                         </div>
                         <div class="user-menu-divider"></div>
-                        <div class="user-menu-item" onclick="openLanguage()">
+                        <div class="user-menu-item has-submenu">
                             <span>언어</span>
+                            <svg class="arrow-right" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z"/>
+                            </svg>
+                            <div class="submenu">
+                                <div class="submenu-item" onclick="changeLanguage('ko')">
+                                    <span>🇰🇷 한국어</span>
+                                </div>
+                                <div class="submenu-item" onclick="changeLanguage('en')">
+                                    <span>🇺🇸 English</span>
+                                </div>
+                                <div class="submenu-item" onclick="changeLanguage('ja')">
+                                    <span>🇯🇵 日本語</span>
+                                </div>
+                                <div class="submenu-item" onclick="changeLanguage('zh')">
+                                    <span>🇨🇳 中文</span>
+                                </div>
+                            </div>
                         </div>
                         <div class="user-menu-divider"></div>
                         <div class="user-menu-item danger" onclick="logout()">
@@ -2120,10 +2199,19 @@ let advancedFilters = {
 };
 
 
-function openLanguage() {
-    alert('언어 설정 기능은 곧 추가될 예정입니다!');
+
+function changeLanguage(lang) {
+    const langNames = {
+        'ko': '한국어',
+        'en': 'English',
+        'ja': '日本語',
+        'zh': '中文'
+    };
+    
+    alert(langNames[lang] + ' 언어는 곧 추가될 예정입니다!');
     document.getElementById('userMenuDropdown').classList.remove('show');
 }
+
 
 function logout() {
     if (confirm('로그아웃 하시겠습니까?')) {
