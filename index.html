@@ -1833,14 +1833,14 @@ body {
         <div class="modal" id="teamModal">
             <div class="modal-content">
                 <span class="close">&times;</span>
-                <h2>팀 생성</h2>
+                <h2 data-i18n="modal_team_create">팀 생성</h2>
                 <form id="teamForm">
                     <div class="form-group">
-                        <label>팀 이름</label>
+                        <label data-i18n="label_team_name">팀 이름</label>
                         <input type="text" id="teamName" required>
                     </div>
                     <div class="form-group">
-                        <label>평균 랭크</label>
+                        <label data-i18n="label_avg_rank">평균 랭크</label>
                         <select id="teamRank" required>
                             <option value="6-1">Diamond I</option>
                             <option value="6-2">Diamond II</option>
@@ -1854,7 +1854,7 @@ body {
                             <option value="9">Radiant</option>
                         </select>
                     </div>
-                    <button type="submit" class="btn btn-primary">생성하기</button>
+                    <button type="submit" class="btn btn-primary" data-i18n="btn_create">생성하기</button>
                 </form>
             </div>
         </div>
@@ -1862,7 +1862,7 @@ body {
         <div class="modal" id="scrimModal">
             <div class="modal-content">
                 <span class="close">&times;</span>
-                <h2>스크림 상세</h2>
+                <h2 data-i18n="modal_scrim_detail">스크림 상세</h2>
                 <div id="scrimDetails"></div>
             </div>
         </div>
@@ -1955,7 +1955,25 @@ const translations = {
         "form_min_rank": "최소 랭크",
         "form_max_rank": "최대 랭크",
         "btn_register_scrim": "스크림 등록",
-        "scrim_registration": "스크림 등록"
+        "scrim_registration": "스크림 등록",
+        "modal_scrim_detail": "스크림 상세",
+        "modal_team_create": "팀 생성",
+        "label_team_name": "팀 이름",
+        "label_avg_rank": "평균 랭크",
+        "btn_create": "생성하기",
+        "btn_cancel": "취소",
+        "confirm_logout": "정말 로그아웃 하시겠어요?",
+        "welcome_message": "환영합니다!",
+        "start_matching": "스크림 매칭을 시작하세요 🎮",
+        "label_date": "날짜:",
+        "label_status": "상태:",
+        "label_team_rank": "팀 랭크:",
+        "label_required_rank": "요구 랭크:",
+        "label_team_rank_icon": "🏆 팀 랭크:",
+        "label_required_rank_icon": "📊 요구 랭크:",
+        "btn_match": "매칭 신청",
+        "badge_avatar_decoration": "🎀 아바타 장식",
+        "noshow_count": "회"
     },
     "en": {
         "nav_find": "Find Scrims",
@@ -2038,7 +2056,25 @@ const translations = {
         "form_min_rank": "Minimum Rank",
         "form_max_rank": "Maximum Rank",
         "btn_register_scrim": "Register Scrim",
-        "scrim_registration": "Scrim Registration"
+        "scrim_registration": "Scrim Registration",
+        "modal_scrim_detail": "Scrim Details",
+        "modal_team_create": "Create Team",
+        "label_team_name": "Team Name",
+        "label_avg_rank": "Average Rank",
+        "btn_create": "Create",
+        "btn_cancel": "Cancel",
+        "confirm_logout": "Are you sure you want to logout?",
+        "welcome_message": "Welcome!",
+        "start_matching": "Start Scrim Matching 🎮",
+        "label_date": "Date:",
+        "label_status": "Status:",
+        "label_team_rank": "Team Rank:",
+        "label_required_rank": "Required Rank:",
+        "label_team_rank_icon": "🏆 Team Rank:",
+        "label_required_rank_icon": "📊 Required Rank:",
+        "btn_match": "Request Match",
+        "badge_avatar_decoration": "🎀 Avatar Decoration",
+        "noshow_count": "times"
     },
     "ja": {
         "nav_find": "スクリム検索",
@@ -2121,7 +2157,25 @@ const translations = {
         "form_min_rank": "最小ランク",
         "form_max_rank": "最大ランク",
         "btn_register_scrim": "スクリム登録",
-        "scrim_registration": "スクリム登録"
+        "scrim_registration": "スクリム登録",
+        "modal_scrim_detail": "スクリム詳細",
+        "modal_team_create": "チーム作成",
+        "label_team_name": "チーム名",
+        "label_avg_rank": "平均ランク",
+        "btn_create": "作成",
+        "btn_cancel": "キャンセル",
+        "confirm_logout": "本当にログアウトしますか？",
+        "welcome_message": "ようこそ！",
+        "start_matching": "スクリムマッチングを始めましょう 🎮",
+        "label_date": "日付:",
+        "label_status": "ステータス:",
+        "label_team_rank": "チームランク:",
+        "label_required_rank": "必要ランク:",
+        "label_team_rank_icon": "🏆 チームランク:",
+        "label_required_rank_icon": "📊 必要ランク:",
+        "btn_match": "マッチング申請",
+        "badge_avatar_decoration": "🎀 アバター装飾",
+        "noshow_count": "回"
     },
     "zh": {
         "nav_find": "查找训练赛",
@@ -2204,7 +2258,25 @@ const translations = {
         "form_min_rank": "最低段位",
         "form_max_rank": "最高段位",
         "btn_register_scrim": "注册训练赛",
-        "scrim_registration": "训练赛注册"
+        "scrim_registration": "训练赛注册",
+        "modal_scrim_detail": "训练赛详情",
+        "modal_team_create": "创建战队",
+        "label_team_name": "战队名称",
+        "label_avg_rank": "平均段位",
+        "btn_create": "创建",
+        "btn_cancel": "取消",
+        "confirm_logout": "确定要登出吗？",
+        "welcome_message": "欢迎！",
+        "start_matching": "开始训练赛匹配 🎮",
+        "label_date": "日期:",
+        "label_status": "状态:",
+        "label_team_rank": "战队段位:",
+        "label_required_rank": "要求段位:",
+        "label_team_rank_icon": "🏆 战队段位:",
+        "label_required_rank_icon": "📊 要求段位:",
+        "btn_match": "申请匹配",
+        "badge_avatar_decoration": "🎀 头像装饰",
+        "noshow_count": "次"
     }
 };
 
@@ -3248,11 +3320,11 @@ function createScrimCard(scrim) {
                     <span>${formattedDate}</span>
                 </div>
                 <div class="info-row">
-                    <span class="info-label">🏆 팀 랭크:</span>
+                    <span class="info-label">${t('label_team_rank_icon')}</span>
                     <span class="rank-badge rank-${RANKS[scrim.teamRank].toLowerCase()}">${RANKS[scrim.teamRank]}</span>
                 </div>
                 <div class="info-row">
-                    <span class="info-label">📊 요구 랭크:</span>
+                    <span class="info-label">${t('label_required_rank_icon')}</span>
                     <span>
                         <span class="rank-badge rank-${RANKS[scrim.minRank].toLowerCase()}">${RANKS[scrim.minRank]}</span>
                         ~
@@ -3276,22 +3348,22 @@ function showScrimDetails(scrimId) {
         <div class="scrim-details">
             <h3>${scrim.teamName}</h3>
             <div class="info-row" style="margin: 10px 0;">
-                <span class="info-label">날짜:</span>
+                <span class="info-label">${t('label_date')}</span>
                 <span>${formattedDate}</span>
             </div>
             <div class="info-row" style="margin: 10px 0;">
-                <span class="info-label">팀 랭크:</span>
+                <span class="info-label">${t('label_team_rank')}</span>
                 <span class="rank-badge rank-${RANKS[scrim.teamRank].toLowerCase()}">${RANKS[scrim.teamRank]}</span>
             </div>
             <div class="info-row" style="margin: 10px 0;">
-                <span class="info-label">요구 랭크:</span>
+                <span class="info-label">${t('label_required_rank')}</span>
                 <span>${RANKS[scrim.minRank]} ~ ${RANKS[scrim.maxRank]}</span>
             </div>
             <div class="info-row" style="margin: 10px 0;">
-                <span class="info-label">상태:</span>
+                <span class="info-label">${t('label_status')}</span>
                 <span class="status-badge ${scrim.status === 'OPEN' ? 'open' : 'matched'}">${scrim.status}</span>
             </div>
-            ${canMatch ? `<button class="btn btn-success btn-large" onclick="matchScrim('${scrim.id}')">매칭 신청</button>` : ''}
+            ${canMatch ? `<button class="btn btn-success btn-large" onclick="matchScrim('${scrim.id}')">${t('btn_match')}</button>` : ''}
         </div>
     `;
     openModal('scrimModal');
@@ -3371,7 +3443,7 @@ function saveMockData() {
                 <div class="welcome-avatar-placeholder" id="welcomeAvatarPlaceholder">👤</div>
                 <img class="welcome-avatar" id="welcomeAvatar" style="display:none;" src="" alt="">
             </div>
-            <div class="welcome-title">환영합니다!</div>
+            <div class="welcome-title" data-i18n="welcome_message">환영합니다!</div>
             <div class="welcome-name" id="welcomeName">AGENT</div>
             <div class="welcome-subtitle">스크림 매칭을 시작하세요 🎮</div>
             <div class="welcome-bar">
@@ -3384,9 +3456,9 @@ function saveMockData() {
     <div class="logout-confirm" id="logoutConfirm">
         <div class="logout-box">
             <h3>로그아웃</h3>
-            <p>정말 로그아웃 하시겠어요?</p>
+            <p data-i18n="confirm_logout">정말 로그아웃 하시겠어요?</p>
             <div class="logout-btns">
-                <button class="btn btn-secondary" onclick="hideLogoutConfirm()">취소</button>
+                <button class="btn btn-secondary" onclick="hideLogoutConfirm()" data-i18n="btn_cancel">취소</button>
                 <button class="btn btn-primary" onclick="handleLogout()">로그아웃</button>
             </div>
         </div>
