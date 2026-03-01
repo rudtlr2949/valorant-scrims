@@ -1575,8 +1575,8 @@ body {
                         </div>
                         <div id="riotInputSection">
                             <div class="riot-input-row">
-                                <input type="text" id="riotName" placeholder="닉네임" />
-                                <input type="text" id="riotTag" placeholder="#KR1" style="width:70px;flex:none;" />
+                                <input type="text" id="riotName" data-i18n-placeholder="input_nickname" placeholder="닉네임" />
+                                <input type="text" id="riotTag" data-i18n-placeholder="input_tag" placeholder="#KR1" style="width:70px;flex:none;" />
                                 <button class="btn-verify" id="verifyBtn" onclick="verifyRiotAccount()" data-i18n="btn_verify">인증</button>
                             </div>
                             <div class="verify-status" id="verifyStatus"></div>
@@ -1594,7 +1594,7 @@ body {
                     
                     <!-- 검색 & 고급 필터 -->
                     <div class="search-filter-bar">
-                        <input type="text" class="search-input" id="searchInput" placeholder="🔍 팀명, 설명 검색..." onkeyup="applyAllFilters()">
+                        <input type="text" class="search-input" id="searchInput" data-i18n-placeholder="search_placeholder" placeholder="팀명, 설명 검색..." onkeyup="applyAllFilters()">
                         <button class="filter-settings-btn" id="filterSettingsBtn" onclick="toggleAdvancedFilter()">
                             <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M3 17v2h6v-2H3zM3 5v2h10V5H3zm10 16v-2h8v-2h-8v-2h-2v6h2zM7 9v2H3v2h4v2h2V9H7zm14 4v-2H11v2h10zm-6-4h2V7h4V5h-4V3h-2v6z"/>
@@ -1767,7 +1767,7 @@ body {
                     <h2>팀 관리</h2>
                     <div id="teamInfo">
                         <div class="no-team">
-                            <p>아직 팀이 없습니다.</p>
+                            <p data-i18n="msg_no_team">아직 팀이 없습니다.</p>
                             <button class="btn btn-primary" id="createTeamBtn">팀 생성하기</button>
                         </div>
                     </div>
@@ -1942,7 +1942,14 @@ const translations = {
         "status_verified_tier": "✅ 인증됨",
         "tier_display_all": "전체",
         "btn_reset": "초기화",
-        "btn_refresh": "새로고침"
+        "btn_refresh": "새로고침",
+        "input_nickname": "닉네임",
+        "input_tag": "#KR1",
+        "team_none": "없음",
+        "msg_no_team": "아직 팀이 없습니다.",
+        "msg_no_history": "매칭 내역이 없습니다.",
+        "rank_filter_label": "Rank Filter:",
+        "team_label": "Team:"
     },
     "en": {
         "nav_find": "Find Scrims",
@@ -2012,7 +2019,14 @@ const translations = {
         "status_verified_tier": "✅ Verified",
         "tier_display_all": "All",
         "btn_reset": "Reset",
-        "btn_refresh": "Refresh"
+        "btn_refresh": "Refresh",
+        "input_nickname": "Nickname",
+        "input_tag": "#NA1",
+        "team_none": "None",
+        "msg_no_team": "You don't have a team yet.",
+        "msg_no_history": "No match history.",
+        "rank_filter_label": "Rank Filter:",
+        "team_label": "Team:"
     },
     "ja": {
         "nav_find": "スクリム検索",
@@ -2082,7 +2096,14 @@ const translations = {
         "status_verified_tier": "✅ 認証済み",
         "tier_display_all": "すべて",
         "btn_reset": "リセット",
-        "btn_refresh": "更新"
+        "btn_refresh": "更新",
+        "input_nickname": "ニックネーム",
+        "input_tag": "#JP1",
+        "team_none": "なし",
+        "msg_no_team": "まだチームがありません。",
+        "msg_no_history": "マッチ履歴がありません。",
+        "rank_filter_label": "ランクフィルター:",
+        "team_label": "チーム:"
     },
     "zh": {
         "nav_find": "查找训练赛",
@@ -2152,7 +2173,14 @@ const translations = {
         "status_verified_tier": "✅ 已验证",
         "tier_display_all": "全部",
         "btn_reset": "重置",
-        "btn_refresh": "刷新"
+        "btn_refresh": "刷新",
+        "input_nickname": "昵称",
+        "input_tag": "#CN1",
+        "team_none": "无",
+        "msg_no_team": "您还没有战队。",
+        "msg_no_history": "无比赛历史。",
+        "rank_filter_label": "段位筛选:",
+        "team_label": "战队:"
     }
 };
 
@@ -2224,17 +2252,29 @@ function updateAllTranslations() {
         profileTag.textContent = t('sidebar_profile_tag');
     }
     
-    // 7. 사이드바 팀 정보의 "팀:" 레이블
+    // 7. 사이드바 팀 정보의 "팀:" 레이블과 "없음"
     const profileTeam = document.getElementById('profileTeam');
     if (profileTeam) {
-        const teamName = profileTeam.querySelector('span')?.textContent || t('sidebar_team_none');
-        profileTeam.innerHTML = t('sidebar_team_label') + ' <span>' + teamName + '</span>';
+        const currentTeamName = profileTeam.querySelector('span')?.textContent;
+        // "없음"인 경우만 번역
+        if (currentTeamName === '없음' || currentTeamName === 'None' || currentTeamName === 'なし' || currentTeamName === '无') {
+            profileTeam.innerHTML = t('team_label') + ' <span>' + t('team_none') + '</span>';
+        } else if (currentTeamName) {
+            // 팀이 있는 경우 팀 이름 유지
+            profileTeam.innerHTML = t('team_label') + ' <span>' + currentTeamName + '</span>';
+        }
     }
     
     // 8. 고급 필터의 "전체" 텍스트들
     const advTierText = document.getElementById('advTierDisplayText');
     if (advTierText && (advTierText.textContent === '전체' || advTierText.textContent === 'All' || advTierText.textContent === 'すべて' || advTierText.textContent === '全部')) {
         advTierText.textContent = t('tier_display_all');
+    }
+    
+    // 9. Rank Filter의 "전체" 드롭다운 텍스트
+    const rankDisplayText = document.getElementById('rankDisplayText');
+    if (rankDisplayText && (rankDisplayText.textContent === '전체' || rankDisplayText.textContent === 'All' || rankDisplayText.textContent === 'すべて' || rankDisplayText.textContent === '全部')) {
+        rankDisplayText.textContent = t('tier_display_all');
     }
     
     // 9. Select 옵션의 "All" 번역
@@ -3134,7 +3174,7 @@ function handleCreateScrim(e) {
 
 function loadScrims() {
     const scrimList = document.getElementById('scrimList');
-    scrimList.innerHTML = '<div class="loading">스크림 로드 중</div>';
+    scrimList.innerHTML = '<div class="loading">' + t('msg_loading') + '</div>';
     setTimeout(() => filterScrims(), 500);
 }
 
@@ -3155,7 +3195,7 @@ function filterScrims() {
 function renderScrims() {
     const scrimList = document.getElementById('scrimList');
     if (state.filteredScrims.length === 0) {
-        scrimList.innerHTML = '<div class="loading">등록된 스크림이 없습니다.</div>';
+        scrimList.innerHTML = '<div class="loading">' + t('msg_no_scrims') + '</div>';
         return;
     }
     scrimList.innerHTML = state.filteredScrims
@@ -3255,7 +3295,7 @@ function loadHistory() {
     const historyList = document.getElementById('historyList');
     const matchedScrims = state.scrims.filter(s => s.status === 'MATCHED' && (s.teamId === state.currentTeam?.id || s.matchedTeam === state.currentTeam?.id));
     if (matchedScrims.length === 0) {
-        historyList.innerHTML = '<div class="loading">매칭 내역이 없습니다.</div>';
+        historyList.innerHTML = '<div class="loading">' + t('msg_no_history') + '</div>';
         return;
     }
     historyList.innerHTML = matchedScrims.map(scrim => {
