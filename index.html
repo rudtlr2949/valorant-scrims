@@ -1547,15 +1547,15 @@ body {
                     <div class="profile-stats">
                         <div class="stat-item">
                             <div class="stat-number" id="statScrims">0</div>
-                            <div class="stat-label">스크림</div>
+                            <div class="stat-label" data-i18n="stats_scrims">스크림</div>
                         </div>
                         <div class="stat-item">
                             <div class="stat-number" id="statMatches">0</div>
-                            <div class="stat-label">매칭</div>
+                            <div class="stat-label" data-i18n="stats_matches">매칭</div>
                         </div>
                         <div class="stat-item">
                             <div class="stat-number" id="statNoShow">0</div>
-                            <div class="stat-label">노쇼</div>
+                            <div class="stat-label" data-i18n="stats_noshow">노쇼</div>
                         </div>
                     </div>
                     <div class="profile-team" id="profileTeam">팀: <span>없음</span></div>
@@ -2159,42 +2159,45 @@ function changeLanguage(lang) {
 
 // 모든 번역 업데이트
 function updateAllTranslations() {
-    // data-i18n 속성을 가진 모든 요소 업데이트
+    console.log('언어 업데이트 시작:', currentLanguage);
+    
+    // 1. data-i18n 속성 기반 번역
     document.querySelectorAll('[data-i18n]').forEach(element => {
         const key = element.getAttribute('data-i18n');
-        element.textContent = t(key);
+        const translated = t(key);
+        element.textContent = translated;
+        console.log('번역:', key, '→', translated);
     });
     
-    // data-i18n-placeholder 속성을 가진 요소 업데이트
+    // 2. placeholder 번역
     document.querySelectorAll('[data-i18n-placeholder]').forEach(element => {
         const key = element.getAttribute('data-i18n-placeholder');
         element.placeholder = t(key);
     });
     
-    // title 태그 업데이트
+    // 3. 페이지 제목
     document.title = t('site_title');
     
-    // 고급 필터 패널 동적 번역
-    const filterLabels = document.querySelectorAll('.filter-group label');
-    if (filterLabels.length >= 4) {
-        filterLabels[0].textContent = t('filter_tier_label');
-        filterLabels[1].textContent = t('filter_time_label');
-        filterLabels[2].textContent = t('filter_server_label');
-        filterLabels[3].textContent = t('filter_map_label');
-    }
+    // 4. 네비게이션 탭 강제 번역 (동적 생성된 요소)
+    const navBtns = document.querySelectorAll('.nav-btn');
+    if (navBtns[0]) navBtns[0].textContent = t('nav_find');
+    if (navBtns[1]) navBtns[1].textContent = t('nav_myteam');
+    if (navBtns[2]) navBtns[2].textContent = t('nav_register');
+    if (navBtns[3]) navBtns[3].textContent = t('nav_history');
     
-    // Select 옵션의 'All' 텍스트 번역
-    document.querySelectorAll('select option[value=""]').forEach(option => {
-        if (option.textContent.trim() === 'All' || option.textContent.trim() === '전체' || option.textContent.trim() === 'すべて') {
-            option.textContent = t('select_all');
-        }
-    });
-    
-    // 사이드바 통계 레이블 번역
+    // 5. 사이드바 통계 레이블 강제 번역
     const statLabels = document.querySelectorAll('.stat-label');
     if (statLabels[0]) statLabels[0].textContent = t('stats_scrims');
     if (statLabels[1]) statLabels[1].textContent = t('stats_matches');
     if (statLabels[2]) statLabels[2].textContent = t('stats_noshow');
+    
+    // 6. 메시지/제목
+    const scrimListTitle = document.querySelector('.tab-content h2');
+    if (scrimListTitle && scrimListTitle.textContent.includes('Scrim')) {
+        scrimListTitle.textContent = t('msg_scrimlist');
+    }
+    
+    console.log('언어 업데이트 완료');
 }
 
 // 페이지 로드 시 언어 적용
