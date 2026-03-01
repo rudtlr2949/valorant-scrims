@@ -1440,14 +1440,17 @@ body {
     min-width: 160px;
     padding: 6px;
     margin-left: 8px;
-    display: none;
+    display: none !important;
     box-shadow: 0 8px 16px rgba(0,0,0,0.5);
-    z-index: 3000;
+    z-index: 9999;
+    pointer-events: auto;
 }
 
 /* 서브메뉴 표시 */
 .has-submenu:hover .submenu {
-    display: block;
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
 }
 
 /* 서브메뉴 아이템 */
