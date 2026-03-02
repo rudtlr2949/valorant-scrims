@@ -675,6 +675,91 @@ body {
     gap: 15px;
 }
 
+/* 다중 선택 드롭다운 */
+.filter-dropdown-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.filter-dropdown-display {
+    padding: 10px 35px 10px 12px;
+    background: var(--val-dark-3);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+}
+
+.filter-dropdown-display:hover {
+    border-color: var(--val-red);
+}
+
+.dropdown-arrow {
+    position: absolute;
+    right: 12px;
+    font-size: 0.7rem;
+    color: var(--val-text-muted);
+    transition: transform 0.2s;
+}
+
+.filter-dropdown {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    background: var(--val-dark-2);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 8px;
+    max-height: 250px;
+    overflow-y: auto;
+    z-index: 1000;
+    display: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+}
+
+.filter-dropdown.show {
+    display: block;
+}
+
+.filter-dropdown-option {
+    padding: 10px 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: background 0.2s;
+}
+
+.filter-dropdown-option:hover {
+    background: var(--val-dark-3);
+}
+
+.filter-dropdown-option.selected {
+    background: rgba(255, 70, 85, 0.1);
+}
+
+.option-check {
+    width: 18px;
+    height: 18px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    color: transparent;
+    transition: all 0.2s;
+}
+
+.filter-dropdown-option.selected .option-check {
+    background: var(--val-red);
+    border-color: var(--val-red);
+    color: white;
+}
+
 /* 필터 칩 스타일 */
 .filter-chips {
     display: flex;
@@ -1699,76 +1784,114 @@ body {
                             </div>
                             <div class="filter-item">
                                 <label class="filter-label" data-i18n="filter_time_label">시간</label>
-                                <div class="filter-chips">
-                                    <div class="filter-chip" data-value="morning" onclick="toggleFilter('time', 'morning', this)">
-                                        <span>06:00-12:00</span>
+                                <div class="filter-dropdown-wrapper">
+                                    <div class="filter-dropdown-display" onclick="toggleDropdown('timeDropdown')">
+                                        <span id="timeFilterDisplay">선택 안 됨</span>
+                                        <span class="dropdown-arrow">▼</span>
                                     </div>
-                                    <div class="filter-chip" data-value="afternoon" onclick="toggleFilter('time', 'afternoon', this)">
-                                        <span>12:00-18:00</span>
-                                    </div>
-                                    <div class="filter-chip" data-value="evening" onclick="toggleFilter('time', 'evening', this)">
-                                        <span>18:00-24:00</span>
-                                    </div>
-                                    <div class="filter-chip" data-value="night" onclick="toggleFilter('time', 'night', this)">
-                                        <span>00:00-06:00</span>
+                                    <div class="filter-dropdown" id="timeDropdown">
+                                        <div class="filter-dropdown-option" onclick="toggleDropdownOption('time', 'morning', this)">
+                                            <span class="option-check">✓</span>
+                                            <span>06:00-12:00</span>
+                                        </div>
+                                        <div class="filter-dropdown-option" onclick="toggleDropdownOption('time', 'afternoon', this)">
+                                            <span class="option-check">✓</span>
+                                            <span>12:00-18:00</span>
+                                        </div>
+                                        <div class="filter-dropdown-option" onclick="toggleDropdownOption('time', 'evening', this)">
+                                            <span class="option-check">✓</span>
+                                            <span>18:00-24:00</span>
+                                        </div>
+                                        <div class="filter-dropdown-option" onclick="toggleDropdownOption('time', 'night', this)">
+                                            <span class="option-check">✓</span>
+                                            <span>00:00-06:00</span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                             <div class="filter-item">
                                 <label class="filter-label" data-i18n="filter_server_label">서버</label>
-                                <div class="filter-chips">
-                                    <div class="filter-chip" data-value="kr" onclick="toggleFilter('server', 'kr', this)">
-                                        <span>🇰🇷 KR</span>
+                                <div class="filter-dropdown-wrapper">
+                                    <div class="filter-dropdown-display" onclick="toggleDropdown('serverDropdown')">
+                                        <span id="serverFilterDisplay">선택 안 됨</span>
+                                        <span class="dropdown-arrow">▼</span>
                                     </div>
-                                    <div class="filter-chip" data-value="jp" onclick="toggleFilter('server', 'jp', this)">
-                                        <span>🇯🇵 JP</span>
-                                    </div>
-                                    <div class="filter-chip" data-value="cn" onclick="toggleFilter('server', 'cn', this)">
-                                        <span>🇨🇳 CN</span>
-                                    </div>
-                                    <div class="filter-chip" data-value="na" onclick="toggleFilter('server', 'na', this)">
-                                        <span>🇺🇸 NA</span>
-                                    </div>
-                                    <div class="filter-chip" data-value="eu" onclick="toggleFilter('server', 'eu', this)">
-                                        <span>🇪🇺 EU</span>
+                                    <div class="filter-dropdown" id="serverDropdown">
+                                        <div class="filter-dropdown-option" onclick="toggleDropdownOption('server', 'kr', this)">
+                                            <span class="option-check">✓</span>
+                                            <span>🇰🇷 KR</span>
+                                        </div>
+                                        <div class="filter-dropdown-option" onclick="toggleDropdownOption('server', 'jp', this)">
+                                            <span class="option-check">✓</span>
+                                            <span>🇯🇵 JP</span>
+                                        </div>
+                                        <div class="filter-dropdown-option" onclick="toggleDropdownOption('server', 'cn', this)">
+                                            <span class="option-check">✓</span>
+                                            <span>🇨🇳 CN</span>
+                                        </div>
+                                        <div class="filter-dropdown-option" onclick="toggleDropdownOption('server', 'na', this)">
+                                            <span class="option-check">✓</span>
+                                            <span>🇺🇸 NA</span>
+                                        </div>
+                                        <div class="filter-dropdown-option" onclick="toggleDropdownOption('server', 'eu', this)">
+                                            <span class="option-check">✓</span>
+                                            <span>🇪🇺 EU</span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                             <div class="filter-item">
                                 <label class="filter-label" data-i18n="filter_map_label">맵</label>
-                                <div class="filter-chips" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;">
-                                    <div class="filter-chip" data-value="Ascent" onclick="toggleFilter('map', 'Ascent', this)">
-                                        <span>Ascent</span>
+                                <div class="filter-dropdown-wrapper">
+                                    <div class="filter-dropdown-display" onclick="toggleDropdown('mapDropdown')">
+                                        <span id="mapFilterDisplay">선택 안 됨</span>
+                                        <span class="dropdown-arrow">▼</span>
                                     </div>
-                                    <div class="filter-chip" data-value="Bind" onclick="toggleFilter('map', 'Bind', this)">
-                                        <span>Bind</span>
-                                    </div>
-                                    <div class="filter-chip" data-value="Haven" onclick="toggleFilter('map', 'Haven', this)">
-                                        <span>Haven</span>
-                                    </div>
-                                    <div class="filter-chip" data-value="Split" onclick="toggleFilter('map', 'Split', this)">
-                                        <span>Split</span>
-                                    </div>
-                                    <div class="filter-chip" data-value="Icebox" onclick="toggleFilter('map', 'Icebox', this)">
-                                        <span>Icebox</span>
-                                    </div>
-                                    <div class="filter-chip" data-value="Breeze" onclick="toggleFilter('map', 'Breeze', this)">
-                                        <span>Breeze</span>
-                                    </div>
-                                    <div class="filter-chip" data-value="Fracture" onclick="toggleFilter('map', 'Fracture', this)">
-                                        <span>Fracture</span>
-                                    </div>
-                                    <div class="filter-chip" data-value="Pearl" onclick="toggleFilter('map', 'Pearl', this)">
-                                        <span>Pearl</span>
-                                    </div>
-                                    <div class="filter-chip" data-value="Lotus" onclick="toggleFilter('map', 'Lotus', this)">
-                                        <span>Lotus</span>
-                                    </div>
-                                    <div class="filter-chip" data-value="Sunset" onclick="toggleFilter('map', 'Sunset', this)">
-                                        <span>Sunset</span>
-                                    </div>
-                                    <div class="filter-chip" data-value="Abyss" onclick="toggleFilter('map', 'Abyss', this)">
-                                        <span>Abyss</span>
+                                    <div class="filter-dropdown" id="mapDropdown">
+                                        <div class="filter-dropdown-option" onclick="toggleDropdownOption('map', 'Ascent', this)">
+                                            <span class="option-check">✓</span>
+                                            <span>Ascent</span>
+                                        </div>
+                                        <div class="filter-dropdown-option" onclick="toggleDropdownOption('map', 'Bind', this)">
+                                            <span class="option-check">✓</span>
+                                            <span>Bind</span>
+                                        </div>
+                                        <div class="filter-dropdown-option" onclick="toggleDropdownOption('map', 'Haven', this)">
+                                            <span class="option-check">✓</span>
+                                            <span>Haven</span>
+                                        </div>
+                                        <div class="filter-dropdown-option" onclick="toggleDropdownOption('map', 'Split', this)">
+                                            <span class="option-check">✓</span>
+                                            <span>Split</span>
+                                        </div>
+                                        <div class="filter-dropdown-option" onclick="toggleDropdownOption('map', 'Icebox', this)">
+                                            <span class="option-check">✓</span>
+                                            <span>Icebox</span>
+                                        </div>
+                                        <div class="filter-dropdown-option" onclick="toggleDropdownOption('map', 'Breeze', this)">
+                                            <span class="option-check">✓</span>
+                                            <span>Breeze</span>
+                                        </div>
+                                        <div class="filter-dropdown-option" onclick="toggleDropdownOption('map', 'Fracture', this)">
+                                            <span class="option-check">✓</span>
+                                            <span>Fracture</span>
+                                        </div>
+                                        <div class="filter-dropdown-option" onclick="toggleDropdownOption('map', 'Pearl', this)">
+                                            <span class="option-check">✓</span>
+                                            <span>Pearl</span>
+                                        </div>
+                                        <div class="filter-dropdown-option" onclick="toggleDropdownOption('map', 'Lotus', this)">
+                                            <span class="option-check">✓</span>
+                                            <span>Lotus</span>
+                                        </div>
+                                        <div class="filter-dropdown-option" onclick="toggleDropdownOption('map', 'Sunset', this)">
+                                            <span class="option-check">✓</span>
+                                            <span>Sunset</span>
+                                        </div>
+                                        <div class="filter-dropdown-option" onclick="toggleDropdownOption('map', 'Abyss', this)">
+                                            <span class="option-check">✓</span>
+                                            <span>Abyss</span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -2834,7 +2957,64 @@ function toggleAdvancedFilter() {
     btn.classList.toggle('active');
 }
 
-// 필터 칩 토글 함수
+// 드롭다운 열기/닫기
+function toggleDropdown(dropdownId) {
+    const dropdown = document.getElementById(dropdownId);
+    dropdown.classList.toggle('show');
+    
+    // 다른 드롭다운 닫기
+    document.querySelectorAll('.filter-dropdown.show').forEach(dd => {
+        if (dd.id !== dropdownId) {
+            dd.classList.remove('show');
+        }
+    });
+}
+
+// 드롭다운 옵션 토글 (다중 선택)
+function toggleDropdownOption(type, value, element) {
+    // 배열 초기화 확인
+    if (!Array.isArray(advancedFilters[type])) {
+        advancedFilters[type] = [];
+    }
+    
+    // 토글 처리
+    const index = advancedFilters[type].indexOf(value);
+    if (index > -1) {
+        // 이미 선택됨 - 제거
+        advancedFilters[type].splice(index, 1);
+        element.classList.remove('selected');
+    } else {
+        // 선택 안 됨 - 추가
+        advancedFilters[type].push(value);
+        element.classList.add('selected');
+    }
+    
+    // 디스플레이 업데이트
+    updateFilterDisplay(type);
+}
+
+// 필터 디스플레이 텍스트 업데이트
+function updateFilterDisplay(type) {
+    const displayMap = {
+        'time': 'timeFilterDisplay',
+        'server': 'serverFilterDisplay',
+        'map': 'mapFilterDisplay'
+    };
+    
+    const displayId = displayMap[type];
+    const displayElement = document.getElementById(displayId);
+    
+    if (!displayElement) return;
+    
+    const selected = advancedFilters[type];
+    if (selected && selected.length > 0) {
+        displayElement.textContent = `${selected.length}개 선택됨`;
+    } else {
+        displayElement.textContent = '선택 안 됨';
+    }
+}
+
+// 필터 칩 토글 함수 (기존 함수 유지)
 function toggleFilter(type, value, element) {
     // 배열 초기화 확인
     if (!Array.isArray(advancedFilters[type])) {
@@ -2861,7 +3041,7 @@ function applyAllFilters() {
     // 고급 필터 - 티어 (기존 방식 유지)
     advancedFilters.tier = document.getElementById('advTierFilter').value;
     
-    // 시간, 서버, 맵은 이미 toggleFilter에서 처리됨
+    // 시간, 서버, 맵은 이미 toggleDropdownOption에서 처리됨
     
     filterScrims();
 }
@@ -2873,10 +3053,15 @@ function resetAdvancedFilters() {
     // 티어 필터 초기화
     document.getElementById('advTierFilter').value = '';
     
-    // 필터 칩 active 클래스 제거
-    document.querySelectorAll('.filter-chip.active').forEach(chip => {
-        chip.classList.remove('active');
+    // 드롭다운 옵션 selected 클래스 제거
+    document.querySelectorAll('.filter-dropdown-option.selected').forEach(option => {
+        option.classList.remove('selected');
     });
+    
+    // 드롭다운 디스플레이 초기화
+    document.getElementById('timeFilterDisplay').textContent = '선택 안 됨';
+    document.getElementById('serverFilterDisplay').textContent = '선택 안 됨';
+    document.getElementById('mapFilterDisplay').textContent = '선택 안 됨';
     
     // 고급 티어 디스플레이 초기화
     const advTierDisplay = document.getElementById('advTierDisplay');
@@ -2984,6 +3169,16 @@ document.addEventListener('click', (e) => {
     if (rankWrapper && rankDropdown && !rankWrapper.contains(e.target)) {
         rankDropdown.classList.remove('show');
     }
+    
+    // 시간/서버/맵 필터 드롭다운
+    const dropdowns = ['timeDropdown', 'serverDropdown', 'mapDropdown'];
+    dropdowns.forEach(dropdownId => {
+        const dropdown = document.getElementById(dropdownId);
+        const wrapper = dropdown?.parentElement;
+        if (dropdown && wrapper && !wrapper.contains(e.target)) {
+            dropdown.classList.remove('show');
+        }
+    });
 });
 
 // ===== 라이엇 티어 인증 =====
