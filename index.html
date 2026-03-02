@@ -1661,39 +1661,98 @@ body {
                             </div>
                             <div class="filter-item">
                                 <label class="filter-label" data-i18n="filter_time_label">시간</label>
-                                <select class="filter-select" id="advTimeFilter">
-                                    <option value="" data-i18n="filter_all">전체</option>
-                                    <option value="morning">06:00-12:00</option>
-                                    <option value="afternoon">12:00-18:00</option>
-                                    <option value="evening">18:00-24:00</option>
-                                    <option value="night">00:00-06:00</option>
-                                </select>
+                                <div class="filter-checkbox-group">
+                                    <label class="filter-checkbox">
+                                        <input type="checkbox" name="timeFilter" value="morning">
+                                        <span>06:00-12:00</span>
+                                    </label>
+                                    <label class="filter-checkbox">
+                                        <input type="checkbox" name="timeFilter" value="afternoon">
+                                        <span>12:00-18:00</span>
+                                    </label>
+                                    <label class="filter-checkbox">
+                                        <input type="checkbox" name="timeFilter" value="evening">
+                                        <span>18:00-24:00</span>
+                                    </label>
+                                    <label class="filter-checkbox">
+                                        <input type="checkbox" name="timeFilter" value="night">
+                                        <span>00:00-06:00</span>
+                                    </label>
+                                </div>
                             </div>
                             <div class="filter-item">
                                 <label class="filter-label" data-i18n="filter_server_label">서버</label>
-                                <select class="filter-select" id="advServerFilter">
-                                    <option value="" data-i18n="filter_all">전체</option>
-                                    <option value="kr">KR</option>
-                                    <option value="jp">JP</option>
-                                    <option value="cn">CN</option>
-                                </select>
+                                <div class="filter-checkbox-group">
+                                    <label class="filter-checkbox">
+                                        <input type="checkbox" name="serverFilter" value="kr">
+                                        <span>🇰🇷 KR</span>
+                                    </label>
+                                    <label class="filter-checkbox">
+                                        <input type="checkbox" name="serverFilter" value="jp">
+                                        <span>🇯🇵 JP</span>
+                                    </label>
+                                    <label class="filter-checkbox">
+                                        <input type="checkbox" name="serverFilter" value="cn">
+                                        <span>🇨🇳 CN</span>
+                                    </label>
+                                    <label class="filter-checkbox">
+                                        <input type="checkbox" name="serverFilter" value="na">
+                                        <span>🇺🇸 NA</span>
+                                    </label>
+                                    <label class="filter-checkbox">
+                                        <input type="checkbox" name="serverFilter" value="eu">
+                                        <span>🇪🇺 EU</span>
+                                    </label>
+                                </div>
                             </div>
                             <div class="filter-item">
                                 <label class="filter-label" data-i18n="filter_map_label">맵</label>
-                                <select class="filter-select" id="advMapFilter">
-                                    <option value="" data-i18n="filter_all">전체</option>
-                                    <option value="Ascent">Ascent</option>
-                                    <option value="Bind">Bind</option>
-                                    <option value="Haven">Haven</option>
-                                    <option value="Split">Split</option>
-                                    <option value="Icebox">Icebox</option>
-                                    <option value="Breeze">Breeze</option>
-                                    <option value="Fracture">Fracture</option>
-                                    <option value="Pearl">Pearl</option>
-                                    <option value="Lotus">Lotus</option>
-                                    <option value="Sunset">Sunset</option>
-                                    <option value="Abyss">Abyss</option>
-                                </select>
+                                <div class="filter-checkbox-group" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px;">
+                                    <label class="filter-checkbox">
+                                        <input type="checkbox" name="mapFilter" value="Ascent">
+                                        <span>Ascent</span>
+                                    </label>
+                                    <label class="filter-checkbox">
+                                        <input type="checkbox" name="mapFilter" value="Bind">
+                                        <span>Bind</span>
+                                    </label>
+                                    <label class="filter-checkbox">
+                                        <input type="checkbox" name="mapFilter" value="Haven">
+                                        <span>Haven</span>
+                                    </label>
+                                    <label class="filter-checkbox">
+                                        <input type="checkbox" name="mapFilter" value="Split">
+                                        <span>Split</span>
+                                    </label>
+                                    <label class="filter-checkbox">
+                                        <input type="checkbox" name="mapFilter" value="Icebox">
+                                        <span>Icebox</span>
+                                    </label>
+                                    <label class="filter-checkbox">
+                                        <input type="checkbox" name="mapFilter" value="Breeze">
+                                        <span>Breeze</span>
+                                    </label>
+                                    <label class="filter-checkbox">
+                                        <input type="checkbox" name="mapFilter" value="Fracture">
+                                        <span>Fracture</span>
+                                    </label>
+                                    <label class="filter-checkbox">
+                                        <input type="checkbox" name="mapFilter" value="Pearl">
+                                        <span>Pearl</span>
+                                    </label>
+                                    <label class="filter-checkbox">
+                                        <input type="checkbox" name="mapFilter" value="Lotus">
+                                        <span>Lotus</span>
+                                    </label>
+                                    <label class="filter-checkbox">
+                                        <input type="checkbox" name="mapFilter" value="Sunset">
+                                        <span>Sunset</span>
+                                    </label>
+                                    <label class="filter-checkbox">
+                                        <input type="checkbox" name="mapFilter" value="Abyss">
+                                        <span>Abyss</span>
+                                    </label>
+                                </div>
                             </div>
                         </div>
 
@@ -2724,9 +2783,9 @@ document.addEventListener('click', (e) => {
 let advancedFilters = {
     search: '',
     tier: '',
-    time: '',
-    server: '',
-    map: ''
+    time: [],
+    server: [],
+    map: []
 };
 
 
@@ -2761,11 +2820,20 @@ function applyAllFilters() {
     // 검색어
     advancedFilters.search = document.getElementById('searchInput').value.toLowerCase();
     
-    // 고급 필터
+    // 고급 필터 - 티어 (기존 방식 유지)
     advancedFilters.tier = document.getElementById('advTierFilter').value;
-    advancedFilters.time = document.getElementById('advTimeFilter').value;
-    advancedFilters.server = document.getElementById('advServerFilter').value;
-    advancedFilters.map = document.getElementById('advMapFilter').value;
+    
+    // 시간 필터 - 체크박스 다중 선택
+    const timeCheckboxes = document.querySelectorAll('input[name="timeFilter"]:checked');
+    advancedFilters.time = Array.from(timeCheckboxes).map(cb => cb.value);
+    
+    // 서버 필터 - 체크박스 다중 선택
+    const serverCheckboxes = document.querySelectorAll('input[name="serverFilter"]:checked');
+    advancedFilters.server = Array.from(serverCheckboxes).map(cb => cb.value);
+    
+    // 맵 필터 - 체크박스 다중 선택
+    const mapCheckboxes = document.querySelectorAll('input[name="mapFilter"]:checked');
+    advancedFilters.map = Array.from(mapCheckboxes).map(cb => cb.value);
     
     filterScrims();
 }
@@ -2774,20 +2842,20 @@ function resetAdvancedFilters() {
     // 검색창 초기화
     document.getElementById('searchInput').value = '';
     
-    // 고급 필터 초기화
+    // 티어 필터 초기화
     document.getElementById('advTierFilter').value = '';
-    document.getElementById('advTimeFilter').value = '';
-    document.getElementById('advServerFilter').value = '';
-    document.getElementById('advMapFilter').value = '';
-
-
+    
+    // 체크박스 필터 초기화
+    document.querySelectorAll('input[name="timeFilter"]').forEach(cb => cb.checked = false);
+    document.querySelectorAll('input[name="serverFilter"]').forEach(cb => cb.checked = false);
+    document.querySelectorAll('input[name="mapFilter"]').forEach(cb => cb.checked = false);
     
     // 고급 티어 디스플레이 초기화
     const advTierDisplay = document.getElementById('advTierDisplay');
     const advTierText = document.getElementById('advTierDisplayText');
     const existingIcon = advTierDisplay?.querySelector('img');
     if (existingIcon) existingIcon.remove();
-    if (advTierText) advTierText.textContent = '전체';
+    if (advTierText) advTierText.textContent = t('tier_display_all');
     
     // 기존 필터도 초기화
     document.getElementById('rankFilter').value = '';
@@ -2798,15 +2866,15 @@ function resetAdvancedFilters() {
     const rankText = document.getElementById('rankDisplayText');
     const rankIcon = rankDisplay?.querySelector('img');
     if (rankIcon) rankIcon.remove();
-    if (rankText) rankText.textContent = '전체';
+    if (rankText) rankText.textContent = t('tier_display_all');
     
     // 필터 객체 초기화
     advancedFilters = {
         search: '',
         tier: '',
-        time: '',
-        server: '',
-        map: ''
+        time: [],
+        server: [],
+        map: []
     };
     
     filterScrims();
@@ -3323,7 +3391,34 @@ function filterScrims() {
         );
     }
     
-    // 4. 내 팀 제외
+    // 4. 시간 필터 (다중 선택) - 배열로 처리
+    if (advancedFilters.time && advancedFilters.time.length > 0) {
+        filtered = filtered.filter(scrim => {
+            // 스크림에 시간 정보가 있다고 가정 (추후 구현)
+            // 현재는 패스
+            return true;
+        });
+    }
+    
+    // 5. 서버 필터 (다중 선택)
+    if (advancedFilters.server && advancedFilters.server.length > 0) {
+        filtered = filtered.filter(scrim => {
+            // 스크림에 서버 정보가 있다고 가정 (추후 구현)
+            // 현재는 패스
+            return true;
+        });
+    }
+    
+    // 6. 맵 필터 (다중 선택)
+    if (advancedFilters.map && advancedFilters.map.length > 0) {
+        filtered = filtered.filter(scrim => {
+            // 스크림에 맵 정보가 있다고 가정 (추후 구현)
+            // 현재는 패스
+            return true;
+        });
+    }
+    
+    // 7. 내 팀 제외
     if (state.currentTeam) {
         filtered = filtered.filter(scrim => scrim.teamId !== state.currentTeam.id);
     }
