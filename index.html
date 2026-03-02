@@ -3423,9 +3423,50 @@ function loadMockData() {
         state.scrims = JSON.parse(saved);
     } else {
         state.scrims = [
-            {id: 'scrim_1', teamId: 'team_mock1', teamName: 'Team Liquid', teamRank: 8, date: new Date(Date.now() + 86400000), minRank: 7, maxRank: 9, status: 'OPEN', matchedTeam: null},
-            {id: 'scrim_2', teamId: 'team_mock2', teamName: 'Sentinels', teamRank: 9, date: new Date(Date.now() + 172800000), minRank: 8, maxRank: 9, status: 'OPEN', matchedTeam: null},
-            {id: 'scrim_3', teamId: 'team_mock3', teamName: 'OpTic Gaming', teamRank: 6, date: new Date(Date.now() + 259200000), minRank: 5, maxRank: 7, status: 'OPEN', matchedTeam: null}
+            {
+                id: 'scrim_1', 
+                teamId: 'team_mock1', 
+                teamName: 'DRX Esports', 
+                teamRank: '8-2',  // Immortal 2
+                date: new Date(Date.now() + 3600000 * 3),  // 3시간 후
+                minRank: '8-1', 
+                maxRank: '9', 
+                status: 'OPEN', 
+                matchedTeam: null
+            },
+            {
+                id: 'scrim_2', 
+                teamId: 'team_mock2', 
+                teamName: 'T1 Academy', 
+                teamRank: '7-3',  // Ascendant 3
+                date: new Date(Date.now() + 86400000),  // 1일 후
+                minRank: '7-1', 
+                maxRank: '8-1', 
+                status: 'OPEN', 
+                matchedTeam: null
+            },
+            {
+                id: 'scrim_3', 
+                teamId: 'team_mock3', 
+                teamName: 'GenG Prospects', 
+                teamRank: '9',  // Radiant
+                date: new Date(Date.now() + 86400000 * 2),  // 2일 후
+                minRank: '8-3', 
+                maxRank: '9', 
+                status: 'OPEN', 
+                matchedTeam: null
+            },
+            {
+                id: 'scrim_4', 
+                teamId: 'team_mock4', 
+                teamName: 'PRX Challengers', 
+                teamRank: '6-3',  // Diamond 3
+                date: new Date(Date.now() + 86400000 * 3),  // 3일 후
+                minRank: '6-1', 
+                maxRank: '7-2', 
+                status: 'OPEN', 
+                matchedTeam: null
+            }
         ];
     }
     filterScrims();
