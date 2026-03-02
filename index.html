@@ -1804,16 +1804,16 @@ body {
                                         <div class="rank-option" data-value="" onclick="clearTimeFilter()">
                                             <span>전체</span>
                                         </div>
-                                        <div class="rank-option" data-value="morning" onclick="toggleTimeOption('morning', '06:00-12:00', this)">
+                                        <div class="rank-option" data-value="morning" onclick="toggleTimeOption('morning', this)">
                                             <span>06:00-12:00</span>
                                         </div>
-                                        <div class="rank-option" data-value="afternoon" onclick="toggleTimeOption('afternoon', '12:00-18:00', this)">
+                                        <div class="rank-option" data-value="afternoon" onclick="toggleTimeOption('afternoon', this)">
                                             <span>12:00-18:00</span>
                                         </div>
-                                        <div class="rank-option" data-value="evening" onclick="toggleTimeOption('evening', '18:00-24:00', this)">
+                                        <div class="rank-option" data-value="evening" onclick="toggleTimeOption('evening', this)">
                                             <span>18:00-24:00</span>
                                         </div>
-                                        <div class="rank-option" data-value="night" onclick="toggleTimeOption('night', '00:00-06:00', this)">
+                                        <div class="rank-option" data-value="night" onclick="toggleTimeOption('night', this)">
                                             <span>00:00-06:00</span>
                                         </div>
                                     </div>
@@ -1829,19 +1829,19 @@ body {
                                         <div class="rank-option" data-value="" onclick="clearServerFilter()">
                                             <span>전체</span>
                                         </div>
-                                        <div class="rank-option" data-value="kr" onclick="toggleServerOption('kr', '🇰🇷 KR', this)">
+                                        <div class="rank-option" data-value="kr" onclick="toggleServerOption('kr', this)">
                                             <span>🇰🇷 KR</span>
                                         </div>
-                                        <div class="rank-option" data-value="jp" onclick="toggleServerOption('jp', '🇯🇵 JP', this)">
+                                        <div class="rank-option" data-value="jp" onclick="toggleServerOption('jp', this)">
                                             <span>🇯🇵 JP</span>
                                         </div>
-                                        <div class="rank-option" data-value="cn" onclick="toggleServerOption('cn', '🇨🇳 CN', this)">
+                                        <div class="rank-option" data-value="cn" onclick="toggleServerOption('cn', this)">
                                             <span>🇨🇳 CN</span>
                                         </div>
-                                        <div class="rank-option" data-value="na" onclick="toggleServerOption('na', '🇺🇸 NA', this)">
+                                        <div class="rank-option" data-value="na" onclick="toggleServerOption('na', this)">
                                             <span>🇺🇸 NA</span>
                                         </div>
-                                        <div class="rank-option" data-value="eu" onclick="toggleServerOption('eu', '🇪🇺 EU', this)">
+                                        <div class="rank-option" data-value="eu" onclick="toggleServerOption('eu', this)">
                                             <span>🇪🇺 EU</span>
                                         </div>
                                     </div>
@@ -3052,7 +3052,7 @@ function toggleTimeDropdown() {
     document.getElementById('advTierDropdown')?.classList.remove('show');
 }
 
-function toggleTimeOption(value, text, element) {
+function toggleTimeOption(value, element) {
     if (!Array.isArray(advancedFilters.time)) {
         advancedFilters.time = [];
     }
@@ -3089,7 +3089,7 @@ function toggleServerDropdown() {
     document.getElementById('advTierDropdown')?.classList.remove('show');
 }
 
-function toggleServerOption(value, text, element) {
+function toggleServerOption(value, element) {
     if (!Array.isArray(advancedFilters.server)) {
         advancedFilters.server = [];
     }
