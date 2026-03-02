@@ -1801,21 +1801,11 @@ body {
                                         <span id="timeDisplayText" data-i18n="select_all">전체</span>
                                     </div>
                                     <div class="rank-dropdown" id="timeDropdown">
-                                        <div class="rank-option" onclick="clearTimeFilter()">
-                                            <span>전체</span>
-                                        </div>
-                                        <div class="rank-option" data-time="morning" onclick="toggleTimeOption('morning', this)">
-                                            <span>06:00-12:00</span>
-                                        </div>
-                                        <div class="rank-option" data-time="afternoon" onclick="toggleTimeOption('afternoon', this)">
-                                            <span>12:00-18:00</span>
-                                        </div>
-                                        <div class="rank-option" data-time="evening" onclick="toggleTimeOption('evening', this)">
-                                            <span>18:00-24:00</span>
-                                        </div>
-                                        <div class="rank-option" data-time="night" onclick="toggleTimeOption('night', this)">
-                                            <span>00:00-06:00</span>
-                                        </div>
+                                        <div class="rank-option" onclick="clearTimeFilter()">전체</div>
+                                        <div class="rank-option" onclick="toggleTimeOption('morning', this)">06:00-12:00</div>
+                                        <div class="rank-option" onclick="toggleTimeOption('afternoon', this)">12:00-18:00</div>
+                                        <div class="rank-option" onclick="toggleTimeOption('evening', this)">18:00-24:00</div>
+                                        <div class="rank-option" onclick="toggleTimeOption('night', this)">00:00-06:00</div>
                                     </div>
                                 </div>
                             </div>
@@ -1826,24 +1816,12 @@ body {
                                         <span id="serverDisplayText" data-i18n="select_all">전체</span>
                                     </div>
                                     <div class="rank-dropdown" id="serverDropdown">
-                                        <div class="rank-option" onclick="clearServerFilter()">
-                                            <span>전체</span>
-                                        </div>
-                                        <div class="rank-option" data-server="KR" onclick="toggleServerOption('KR', this)">
-                                            <span>🇰🇷 KR</span>
-                                        </div>
-                                        <div class="rank-option" data-server="JP" onclick="toggleServerOption('JP', this)">
-                                            <span>🇯🇵 JP</span>
-                                        </div>
-                                        <div class="rank-option" data-server="CN" onclick="toggleServerOption('CN', this)">
-                                            <span>🇨🇳 CN</span>
-                                        </div>
-                                        <div class="rank-option" data-server="NA" onclick="toggleServerOption('NA', this)">
-                                            <span>🇺🇸 NA</span>
-                                        </div>
-                                        <div class="rank-option" data-server="EU" onclick="toggleServerOption('EU', this)">
-                                            <span>🇪🇺 EU</span>
-                                        </div>
+                                        <div class="rank-option" onclick="clearServerFilter()">전체</div>
+                                        <div class="rank-option" onclick="toggleServerOption('KR', this)">🇰🇷 KR</div>
+                                        <div class="rank-option" onclick="toggleServerOption('JP', this)">🇯🇵 JP</div>
+                                        <div class="rank-option" onclick="toggleServerOption('CN', this)">🇨🇳 CN</div>
+                                        <div class="rank-option" onclick="toggleServerOption('NA', this)">🇺🇸 NA</div>
+                                        <div class="rank-option" onclick="toggleServerOption('EU', this)">🇪🇺 EU</div>
                                     </div>
                                 </div>
                             </div>
@@ -1854,42 +1832,18 @@ body {
                                         <span id="mapDisplayText" data-i18n="select_all">전체</span>
                                     </div>
                                     <div class="rank-dropdown" id="mapDropdown">
-                                        <div class="rank-option" data-value="" onclick="clearMapFilter()">
-                                            <span>전체</span>
-                                        </div>
-                                        <div class="rank-option" data-value="Ascent" onclick="toggleMapOption('Ascent', this)">
-                                            <span>Ascent</span>
-                                        </div>
-                                        <div class="rank-option" data-value="Bind" onclick="toggleMapOption('Bind', this)">
-                                            <span>Bind</span>
-                                        </div>
-                                        <div class="rank-option" data-value="Haven" onclick="toggleMapOption('Haven', this)">
-                                            <span>Haven</span>
-                                        </div>
-                                        <div class="rank-option" data-value="Split" onclick="toggleMapOption('Split', this)">
-                                            <span>Split</span>
-                                        </div>
-                                        <div class="rank-option" data-value="Icebox" onclick="toggleMapOption('Icebox', this)">
-                                            <span>Icebox</span>
-                                        </div>
-                                        <div class="rank-option" data-value="Breeze" onclick="toggleMapOption('Breeze', this)">
-                                            <span>Breeze</span>
-                                        </div>
-                                        <div class="rank-option" data-value="Fracture" onclick="toggleMapOption('Fracture', this)">
-                                            <span>Fracture</span>
-                                        </div>
-                                        <div class="rank-option" data-value="Pearl" onclick="toggleMapOption('Pearl', this)">
-                                            <span>Pearl</span>
-                                        </div>
-                                        <div class="rank-option" data-value="Lotus" onclick="toggleMapOption('Lotus', this)">
-                                            <span>Lotus</span>
-                                        </div>
-                                        <div class="rank-option" data-value="Sunset" onclick="toggleMapOption('Sunset', this)">
-                                            <span>Sunset</span>
-                                        </div>
-                                        <div class="rank-option" data-value="Abyss" onclick="toggleMapOption('Abyss', this)">
-                                            <span>Abyss</span>
-                                        </div>
+                                        <div class="rank-option" onclick="clearMapFilter()">전체</div>
+                                        <div class="rank-option" onclick="toggleMapOption('Ascent', this)">Ascent</div>
+                                        <div class="rank-option" onclick="toggleMapOption('Bind', this)">Bind</div>
+                                        <div class="rank-option" onclick="toggleMapOption('Haven', this)">Haven</div>
+                                        <div class="rank-option" onclick="toggleMapOption('Split', this)">Split</div>
+                                        <div class="rank-option" onclick="toggleMapOption('Icebox', this)">Icebox</div>
+                                        <div class="rank-option" onclick="toggleMapOption('Breeze', this)">Breeze</div>
+                                        <div class="rank-option" onclick="toggleMapOption('Fracture', this)">Fracture</div>
+                                        <div class="rank-option" onclick="toggleMapOption('Pearl', this)">Pearl</div>
+                                        <div class="rank-option" onclick="toggleMapOption('Lotus', this)">Lotus</div>
+                                        <div class="rank-option" onclick="toggleMapOption('Sunset', this)">Sunset</div>
+                                        <div class="rank-option" onclick="toggleMapOption('Abyss', this)">Abyss</div>
                                     </div>
                                 </div>
                             </div>
