@@ -3274,16 +3274,60 @@ function loadScrims() {
     setTimeout(() => filterScrims(), 500);
 }
 
+// 랭크 비교 함수 (문자열 랭크를 숫자로 변환)
+function rankToNumber(rankStr) {
+    if (!rankStr) return 0;
+    if (typeof rankStr === 'number') return rankStr;
+    
+    // "7-3" 형식 처리
+    if (rankStr.includes('-')) {
+        const [tier, division] = rankStr.split('-').map(Number);
+        return tier * 10 + division;  // 7-3 → 73
+    }
+    
+    // "9" 형식 (Radiant)
+    return parseInt(rankStr) * 10;  // 9 → 90
+}
+
 function filterScrims() {
     const rankFilter = document.getElementById('rankFilter').value;
     let filtered = [...state.scrims];
+    
+    // 1. 기본 랭크 필터 (드롭다운)
     if (rankFilter) {
-        const rank = parseInt(rankFilter);
-        filtered = filtered.filter(scrim => scrim.minRank <= rank && scrim.maxRank >= rank);
+        const filterRank = rankToNumber(rankFilter);
+        filtered = filtered.filter(scrim => {
+            const minRank = rankToNumber(scrim.minRank);
+            const maxRank = rankToNumber(scrim.maxRank);
+            const teamRank = rankToNumber(scrim.teamRank);
+            
+            // 팀 랭크가 필터 랭크와 일치하거나
+            // 필터 랭크가 요구 랭크 범위 내에 있으면 표시
+            return teamRank === filterRank || (minRank <= filterRank && maxRank >= filterRank);
+        });
     }
+    
+    // 2. 고급 필터 - 티어
+    if (advancedFilters.tier) {
+        const filterRank = rankToNumber(advancedFilters.tier);
+        filtered = filtered.filter(scrim => {
+            const teamRank = rankToNumber(scrim.teamRank);
+            return teamRank === filterRank;
+        });
+    }
+    
+    // 3. 검색어 필터
+    if (advancedFilters.search) {
+        filtered = filtered.filter(scrim => 
+            scrim.teamName.toLowerCase().includes(advancedFilters.search)
+        );
+    }
+    
+    // 4. 내 팀 제외
     if (state.currentTeam) {
         filtered = filtered.filter(scrim => scrim.teamId !== state.currentTeam.id);
     }
+    
     state.filteredScrims = filtered;
     renderScrims();
 }
