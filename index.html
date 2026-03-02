@@ -1801,19 +1801,19 @@ body {
                                         <span id="timeDisplayText" data-i18n="select_all">전체</span>
                                     </div>
                                     <div class="rank-dropdown" id="timeDropdown">
-                                        <div class="rank-option" data-value="" onclick="clearTimeFilter()">
+                                        <div class="rank-option" onclick="clearTimeFilter()">
                                             <span>전체</span>
                                         </div>
-                                        <div class="rank-option" data-value="morning" onclick="toggleTimeOption('morning', this)">
+                                        <div class="rank-option" data-time="morning" onclick="toggleTimeOption('morning', this)">
                                             <span>06:00-12:00</span>
                                         </div>
-                                        <div class="rank-option" data-value="afternoon" onclick="toggleTimeOption('afternoon', this)">
+                                        <div class="rank-option" data-time="afternoon" onclick="toggleTimeOption('afternoon', this)">
                                             <span>12:00-18:00</span>
                                         </div>
-                                        <div class="rank-option" data-value="evening" onclick="toggleTimeOption('evening', this)">
+                                        <div class="rank-option" data-time="evening" onclick="toggleTimeOption('evening', this)">
                                             <span>18:00-24:00</span>
                                         </div>
-                                        <div class="rank-option" data-value="night" onclick="toggleTimeOption('night', this)">
+                                        <div class="rank-option" data-time="night" onclick="toggleTimeOption('night', this)">
                                             <span>00:00-06:00</span>
                                         </div>
                                     </div>
@@ -1826,22 +1826,22 @@ body {
                                         <span id="serverDisplayText" data-i18n="select_all">전체</span>
                                     </div>
                                     <div class="rank-dropdown" id="serverDropdown">
-                                        <div class="rank-option" data-value="" onclick="clearServerFilter()">
+                                        <div class="rank-option" onclick="clearServerFilter()">
                                             <span>전체</span>
                                         </div>
-                                        <div class="rank-option" data-value="KR" onclick="toggleServerOption('KR', this)">
+                                        <div class="rank-option" data-server="KR" onclick="toggleServerOption('KR', this)">
                                             <span>🇰🇷 KR</span>
                                         </div>
-                                        <div class="rank-option" data-value="JP" onclick="toggleServerOption('JP', this)">
+                                        <div class="rank-option" data-server="JP" onclick="toggleServerOption('JP', this)">
                                             <span>🇯🇵 JP</span>
                                         </div>
-                                        <div class="rank-option" data-value="CN" onclick="toggleServerOption('CN', this)">
+                                        <div class="rank-option" data-server="CN" onclick="toggleServerOption('CN', this)">
                                             <span>🇨🇳 CN</span>
                                         </div>
-                                        <div class="rank-option" data-value="NA" onclick="toggleServerOption('NA', this)">
+                                        <div class="rank-option" data-server="NA" onclick="toggleServerOption('NA', this)">
                                             <span>🇺🇸 NA</span>
                                         </div>
-                                        <div class="rank-option" data-value="EU" onclick="toggleServerOption('EU', this)">
+                                        <div class="rank-option" data-server="EU" onclick="toggleServerOption('EU', this)">
                                             <span>🇪🇺 EU</span>
                                         </div>
                                     </div>
