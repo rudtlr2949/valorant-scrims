@@ -1747,7 +1747,7 @@ body {
                                         <span id="advTierDisplayText">전체</span>
                                     </div>
                                     <div class="rank-dropdown" id="advTierDropdown">
-                                        <div class="rank-option" data-value="" onclick="selectAdvTier('', '전체', null)">
+                                        <div class="rank-option" data-value="" onclick="clearTierFilter()">
                                             <span>전체</span>
                                         </div>
                                         <div class="rank-option" data-value="6-1" onclick="selectAdvTier('6-1', 'Diamond I', 'https://trackercdn.com/cdn/tracker.gg/valorant/icons/tiersv2/18.png')">
@@ -1801,6 +1801,9 @@ body {
                                         <span id="timeDisplayText" data-i18n="select_all">전체</span>
                                     </div>
                                     <div class="rank-dropdown" id="timeDropdown">
+                                        <div class="rank-option" data-value="" onclick="clearTimeFilter()">
+                                            <span>전체</span>
+                                        </div>
                                         <div class="rank-option" data-value="morning" onclick="toggleTimeOption('morning', '06:00-12:00', this)">
                                             <span>06:00-12:00</span>
                                         </div>
@@ -1823,6 +1826,9 @@ body {
                                         <span id="serverDisplayText" data-i18n="select_all">전체</span>
                                     </div>
                                     <div class="rank-dropdown" id="serverDropdown">
+                                        <div class="rank-option" data-value="" onclick="clearServerFilter()">
+                                            <span>전체</span>
+                                        </div>
                                         <div class="rank-option" data-value="kr" onclick="toggleServerOption('kr', '🇰🇷 KR', this)">
                                             <span>🇰🇷 KR</span>
                                         </div>
@@ -1848,6 +1854,9 @@ body {
                                         <span id="mapDisplayText" data-i18n="select_all">전체</span>
                                     </div>
                                     <div class="rank-dropdown" id="mapDropdown">
+                                        <div class="rank-option" data-value="" onclick="clearMapFilter()">
+                                            <span>전체</span>
+                                        </div>
                                         <div class="rank-option" data-value="Ascent" onclick="toggleMapOption('Ascent', this)">
                                             <span>Ascent</span>
                                         </div>
@@ -2977,6 +2986,59 @@ function toggleAdvancedFilter() {
     
     panel.classList.toggle('show');
     btn.classList.toggle('active');
+}
+
+// ===== "전체" 클릭 시 필터 초기화 =====
+function clearTierFilter() {
+    // 모든 선택 해제
+    advancedFilters.tier = [];
+    
+    // 모든 selected 클래스 제거
+    document.querySelectorAll('#advTierDropdown .rank-option.selected').forEach(option => {
+        option.classList.remove('selected');
+    });
+    
+    // 디스플레이 업데이트
+    updateTierDisplay();
+}
+
+function clearTimeFilter() {
+    // 모든 선택 해제
+    advancedFilters.time = [];
+    
+    // 모든 selected 클래스 제거
+    document.querySelectorAll('#timeDropdown .rank-option.selected').forEach(option => {
+        option.classList.remove('selected');
+    });
+    
+    // 디스플레이 업데이트
+    updateTimeDisplay();
+}
+
+function clearServerFilter() {
+    // 모든 선택 해제
+    advancedFilters.server = [];
+    
+    // 모든 selected 클래스 제거
+    document.querySelectorAll('#serverDropdown .rank-option.selected').forEach(option => {
+        option.classList.remove('selected');
+    });
+    
+    // 디스플레이 업데이트
+    updateServerDisplay();
+}
+
+function clearMapFilter() {
+    // 모든 선택 해제
+    advancedFilters.map = [];
+    
+    // 모든 selected 클래스 제거
+    document.querySelectorAll('#mapDropdown .rank-option.selected').forEach(option => {
+        option.classList.remove('selected');
+    });
+    
+    // 디스플레이 업데이트
+    updateMapDisplay();
 }
 
 // ===== 시간 필터 드롭다운 =====
