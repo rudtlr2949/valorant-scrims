@@ -675,6 +675,129 @@ body {
     gap: 15px;
 }
 
+/* 다중 선택 드롭다운 */
+.filter-dropdown-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.filter-dropdown-display {
+    padding: 10px 35px 10px 12px;
+    background: var(--val-dark-3);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+}
+
+.filter-dropdown-display:hover {
+    border-color: var(--val-red);
+}
+
+.dropdown-arrow {
+    position: absolute;
+    right: 12px;
+    font-size: 0.7rem;
+    color: var(--val-text-muted);
+    transition: transform 0.2s;
+}
+
+.filter-dropdown {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    background: var(--val-dark-2);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 8px;
+    max-height: 250px;
+    overflow-y: auto;
+    z-index: 1000;
+    display: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+}
+
+.filter-dropdown.show {
+    display: block;
+}
+
+.filter-dropdown-option {
+    padding: 10px 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: background 0.2s;
+}
+
+.filter-dropdown-option:hover {
+    background: var(--val-dark-3);
+}
+
+.filter-dropdown-option.selected {
+    background: rgba(255, 70, 85, 0.1);
+}
+
+.option-check {
+    width: 18px;
+    height: 18px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    color: transparent;
+    transition: all 0.2s;
+}
+
+.filter-dropdown-option.selected .option-check {
+    background: var(--val-red);
+    border-color: var(--val-red);
+    color: white;
+}
+
+/* 필터 칩 스타일 */
+.filter-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.filter-chip {
+    padding: 8px 16px;
+    background: var(--val-dark-3);
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.2s;
+    user-select: none;
+}
+
+.filter-chip:hover {
+    background: rgba(255, 70, 85, 0.1);
+    border-color: rgba(255, 70, 85, 0.3);
+}
+
+.filter-chip.active {
+    background: var(--val-red);
+    border-color: var(--val-red);
+    color: white;
+    font-weight: 600;
+}
+
+.filter-chip span {
+    font-size: 0.85rem;
+    color: var(--val-text);
+}
+
+.filter-chip.active span {
+    color: white;
+}
+
 .filter-checkbox {
     display: flex;
     align-items: center;
@@ -808,7 +931,19 @@ body {
 }
 
 .rank-option.selected {
-    background: rgba(255, 70, 85, 0.2);
+    background: rgba(255, 70, 85, 0.15);
+    border: 2px solid var(--val-red);
+    border-radius: 6px;
+    position: relative;
+}
+
+.rank-option.selected::after {
+    content: '✓';
+    position: absolute;
+    right: 12px;
+    color: var(--val-red);
+    font-weight: bold;
+    font-size: 16px;
 }
 
 /* ===== 라이엇 티어 인증 ===== */
@@ -1661,39 +1796,116 @@ body {
                             </div>
                             <div class="filter-item">
                                 <label class="filter-label" data-i18n="filter_time_label">시간</label>
-                                <select class="filter-select" id="advTimeFilter">
-                                    <option value="" data-i18n="filter_all">전체</option>
-                                    <option value="morning">06:00-12:00</option>
-                                    <option value="afternoon">12:00-18:00</option>
-                                    <option value="evening">18:00-24:00</option>
-                                    <option value="night">00:00-06:00</option>
-                                </select>
+                                <div class="filter-dropdown-wrapper">
+                                    <div class="filter-dropdown-display" onclick="toggleDropdown('timeDropdown')">
+                                        <span id="timeFilterDisplay">선택 안 됨</span>
+                                        <span class="dropdown-arrow">▼</span>
+                                    </div>
+                                    <div class="filter-dropdown" id="timeDropdown">
+                                        <div class="filter-dropdown-option" onclick="toggleDropdownOption('time', 'morning', this)">
+                                            <span class="option-check">✓</span>
+                                            <span>06:00-12:00</span>
+                                        </div>
+                                        <div class="filter-dropdown-option" onclick="toggleDropdownOption('time', 'afternoon', this)">
+                                            <span class="option-check">✓</span>
+                                            <span>12:00-18:00</span>
+                                        </div>
+                                        <div class="filter-dropdown-option" onclick="toggleDropdownOption('time', 'evening', this)">
+                                            <span class="option-check">✓</span>
+                                            <span>18:00-24:00</span>
+                                        </div>
+                                        <div class="filter-dropdown-option" onclick="toggleDropdownOption('time', 'night', this)">
+                                            <span class="option-check">✓</span>
+                                            <span>00:00-06:00</span>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                             <div class="filter-item">
                                 <label class="filter-label" data-i18n="filter_server_label">서버</label>
-                                <select class="filter-select" id="advServerFilter">
-                                    <option value="" data-i18n="filter_all">전체</option>
-                                    <option value="kr">KR</option>
-                                    <option value="jp">JP</option>
-                                    <option value="cn">CN</option>
-                                </select>
+                                <div class="filter-dropdown-wrapper">
+                                    <div class="filter-dropdown-display" onclick="toggleDropdown('serverDropdown')">
+                                        <span id="serverFilterDisplay">선택 안 됨</span>
+                                        <span class="dropdown-arrow">▼</span>
+                                    </div>
+                                    <div class="filter-dropdown" id="serverDropdown">
+                                        <div class="filter-dropdown-option" onclick="toggleDropdownOption('server', 'kr', this)">
+                                            <span class="option-check">✓</span>
+                                            <span>🇰🇷 KR</span>
+                                        </div>
+                                        <div class="filter-dropdown-option" onclick="toggleDropdownOption('server', 'jp', this)">
+                                            <span class="option-check">✓</span>
+                                            <span>🇯🇵 JP</span>
+                                        </div>
+                                        <div class="filter-dropdown-option" onclick="toggleDropdownOption('server', 'cn', this)">
+                                            <span class="option-check">✓</span>
+                                            <span>🇨🇳 CN</span>
+                                        </div>
+                                        <div class="filter-dropdown-option" onclick="toggleDropdownOption('server', 'na', this)">
+                                            <span class="option-check">✓</span>
+                                            <span>🇺🇸 NA</span>
+                                        </div>
+                                        <div class="filter-dropdown-option" onclick="toggleDropdownOption('server', 'eu', this)">
+                                            <span class="option-check">✓</span>
+                                            <span>🇪🇺 EU</span>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                             <div class="filter-item">
                                 <label class="filter-label" data-i18n="filter_map_label">맵</label>
-                                <select class="filter-select" id="advMapFilter">
-                                    <option value="" data-i18n="filter_all">전체</option>
-                                    <option value="Ascent">Ascent</option>
-                                    <option value="Bind">Bind</option>
-                                    <option value="Haven">Haven</option>
-                                    <option value="Split">Split</option>
-                                    <option value="Icebox">Icebox</option>
-                                    <option value="Breeze">Breeze</option>
-                                    <option value="Fracture">Fracture</option>
-                                    <option value="Pearl">Pearl</option>
-                                    <option value="Lotus">Lotus</option>
-                                    <option value="Sunset">Sunset</option>
-                                    <option value="Abyss">Abyss</option>
-                                </select>
+                                <div class="filter-dropdown-wrapper">
+                                    <div class="filter-dropdown-display" onclick="toggleDropdown('mapDropdown')">
+                                        <span id="mapFilterDisplay">선택 안 됨</span>
+                                        <span class="dropdown-arrow">▼</span>
+                                    </div>
+                                    <div class="filter-dropdown" id="mapDropdown">
+                                        <div class="filter-dropdown-option" onclick="toggleDropdownOption('map', 'Ascent', this)">
+                                            <span class="option-check">✓</span>
+                                            <span>Ascent</span>
+                                        </div>
+                                        <div class="filter-dropdown-option" onclick="toggleDropdownOption('map', 'Bind', this)">
+                                            <span class="option-check">✓</span>
+                                            <span>Bind</span>
+                                        </div>
+                                        <div class="filter-dropdown-option" onclick="toggleDropdownOption('map', 'Haven', this)">
+                                            <span class="option-check">✓</span>
+                                            <span>Haven</span>
+                                        </div>
+                                        <div class="filter-dropdown-option" onclick="toggleDropdownOption('map', 'Split', this)">
+                                            <span class="option-check">✓</span>
+                                            <span>Split</span>
+                                        </div>
+                                        <div class="filter-dropdown-option" onclick="toggleDropdownOption('map', 'Icebox', this)">
+                                            <span class="option-check">✓</span>
+                                            <span>Icebox</span>
+                                        </div>
+                                        <div class="filter-dropdown-option" onclick="toggleDropdownOption('map', 'Breeze', this)">
+                                            <span class="option-check">✓</span>
+                                            <span>Breeze</span>
+                                        </div>
+                                        <div class="filter-dropdown-option" onclick="toggleDropdownOption('map', 'Fracture', this)">
+                                            <span class="option-check">✓</span>
+                                            <span>Fracture</span>
+                                        </div>
+                                        <div class="filter-dropdown-option" onclick="toggleDropdownOption('map', 'Pearl', this)">
+                                            <span class="option-check">✓</span>
+                                            <span>Pearl</span>
+                                        </div>
+                                        <div class="filter-dropdown-option" onclick="toggleDropdownOption('map', 'Lotus', this)">
+                                            <span class="option-check">✓</span>
+                                            <span>Lotus</span>
+                                        </div>
+                                        <div class="filter-dropdown-option" onclick="toggleDropdownOption('map', 'Sunset', this)">
+                                            <span class="option-check">✓</span>
+                                            <span>Sunset</span>
+                                        </div>
+                                        <div class="filter-dropdown-option" onclick="toggleDropdownOption('map', 'Abyss', this)">
+                                            <span class="option-check">✓</span>
+                                            <span>Abyss</span>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
@@ -2659,10 +2871,35 @@ function toggleAdvTierDropdown() {
 }
 
 function selectAdvTier(value, text, iconUrl) {
-    // hidden input 업데이트
-    document.getElementById('advTierFilter').value = value;
+    // 배열로 변경
+    if (!Array.isArray(advancedFilters.tier)) {
+        // 기존 단일 값이 있으면 배열로 변환
+        const oldValue = advancedFilters.tier;
+        advancedFilters.tier = oldValue ? [oldValue] : [];
+    }
+    
+    // 토글 처리
+    const index = advancedFilters.tier.indexOf(value);
+    const option = document.querySelector(`#advTierDropdown [data-value="${value}"]`);
+    
+    if (index > -1) {
+        // 이미 선택됨 - 제거
+        advancedFilters.tier.splice(index, 1);
+        if (option) option.classList.remove('selected');
+    } else {
+        // 선택 안 됨 - 추가
+        advancedFilters.tier.push(value);
+        if (option) option.classList.add('selected');
+    }
     
     // 디스플레이 업데이트
+    updateTierDisplay();
+    
+    // 드롭다운은 열린 상태 유지 (닫지 않음)
+}
+
+// 티어 디스플레이 업데이트 함수
+function updateTierDisplay() {
     const display = document.getElementById('advTierDisplay');
     const displayText = document.getElementById('advTierDisplayText');
     
@@ -2670,24 +2907,32 @@ function selectAdvTier(value, text, iconUrl) {
     const existingIcon = display.querySelector('img');
     if (existingIcon) existingIcon.remove();
     
-    // 새 아이콘 추가
-    if (iconUrl) {
-        const icon = document.createElement('img');
-        icon.src = iconUrl;
-        icon.alt = text;
-        display.insertBefore(icon, displayText);
+    if (advancedFilters.tier && advancedFilters.tier.length > 0) {
+        // 여러 개 선택된 경우
+        if (advancedFilters.tier.length === 1) {
+            // 1개만 선택 - 아이콘과 이름 표시
+            const value = advancedFilters.tier[0];
+            const selectedOption = document.querySelector(`#advTierDropdown [data-value="${value}"]`);
+            if (selectedOption) {
+                const iconUrl = selectedOption.querySelector('img')?.src;
+                const text = selectedOption.querySelector('span')?.textContent;
+                
+                if (iconUrl) {
+                    const icon = document.createElement('img');
+                    icon.src = iconUrl;
+                    icon.alt = text;
+                    display.insertBefore(icon, displayText);
+                }
+                displayText.textContent = text;
+            }
+        } else {
+            // 여러 개 선택 - 개수 표시
+            displayText.textContent = `${advancedFilters.tier.length}개 티어 선택됨`;
+        }
+    } else {
+        // 선택 안 됨
+        displayText.textContent = t('tier_display_all');
     }
-    
-    displayText.textContent = text;
-    
-    // selected 클래스 업데이트
-    const allOptions = document.querySelectorAll('#advTierDropdown .rank-option');
-    allOptions.forEach(opt => opt.classList.remove('selected'));
-    const selected = document.querySelector(`#advTierDropdown [data-value="${value}"]`);
-    if (selected) selected.classList.add('selected');
-    
-    // 드롭다운 닫기
-    document.getElementById('advTierDropdown').classList.remove('show');
 }
 
 // 드롭다운 외부 클릭시 닫기 (고급 필터용)
@@ -2723,10 +2968,10 @@ document.addEventListener('click', (e) => {
 // ===== 고급 필터 시스템 =====
 let advancedFilters = {
     search: '',
-    tier: '',
-    time: '',
-    server: '',
-    map: ''
+    tier: [],
+    time: [],
+    server: [],
+    map: []
 };
 
 
@@ -2757,15 +3002,91 @@ function toggleAdvancedFilter() {
     btn.classList.toggle('active');
 }
 
+// 드롭다운 열기/닫기
+function toggleDropdown(dropdownId) {
+    const dropdown = document.getElementById(dropdownId);
+    dropdown.classList.toggle('show');
+    
+    // 다른 드롭다운 닫기
+    document.querySelectorAll('.filter-dropdown.show').forEach(dd => {
+        if (dd.id !== dropdownId) {
+            dd.classList.remove('show');
+        }
+    });
+}
+
+// 드롭다운 옵션 토글 (다중 선택)
+function toggleDropdownOption(type, value, element) {
+    // 배열 초기화 확인
+    if (!Array.isArray(advancedFilters[type])) {
+        advancedFilters[type] = [];
+    }
+    
+    // 토글 처리
+    const index = advancedFilters[type].indexOf(value);
+    if (index > -1) {
+        // 이미 선택됨 - 제거
+        advancedFilters[type].splice(index, 1);
+        element.classList.remove('selected');
+    } else {
+        // 선택 안 됨 - 추가
+        advancedFilters[type].push(value);
+        element.classList.add('selected');
+    }
+    
+    // 디스플레이 업데이트
+    updateFilterDisplay(type);
+}
+
+// 필터 디스플레이 텍스트 업데이트
+function updateFilterDisplay(type) {
+    const displayMap = {
+        'time': 'timeFilterDisplay',
+        'server': 'serverFilterDisplay',
+        'map': 'mapFilterDisplay'
+    };
+    
+    const displayId = displayMap[type];
+    const displayElement = document.getElementById(displayId);
+    
+    if (!displayElement) return;
+    
+    const selected = advancedFilters[type];
+    if (selected && selected.length > 0) {
+        displayElement.textContent = `${selected.length}개 선택됨`;
+    } else {
+        displayElement.textContent = '선택 안 됨';
+    }
+}
+
+// 필터 칩 토글 함수 (기존 함수 유지)
+function toggleFilter(type, value, element) {
+    // 배열 초기화 확인
+    if (!Array.isArray(advancedFilters[type])) {
+        advancedFilters[type] = [];
+    }
+    
+    // 토글 처리
+    const index = advancedFilters[type].indexOf(value);
+    if (index > -1) {
+        // 이미 선택됨 - 제거
+        advancedFilters[type].splice(index, 1);
+        element.classList.remove('active');
+    } else {
+        // 선택 안 됨 - 추가
+        advancedFilters[type].push(value);
+        element.classList.add('active');
+    }
+}
+
 function applyAllFilters() {
     // 검색어
     advancedFilters.search = document.getElementById('searchInput').value.toLowerCase();
     
-    // 고급 필터
+    // 고급 필터 - 티어 (기존 방식 유지)
     advancedFilters.tier = document.getElementById('advTierFilter').value;
-    advancedFilters.time = document.getElementById('advTimeFilter').value;
-    advancedFilters.server = document.getElementById('advServerFilter').value;
-    advancedFilters.map = document.getElementById('advMapFilter').value;
+    
+    // 시간, 서버, 맵은 이미 toggleDropdownOption에서 처리됨
     
     filterScrims();
 }
@@ -2774,20 +3095,33 @@ function resetAdvancedFilters() {
     // 검색창 초기화
     document.getElementById('searchInput').value = '';
     
-    // 고급 필터 초기화
+    // 티어 필터 초기화
     document.getElementById('advTierFilter').value = '';
-    document.getElementById('advTimeFilter').value = '';
-    document.getElementById('advServerFilter').value = '';
-    document.getElementById('advMapFilter').value = '';
-
-
+    
+    // 티어 드롭다운 selected 클래스 제거
+    document.querySelectorAll('#advTierDropdown .rank-option.selected').forEach(option => {
+        option.classList.remove('selected');
+    });
+    
+    // 드롭다운 옵션 selected 클래스 제거
+    document.querySelectorAll('.filter-dropdown-option.selected').forEach(option => {
+        option.classList.remove('selected');
+    });
+    
+    // 드롭다운 디스플레이 초기화
+    const timeDisplay = document.getElementById('timeFilterDisplay');
+    const serverDisplay = document.getElementById('serverFilterDisplay');
+    const mapDisplay = document.getElementById('mapFilterDisplay');
+    if (timeDisplay) timeDisplay.textContent = '선택 안 됨';
+    if (serverDisplay) serverDisplay.textContent = '선택 안 됨';
+    if (mapDisplay) mapDisplay.textContent = '선택 안 됨';
     
     // 고급 티어 디스플레이 초기화
     const advTierDisplay = document.getElementById('advTierDisplay');
     const advTierText = document.getElementById('advTierDisplayText');
     const existingIcon = advTierDisplay?.querySelector('img');
     if (existingIcon) existingIcon.remove();
-    if (advTierText) advTierText.textContent = '전체';
+    if (advTierText) advTierText.textContent = t('tier_display_all');
     
     // 기존 필터도 초기화
     document.getElementById('rankFilter').value = '';
@@ -2798,15 +3132,15 @@ function resetAdvancedFilters() {
     const rankText = document.getElementById('rankDisplayText');
     const rankIcon = rankDisplay?.querySelector('img');
     if (rankIcon) rankIcon.remove();
-    if (rankText) rankText.textContent = '전체';
+    if (rankText) rankText.textContent = t('tier_display_all');
     
     // 필터 객체 초기화
     advancedFilters = {
         search: '',
-        tier: '',
-        time: '',
-        server: '',
-        map: ''
+        tier: [],
+        time: [],
+        server: [],
+        map: []
     };
     
     filterScrims();
@@ -2888,6 +3222,16 @@ document.addEventListener('click', (e) => {
     if (rankWrapper && rankDropdown && !rankWrapper.contains(e.target)) {
         rankDropdown.classList.remove('show');
     }
+    
+    // 시간/서버/맵 필터 드롭다운
+    const dropdowns = ['timeDropdown', 'serverDropdown', 'mapDropdown'];
+    dropdowns.forEach(dropdownId => {
+        const dropdown = document.getElementById(dropdownId);
+        const wrapper = dropdown?.parentElement;
+        if (dropdown && wrapper && !wrapper.contains(e.target)) {
+            dropdown.classList.remove('show');
+        }
+    });
 });
 
 // ===== 라이엇 티어 인증 =====
@@ -3307,12 +3651,15 @@ function filterScrims() {
         });
     }
     
-    // 2. 고급 필터 - 티어
-    if (advancedFilters.tier) {
-        const filterRank = rankToNumber(advancedFilters.tier);
+    // 2. 고급 필터 - 티어 (다중 선택 지원)
+    if (advancedFilters.tier && advancedFilters.tier.length > 0) {
         filtered = filtered.filter(scrim => {
             const teamRank = rankToNumber(scrim.teamRank);
-            return teamRank === filterRank;
+            // 선택된 티어 중 하나라도 일치하면 표시
+            return advancedFilters.tier.some(tierValue => {
+                const filterRank = rankToNumber(tierValue);
+                return teamRank === filterRank;
+            });
         });
     }
     
@@ -3323,7 +3670,34 @@ function filterScrims() {
         );
     }
     
-    // 4. 내 팀 제외
+    // 4. 시간 필터 (다중 선택) - 배열로 처리
+    if (advancedFilters.time && advancedFilters.time.length > 0) {
+        filtered = filtered.filter(scrim => {
+            // 스크림에 시간 정보가 있다고 가정 (추후 구현)
+            // 현재는 패스
+            return true;
+        });
+    }
+    
+    // 5. 서버 필터 (다중 선택)
+    if (advancedFilters.server && advancedFilters.server.length > 0) {
+        filtered = filtered.filter(scrim => {
+            // 스크림에 서버 정보가 있다고 가정 (추후 구현)
+            // 현재는 패스
+            return true;
+        });
+    }
+    
+    // 6. 맵 필터 (다중 선택)
+    if (advancedFilters.map && advancedFilters.map.length > 0) {
+        filtered = filtered.filter(scrim => {
+            // 스크림에 맵 정보가 있다고 가정 (추후 구현)
+            // 현재는 패스
+            return true;
+        });
+    }
+    
+    // 7. 내 팀 제외
     if (state.currentTeam) {
         filtered = filtered.filter(scrim => scrim.teamId !== state.currentTeam.id);
     }
