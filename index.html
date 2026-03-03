@@ -2829,7 +2829,7 @@ function loadKovTier() {
 function toggleAdvTierDropdown() {
     const dropdown = document.getElementById('advTierDropdown');
     
-    // 고급 티어 드롭다운 열 때 기본 랭크 드롭다운 닫기
+    // 기본 랭크 드롭다운만 닫기 (세부설정 패널은 유지)
     const rankDropdown = document.getElementById('rankDropdown');
     if (rankDropdown) {
         rankDropdown.classList.remove('show');
