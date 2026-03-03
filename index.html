@@ -946,6 +946,34 @@ body {
     font-size: 16px;
 }
 
+/* 필터 옵션 전용 스타일 */
+.filter-option {
+    padding: 10px 12px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.filter-option:hover {
+    background: var(--val-dark-3);
+}
+
+.filter-option.selected {
+    background: rgba(255, 70, 85, 0.15);
+    border: 2px solid var(--val-red);
+    border-radius: 6px;
+    position: relative;
+}
+
+.filter-option.selected::after {
+    content: '✓';
+    position: absolute;
+    right: 12px;
+    color: var(--val-red);
+    font-weight: bold;
+    font-size: 16px;
+}
+
+
 /* ===== 라이엇 티어 인증 ===== */
 .riot-verify-section {
     width: 100%;
@@ -1801,11 +1829,11 @@ body {
                                         <span id="timeDisplayText" data-i18n="select_all">전체</span>
                                     </div>
                                     <div class="rank-dropdown" id="timeDropdown">
-                                        <div class="rank-option" onclick="clearTimeFilter()">전체</div>
-                                        <div class="rank-option" onclick="toggleTimeOption('morning', this)">06:00-12:00</div>
-                                        <div class="rank-option" onclick="toggleTimeOption('afternoon', this)">12:00-18:00</div>
-                                        <div class="rank-option" onclick="toggleTimeOption('evening', this)">18:00-24:00</div>
-                                        <div class="rank-option" onclick="toggleTimeOption('night', this)">00:00-06:00</div>
+                                        <div class="filter-option" onclick="clearTimeFilter()">전체</div>
+                                        <div class="filter-option" onclick="toggleTimeOption('morning', this)">06:00-12:00</div>
+                                        <div class="filter-option" onclick="toggleTimeOption('afternoon', this)">12:00-18:00</div>
+                                        <div class="filter-option" onclick="toggleTimeOption('evening', this)">18:00-24:00</div>
+                                        <div class="filter-option" onclick="toggleTimeOption('night', this)">00:00-06:00</div>
                                     </div>
                                 </div>
                             </div>
@@ -1816,12 +1844,12 @@ body {
                                         <span id="serverDisplayText" data-i18n="select_all">전체</span>
                                     </div>
                                     <div class="rank-dropdown" id="serverDropdown">
-                                        <div class="rank-option" onclick="clearServerFilter()">전체</div>
-                                        <div class="rank-option" onclick="toggleServerOption('KR', this)">🇰🇷 KR</div>
-                                        <div class="rank-option" onclick="toggleServerOption('JP', this)">🇯🇵 JP</div>
-                                        <div class="rank-option" onclick="toggleServerOption('CN', this)">🇨🇳 CN</div>
-                                        <div class="rank-option" onclick="toggleServerOption('NA', this)">🇺🇸 NA</div>
-                                        <div class="rank-option" onclick="toggleServerOption('EU', this)">🇪🇺 EU</div>
+                                        <div class="filter-option" onclick="clearServerFilter()">전체</div>
+                                        <div class="filter-option" onclick="toggleServerOption('KR', this)">🇰🇷 KR</div>
+                                        <div class="filter-option" onclick="toggleServerOption('JP', this)">🇯🇵 JP</div>
+                                        <div class="filter-option" onclick="toggleServerOption('CN', this)">🇨🇳 CN</div>
+                                        <div class="filter-option" onclick="toggleServerOption('NA', this)">🇺🇸 NA</div>
+                                        <div class="filter-option" onclick="toggleServerOption('EU', this)">🇪🇺 EU</div>
                                     </div>
                                 </div>
                             </div>
@@ -1832,18 +1860,18 @@ body {
                                         <span id="mapDisplayText" data-i18n="select_all">전체</span>
                                     </div>
                                     <div class="rank-dropdown" id="mapDropdown">
-                                        <div class="rank-option" onclick="clearMapFilter()">전체</div>
-                                        <div class="rank-option" onclick="toggleMapOption('Ascent', this)">Ascent</div>
-                                        <div class="rank-option" onclick="toggleMapOption('Bind', this)">Bind</div>
-                                        <div class="rank-option" onclick="toggleMapOption('Haven', this)">Haven</div>
-                                        <div class="rank-option" onclick="toggleMapOption('Split', this)">Split</div>
-                                        <div class="rank-option" onclick="toggleMapOption('Icebox', this)">Icebox</div>
-                                        <div class="rank-option" onclick="toggleMapOption('Breeze', this)">Breeze</div>
-                                        <div class="rank-option" onclick="toggleMapOption('Fracture', this)">Fracture</div>
-                                        <div class="rank-option" onclick="toggleMapOption('Pearl', this)">Pearl</div>
-                                        <div class="rank-option" onclick="toggleMapOption('Lotus', this)">Lotus</div>
-                                        <div class="rank-option" onclick="toggleMapOption('Sunset', this)">Sunset</div>
-                                        <div class="rank-option" onclick="toggleMapOption('Abyss', this)">Abyss</div>
+                                        <div class="filter-option" onclick="clearMapFilter()">전체</div>
+                                        <div class="filter-option" onclick="toggleMapOption('Ascent', this)">Ascent</div>
+                                        <div class="filter-option" onclick="toggleMapOption('Bind', this)">Bind</div>
+                                        <div class="filter-option" onclick="toggleMapOption('Haven', this)">Haven</div>
+                                        <div class="filter-option" onclick="toggleMapOption('Split', this)">Split</div>
+                                        <div class="filter-option" onclick="toggleMapOption('Icebox', this)">Icebox</div>
+                                        <div class="filter-option" onclick="toggleMapOption('Breeze', this)">Breeze</div>
+                                        <div class="filter-option" onclick="toggleMapOption('Fracture', this)">Fracture</div>
+                                        <div class="filter-option" onclick="toggleMapOption('Pearl', this)">Pearl</div>
+                                        <div class="filter-option" onclick="toggleMapOption('Lotus', this)">Lotus</div>
+                                        <div class="filter-option" onclick="toggleMapOption('Sunset', this)">Sunset</div>
+                                        <div class="filter-option" onclick="toggleMapOption('Abyss', this)">Abyss</div>
                                     </div>
                                 </div>
                             </div>
@@ -2961,7 +2989,7 @@ function clearTimeFilter() {
     advancedFilters.time = [];
     
     // 모든 selected 클래스 제거
-    document.querySelectorAll('#timeDropdown .rank-option.selected').forEach(option => {
+    document.querySelectorAll('#timeDropdown .filter-option.selected').forEach(option => {
         option.classList.remove('selected');
     });
     
@@ -2974,7 +3002,7 @@ function clearServerFilter() {
     advancedFilters.server = [];
     
     // 모든 selected 클래스 제거
-    document.querySelectorAll('#serverDropdown .rank-option.selected').forEach(option => {
+    document.querySelectorAll('#serverDropdown .filter-option.selected').forEach(option => {
         option.classList.remove('selected');
     });
     
@@ -2987,7 +3015,7 @@ function clearMapFilter() {
     advancedFilters.map = [];
     
     // 모든 selected 클래스 제거
-    document.querySelectorAll('#mapDropdown .rank-option.selected').forEach(option => {
+    document.querySelectorAll('#mapDropdown .filter-option.selected').forEach(option => {
         option.classList.remove('selected');
     });
     
@@ -3205,17 +3233,17 @@ function resetAdvancedFilters() {
     });
     
     // 시간 드롭다운 selected 클래스 제거
-    document.querySelectorAll('#timeDropdown .rank-option.selected').forEach(option => {
+    document.querySelectorAll('#timeDropdown .filter-option.selected').forEach(option => {
         option.classList.remove('selected');
     });
     
     // 서버 드롭다운 selected 클래스 제거
-    document.querySelectorAll('#serverDropdown .rank-option.selected').forEach(option => {
+    document.querySelectorAll('#serverDropdown .filter-option.selected').forEach(option => {
         option.classList.remove('selected');
     });
     
     // 맵 드롭다운 selected 클래스 제거
-    document.querySelectorAll('#mapDropdown .rank-option.selected').forEach(option => {
+    document.querySelectorAll('#mapDropdown .filter-option.selected').forEach(option => {
         option.classList.remove('selected');
     });
     
