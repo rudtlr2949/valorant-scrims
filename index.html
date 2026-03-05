@@ -1772,8 +1772,6 @@ body {
                             </div>
                         </div>
                     </div>
-
-                    <button class="btn btn-secondary sidebar-logout" onclick="showLogoutConfirm()" data-i18n="btn_logout">로그아웃</button>
                 </div>
             </aside>
 
@@ -3581,22 +3579,34 @@ function loadSavedRiotVerify() {
 
 // ===== 자동 티어 인증 (Discord + Riot 연동) =====
 async function autoVerifyRiotFromDiscord() {
+    console.log('🎮 티어 인증 버튼 클릭됨!');
+    
+    const statusEl = document.getElementById('verifyStatus');
+    const guideBox = document.getElementById('needConnectionGuide');
+    const verifyBtn = document.getElementById('autoVerifyBtn');
+    
     // Discord 로그인 확인
     if (!state.currentUser || !state.currentUser.discordAccessToken) {
-        console.log('Discord 로그인 안 됨 - 자동 인증 스킵');
+        console.log('Discord 로그인 안 됨');
+        statusEl.textContent = '⚠️ Discord 로그인이 필요합니다';
+        statusEl.className = 'verify-status error';
+        setTimeout(() => {
+            statusEl.textContent = '';
+        }, 3000);
         return;
     }
     
     // 이미 인증된 경우 스킵
     const saved = localStorage.getItem('riotVerified');
     if (saved) {
-        console.log('이미 인증됨 - 자동 인증 스킵');
+        console.log('이미 인증됨');
+        statusEl.textContent = 'ℹ️ 이미 인증되었습니다';
+        statusEl.className = 'verify-status';
+        setTimeout(() => {
+            statusEl.textContent = '';
+        }, 3000);
         return;
     }
-    
-    const statusEl = document.getElementById('verifyStatus');
-    const guideBox = document.getElementById('needConnectionGuide');
-    const verifyBtn = document.getElementById('autoVerifyBtn');
     
     // 버튼 비활성화 및 로딩 표시
     if (verifyBtn) {
