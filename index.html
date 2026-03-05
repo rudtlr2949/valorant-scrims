@@ -2648,6 +2648,7 @@ async function autoLoginWithToken(token) {
                 public_flags: userData.public_flags || 0,
                 premium_type: userData.premium_type || 0,
                 avatar_decoration: userData.avatar_decoration || null,
+                discordAccessToken: token,  // ← 추가!
                 teamId: null,
                 noShow: 0
             };
@@ -2702,6 +2703,8 @@ function handleLogin() {
 
 function checkDiscordLogin() {
     const discordUser = localStorage.getItem('discordUser');
+    const discordToken = localStorage.getItem('discordToken');
+    
     if (discordUser) {
         const userData = JSON.parse(discordUser);
         const user = {
@@ -2714,6 +2717,7 @@ function checkDiscordLogin() {
             public_flags: userData.public_flags || 0,
             premium_type: userData.premium_type || 0,
             avatar_decoration: userData.avatar_decoration || null,
+            discordAccessToken: discordToken || null,  // ← 추가!
             kov_member: userData.kov_member || false,
             kov_tier: userData.kov_tier || null,
             kov_role_ids: userData.kov_role_ids || [],
@@ -2825,6 +2829,17 @@ function updateSidebar() {
     if (!state.currentUser?.kov_tier) {
         loadSavedRiotVerify();
         // 자동 실행 제거 - 사용자가 "티어 인증하기" 버튼 클릭하도록 변경
+    }
+    
+    // ===== 자동 마이그레이션: discordAccessToken 복원 =====
+    if (state.currentUser && !state.currentUser.discordAccessToken) {
+        const discordToken = localStorage.getItem('discordToken');
+        if (discordToken) {
+            console.log('🔄 discordAccessToken 마이그레이션 중...');
+            state.currentUser.discordAccessToken = discordToken;
+            localStorage.setItem('currentUser', JSON.stringify(state.currentUser));
+            console.log('✅ discordAccessToken 복원 완료!');
+        }
     }
 }
 
