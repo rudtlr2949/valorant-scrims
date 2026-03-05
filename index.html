@@ -1775,7 +1775,7 @@ body {
                                         <span id="advTierDisplayText">전체</span>
                                     </div>
                                     <div class="rank-dropdown" id="advTierDropdown">
-                                        <div class="rank-option" data-value="" onclick="clearTierFilter()">
+                                        <div class="rank-option" onclick="clearTierFilter()">
                                             <span>전체</span>
                                         </div>
                                         <div class="rank-option" data-value="6-1" onclick="selectAdvTier('6-1', 'Diamond I', 'https://trackercdn.com/cdn/tracker.gg/valorant/icons/tiersv2/18.png')">
@@ -2845,8 +2845,9 @@ function restoreAdvTierSelection() {
         opt.classList.remove('selected');
     });
     
-    // 선택된 항목에 selected 추가
+    // 선택된 항목에 selected 추가 (빈 값은 제외)
     advancedFilters.tier.forEach(value => {
+        if (!value) return; // 빈 값 무시
         const option = document.querySelector(`#advTierDropdown [data-value="${value}"]`);
         if (option) {
             option.classList.add('selected');
@@ -2855,6 +2856,9 @@ function restoreAdvTierSelection() {
 }
 
 function selectAdvTier(value, text, iconUrl) {
+    // 빈 값 무시 (전체 버튼은 clearTierFilter 사용)
+    if (!value) return;
+    
     // 배열로 변경
     if (!Array.isArray(advancedFilters.tier)) {
         // 기존 단일 값이 있으면 배열로 변환
@@ -2985,13 +2989,16 @@ function clearTierFilter() {
     // 모든 선택 해제
     advancedFilters.tier = [];
     
-    // 모든 selected 클래스 제거
-    document.querySelectorAll('#advTierDropdown .rank-option.selected').forEach(option => {
+    // 모든 selected 클래스 즉시 제거
+    document.querySelectorAll('#advTierDropdown .rank-option').forEach(option => {
         option.classList.remove('selected');
     });
     
     // 디스플레이 업데이트
     updateTierDisplay();
+    
+    // 드롭다운 닫기 (선택 해제 후)
+    document.getElementById('advTierDropdown')?.classList.remove('show');
 }
 
 function clearTimeFilter() {
@@ -2999,12 +3006,15 @@ function clearTimeFilter() {
     advancedFilters.time = [];
     
     // 모든 selected 클래스 제거
-    document.querySelectorAll('#timeDropdown .filter-option.selected').forEach(option => {
+    document.querySelectorAll('#timeDropdown .filter-option').forEach(option => {
         option.classList.remove('selected');
     });
     
     // 디스플레이 업데이트
     updateTimeDisplay();
+    
+    // 드롭다운 닫기
+    document.getElementById('timeDropdown')?.classList.remove('show');
 }
 
 function clearServerFilter() {
@@ -3012,12 +3022,15 @@ function clearServerFilter() {
     advancedFilters.server = [];
     
     // 모든 selected 클래스 제거
-    document.querySelectorAll('#serverDropdown .filter-option.selected').forEach(option => {
+    document.querySelectorAll('#serverDropdown .filter-option').forEach(option => {
         option.classList.remove('selected');
     });
     
     // 디스플레이 업데이트
     updateServerDisplay();
+    
+    // 드롭다운 닫기
+    document.getElementById('serverDropdown')?.classList.remove('show');
 }
 
 function clearMapFilter() {
@@ -3025,12 +3038,15 @@ function clearMapFilter() {
     advancedFilters.map = [];
     
     // 모든 selected 클래스 제거
-    document.querySelectorAll('#mapDropdown .filter-option.selected').forEach(option => {
+    document.querySelectorAll('#mapDropdown .filter-option').forEach(option => {
         option.classList.remove('selected');
     });
     
     // 디스플레이 업데이트
     updateMapDisplay();
+    
+    // 드롭다운 닫기
+    document.getElementById('mapDropdown')?.classList.remove('show');
 }
 
 // ===== 시간 필터 드롭다운 =====
