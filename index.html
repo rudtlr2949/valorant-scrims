@@ -2799,6 +2799,11 @@ function updateSidebar() {
     // 저장된 라이엇 티어 복원 (KOV 티어 없을 때만)
     if (!state.currentUser?.kov_tier) {
         loadSavedRiotVerify();
+        
+        // Discord 연동 계정 자동 인증 시도
+        setTimeout(() => {
+            autoVerifyRiotFromDiscord();
+        }, 1000);  // 1초 후 자동 인증 시도
     }
 }
 
@@ -3601,6 +3606,88 @@ function loadSavedRiotVerify() {
         showVerifiedTier(data.tier, data.rr, tierBase, data.name, data.tag);
     } catch(e) {
         localStorage.removeItem('riotVerified');
+    }
+}
+
+// ===== 자동 티어 인증 (Discord + Riot 연동) =====
+async function autoVerifyRiotFromDiscord() {
+    // Discord 로그인 확인
+    if (!state.currentUser || !state.currentUser.discordAccessToken) {
+        console.log('Discord 로그인 안 됨 - 자동 인증 스킵');
+        return;
+    }
+    
+    // 이미 인증된 경우 스킵
+    const saved = localStorage.getItem('riotVerified');
+    if (saved) {
+        console.log('이미 인증됨 - 자동 인증 스킵');
+        return;
+    }
+    
+    const statusEl = document.getElementById('verifyStatus');
+    statusEl.textContent = '🔗 Discord 연동 계정 확인 중...';
+    statusEl.className = 'verify-status loading';
+    
+    try {
+        const res = await fetch(`/api/auto-verify-riot?accessToken=${state.currentUser.discordAccessToken}`);
+        const data = await res.json();
+        
+        if (data.success) {
+            // 자동 인증 성공!
+            const tierBase = data.tier.split(' ')[0];
+            const [name, tag] = data.riotName.split('#');
+            
+            // localStorage 저장
+            const riotData = {
+                name: name,
+                tag: tag,
+                tier: data.tier,
+                rr: data.rr,
+                verifiedAt: Date.now(),
+                autoVerified: true
+            };
+            localStorage.setItem('riotVerified', JSON.stringify(riotData));
+            
+            // currentUser 업데이트
+            if (state.currentUser) {
+                state.currentUser.riotTier = data.tier;
+                state.currentUser.riotRR = data.rr;
+                state.currentUser.riotName = data.riotName;
+                localStorage.setItem('currentUser', JSON.stringify(state.currentUser));
+            }
+            
+            // UI 업데이트
+            showVerifiedTier(data.tier, data.rr, tierBase, name, tag);
+            statusEl.textContent = '✅ Discord 연동 계정으로 자동 인증 완료!';
+            statusEl.className = 'verify-status success';
+            
+            setTimeout(() => {
+                statusEl.textContent = '';
+            }, 3000);
+            
+        } else if (data.needManualInput) {
+            // Discord에 Riot 계정이 연동 안 됨 - 수동 입력 필요
+            statusEl.textContent = 'ℹ️ Discord에 Riot 계정을 연동하면 자동 인증됩니다';
+            statusEl.className = 'verify-status';
+            
+            setTimeout(() => {
+                statusEl.textContent = '';
+            }, 5000);
+            
+        } else {
+            // 다이아 미만 등
+            statusEl.textContent = '⚠️ ' + data.error;
+            statusEl.className = 'verify-status error';
+            
+            setTimeout(() => {
+                statusEl.textContent = '';
+            }, 5000);
+        }
+        
+    } catch (e) {
+        console.error('Auto verify failed:', e);
+        // 에러 시 조용히 실패 (수동 입력 가능하도록)
+        statusEl.textContent = '';
     }
 }
 
