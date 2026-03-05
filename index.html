@@ -1723,7 +1723,7 @@ body {
                     </div>
                     <div class="profile-team" id="profileTeam">팀: <span>없음</span></div>
                     
-                    <!-- 라이엇 티어 인증 (자동 인증 전용) -->
+                    <!-- 라이엇 티어 인증 -->
                     <div class="riot-verify-section" id="riotVerifySection">
                         <!-- 인증 완료: 티어 뱃지 표시 -->
                         <div id="riotTierDisplay" style="display:none;">
@@ -1738,11 +1738,17 @@ body {
                             </div>
                         </div>
                         
-                        <!-- 인증 전: Discord 연동 안내 -->
+                        <!-- 인증 전: 티어 인증 버튼 -->
                         <div id="riotConnectionGuide">
+                            <!-- 티어 인증 버튼 -->
+                            <button class="btn-verify" id="autoVerifyBtn" onclick="autoVerifyRiotFromDiscord()" 
+                                    style="width:100%; padding:12px; background:#ff4658; color:#fff; border:none; border-radius:8px; font-size:1rem; font-weight:600; cursor:pointer; margin-bottom:10px;">
+                                🎮 티어 인증하기
+                            </button>
+                            
                             <div class="verify-status" id="verifyStatus"></div>
                             
-                            <!-- Discord 연동 필요 안내 -->
+                            <!-- Discord 연동 필요 안내 (기본 숨김) -->
                             <div id="needConnectionGuide" style="display:none;">
                                 <div style="padding:15px; background:rgba(255,70,85,0.1); border:1px solid rgba(255,70,85,0.3); border-radius:8px; margin-top:10px;">
                                     <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
@@ -1756,7 +1762,7 @@ body {
                                         <li>Discord 앱 또는 웹 열기</li>
                                         <li>설정 ⚙️ → 연결 탭 클릭</li>
                                         <li>"Riot Games" 찾아서 연결하기</li>
-                                        <li>이 페이지 새로고침 (F5)</li>
+                                        <li>다시 "티어 인증하기" 버튼 클릭</li>
                                     </ol>
                                     <a href="https://support.discord.com/hc/ko/articles/8063233404823" target="_blank" 
                                        style="display:inline-block; margin-top:10px; padding:8px 16px; background:#5865F2; color:#fff; text-decoration:none; border-radius:4px; font-size:0.85rem;">
@@ -2820,11 +2826,7 @@ function updateSidebar() {
     // 저장된 라이엇 티어 복원 (KOV 티어 없을 때만)
     if (!state.currentUser?.kov_tier) {
         loadSavedRiotVerify();
-        
-        // Discord 연동 계정 자동 인증 시도
-        setTimeout(() => {
-            autoVerifyRiotFromDiscord();
-        }, 1000);  // 1초 후 자동 인증 시도
+        // 자동 실행 제거 - 사용자가 "티어 인증하기" 버튼 클릭하도록 변경
     }
 }
 
@@ -3594,6 +3596,13 @@ async function autoVerifyRiotFromDiscord() {
     
     const statusEl = document.getElementById('verifyStatus');
     const guideBox = document.getElementById('needConnectionGuide');
+    const verifyBtn = document.getElementById('autoVerifyBtn');
+    
+    // 버튼 비활성화 및 로딩 표시
+    if (verifyBtn) {
+        verifyBtn.disabled = true;
+        verifyBtn.textContent = '🔍 인증 중...';
+    }
     
     statusEl.textContent = '🔗 Discord 연동 계정 확인 중...';
     statusEl.className = 'verify-status loading';
@@ -3641,11 +3650,23 @@ async function autoVerifyRiotFromDiscord() {
             statusEl.textContent = '';
             guideBox.style.display = 'block';
             
+            // 버튼 복원
+            if (verifyBtn) {
+                verifyBtn.disabled = false;
+                verifyBtn.textContent = '🎮 티어 인증하기';
+            }
+            
         } else {
             // 다이아 미만 등
             statusEl.textContent = '⚠️ ' + data.error;
             statusEl.className = 'verify-status error';
             guideBox.style.display = 'block';
+            
+            // 버튼 복원
+            if (verifyBtn) {
+                verifyBtn.disabled = false;
+                verifyBtn.textContent = '🎮 티어 인증하기';
+            }
         }
         
     } catch (e) {
@@ -3653,6 +3674,12 @@ async function autoVerifyRiotFromDiscord() {
         statusEl.textContent = '❌ 자동 인증 실패. Discord + Riot 연동을 확인해주세요.';
         statusEl.className = 'verify-status error';
         guideBox.style.display = 'block';
+        
+        // 버튼 복원
+        if (verifyBtn) {
+            verifyBtn.disabled = false;
+            verifyBtn.textContent = '🎮 티어 인증하기';
+        }
     }
 }
 
