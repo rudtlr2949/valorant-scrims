@@ -2776,51 +2776,48 @@ function updateUserUI() {
     const loginBtn = document.getElementById('loginBtn');
     const userMenuWrapper = document.getElementById('userMenuWrapper');
     
-    console.log('updateUserUI 호출됨!', state.currentUser);
-    console.log('userMenuWrapper:', userMenuWrapper);
-    
     if (state.currentUser) {
         // 로그인 버튼 숨기기
         if (loginBtn) loginBtn.style.display = 'none';
         
-        // 톱니바퀴 메뉴 표시
-        if (userMenuWrapper) {
-            userMenuWrapper.style.display = 'block';
-            console.log('✅ 톱니바퀴 표시됨!');
-        } else {
-            console.error('❌ userMenuWrapper 없음!');
-        }
-        
-        // 아바타와 이름은 userInfo의 첫 번째 자식으로 추가 (톱니바퀴 앞에)
-        const avatarHtml = state.currentUser.avatar 
-            ? '<img src="' + state.currentUser.avatar + '" style="width:32px;height:32px;border-radius:50%;border:2px solid var(--val-red);margin-right:8px;vertical-align:middle;">'
-            : '<span style="margin-right:8px;font-size:1.2rem;">👤</span>';
-        
-        // 기존 유저 정보 제거 (톱니바퀴 제외)
-        const existingInfo = userInfo.querySelectorAll('img:not(.user-menu-button img), .user-name');
+        // 기존 유저 정보 제거
+        const existingInfo = userInfo.querySelectorAll('.user-display');
         existingInfo.forEach(el => el.remove());
         
-        // 로그인 버튼 뒤에 추가 (톱니바퀴 앞에)
-        const tempDiv = document.createElement('div');
-        tempDiv.style.display = 'flex';
-        tempDiv.style.alignItems = 'center';
-        tempDiv.style.gap = '12px';
-        tempDiv.innerHTML = avatarHtml + '<span class="user-name" style="font-weight:600;">' + state.currentUser.name + '</span>';
+        // 유저 정보 HTML 생성
+        const avatarHtml = state.currentUser.avatar 
+            ? `<img src="${state.currentUser.avatar}" style="width:32px;height:32px;border-radius:50%;border:2px solid var(--val-red);">`
+            : '<span style="font-size:1.2rem;">👤</span>';
         
-        // userMenuWrapper 찾기
-        const menuWrapper = userInfo.querySelector('#userMenuWrapper');
+        // 유저 표시 요소 생성
+        const userDisplay = document.createElement('div');
+        userDisplay.className = 'user-display';
+        userDisplay.style.display = 'flex';
+        userDisplay.style.alignItems = 'center';
+        userDisplay.style.gap = '12px';
+        userDisplay.innerHTML = `
+            ${avatarHtml}
+            <span class="user-name" style="font-weight:600;">${state.currentUser.name}</span>
+        `;
         
-        // 톱니바퀴 앞에 삽입
-        if (menuWrapper) {
-            userInfo.insertBefore(tempDiv, menuWrapper);
+        // 톱니바퀴 메뉴 앞에 삽입
+        if (userMenuWrapper) {
+            userMenuWrapper.style.display = 'flex';
+            userInfo.insertBefore(userDisplay, userMenuWrapper);
         } else {
-            userInfo.appendChild(tempDiv);
+            userInfo.appendChild(userDisplay);
         }
         
         updateSidebar();
     } else {
+        // 로그아웃 상태
         userInfo.innerHTML = '<button class="btn btn-primary" id="loginBtn" data-i18n="btn_login">Discord 로그인</button>';
-        document.getElementById('loginBtn').addEventListener('click', handleLogin);
+        const newLoginBtn = document.getElementById('loginBtn');
+        if (newLoginBtn) {
+            newLoginBtn.addEventListener('click', handleLogin);
+        }
+        
+        // 사이드바 숨기기
         hideSidebar();
     }
 }
@@ -2833,16 +2830,26 @@ function updateSidebar() {
     const avatarEl = document.getElementById('profileAvatar');
     const placeholderEl = document.getElementById('profileAvatarPlaceholder');
 
-    // 아바타
+    // 아바타 표시
     if (state.currentUser.avatar) {
         avatarEl.src = state.currentUser.avatar;
         avatarEl.style.display = 'block';
         placeholderEl.style.display = 'none';
+    } else {
+        avatarEl.style.display = 'none';
+        placeholderEl.style.display = 'flex';
+        placeholderEl.textContent = '👤';
     }
 
     // 이름
-    document.getElementById('profileName').textContent = state.currentUser.name;
+    document.getElementById('profileName').textContent = state.currentUser.name || 'Unknown';
     document.getElementById('profileTag').textContent = 'Discord 연동 ✅';
+
+    // 배너 색상
+    const bannerEl = document.getElementById('profileBanner');
+    if (state.currentUser.banner_color) {
+        bannerEl.style.background = state.currentUser.banner_color;
+    }
 
     // 팀 정보
     if (state.currentTeam) {
@@ -2865,17 +2872,14 @@ function updateSidebar() {
     // 저장된 라이엇 티어 복원 (KOV 티어 없을 때만)
     if (!state.currentUser?.kov_tier) {
         loadSavedRiotVerify();
-        // 자동 실행 제거 - 사용자가 "티어 인증하기" 버튼 클릭하도록 변경
     }
     
-    // ===== 자동 마이그레이션: discordAccessToken 복원 =====
+    // discordAccessToken 복원 (자동 마이그레이션)
     if (state.currentUser && !state.currentUser.discordAccessToken) {
         const discordToken = localStorage.getItem('discordToken');
         if (discordToken) {
-            console.log('🔄 discordAccessToken 마이그레이션 중...');
             state.currentUser.discordAccessToken = discordToken;
             localStorage.setItem('currentUser', JSON.stringify(state.currentUser));
-            console.log('✅ discordAccessToken 복원 완료!');
         }
     }
 }
