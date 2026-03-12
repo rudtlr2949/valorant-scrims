@@ -1158,7 +1158,7 @@ body {
     height: 60px;
     border-radius: 8px 8px 0 0;
     margin: -20px -20px 15px -20px;
-    background: var(--val-dark-2);
+    background: var(--val-dark-3);
 }
 
 .profile-banner.nitro-banner {
@@ -3629,8 +3629,7 @@ function applyDiscordBadges(user) {
     }
 
     // 아바타 장식 적용 (아바타만 구매한 유저 포함!)
-    if (user.avatar_decoration_data || user.avatar_decoration) {
-        console.log('🎨 아바타 장식 감지, 적용 중...');
+    if (user.avatar_decoration) {
         applyAvatarDecoration(user);
     }
 }
@@ -3651,27 +3650,29 @@ function applyNitroEffect(user, type) {
 }
 
 function applyAvatarDecoration(user) {
-    // 아바타 장식이 있는 경우
-    const decoration = user.avatar_decoration_data || user.avatar_decoration;
-    if (!decoration) return;
+    // 아바타 장식이 있는 경우 (아바타 장식만 구매한 유저 포함)
+    if (!user.avatar_decoration) return;
 
-    console.log('🎨 아바타 장식 적용 시도:', decoration);
-
+    const decoration = user.avatar_decoration;
     const avatarEl = document.getElementById('profileAvatar');
     const placeholderEl = document.getElementById('profileAvatarPlaceholder');
+    const avatarWrapper = avatarEl.parentElement;
 
     // 기존 장식 제거
     const existingDeco = document.getElementById('avatarDecoration');
     if (existingDeco) existingDeco.remove();
 
-    // 장식 asset ID 추출
-    const assetId = decoration.asset || decoration.sku_id || decoration;
-    console.log('🎨 Asset ID:', assetId);
+    // 아바타 wrapper 스타일
+    avatarWrapper.style.position = 'relative';
+    avatarWrapper.style.display = 'inline-block';
 
     // 장식 이미지 생성
     const decoEl = document.createElement('img');
     decoEl.id = 'avatarDecoration';
-    decoEl.src = `https://cdn.discordapp.com/avatar-decoration-presets/${assetId}.png`;
+
+    // Discord CDN에서 장식 이미지 가져오기
+    const assetId = typeof decoration === 'object' ? decoration.asset : decoration;
+    decoEl.src = 'https://cdn.discordapp.com/avatar-decoration-presets/' + assetId + '.png';
     
     decoEl.style.cssText = `
         position: absolute;
@@ -3684,14 +3685,15 @@ function applyAvatarDecoration(user) {
         z-index: 10;
     `;
 
-    // wrapper div 생성 또는 가져오기
+    // 아바타 wrapper에 relative 포지션 설정
+    const targetEl = avatarEl.style.display !== 'none' ? avatarEl : placeholderEl;
+    
+    // wrapper div 생성
     let wrapper = document.getElementById('avatarWrapper');
     if (!wrapper) {
         wrapper = document.createElement('div');
         wrapper.id = 'avatarWrapper';
         wrapper.style.cssText = 'position: relative; display: inline-block; width: 80px; height: 80px; margin: 0 auto 12px;';
-        
-        const targetEl = avatarEl.style.display !== 'none' ? avatarEl : placeholderEl;
         targetEl.parentNode.insertBefore(wrapper, targetEl);
         wrapper.appendChild(targetEl);
     }
@@ -3700,8 +3702,22 @@ function applyAvatarDecoration(user) {
     // 아바타 테두리 효과
     avatarEl.classList.add('avatar-nitro');
 
-    console.log('✅ 아바타 장식 적용 완료');
-}
+    // 웰컴 아바타에도 장식 적용
+    const welcomeAvatar = document.getElementById('welcomeAvatar');
+    const welcomePlaceholder = document.getElementById('welcomeAvatarPlaceholder');
+    
+    // 환영창 장식 적용
+    const existingWelcomeDeco = document.getElementById('welcomeDecoration');
+    if (existingWelcomeDeco) existingWelcomeDeco.remove();
+
+    const welcomeDecoEl = document.createElement('img');
+    welcomeDecoEl.id = 'welcomeDecoration';
+    welcomeDecoEl.src = 'https://cdn.discordapp.com/avatar-decoration-presets/' + assetId + '.png';
+
+    const welcomeWrapper = document.getElementById('welcomeAvatarWrapper');
+    if (welcomeWrapper) {
+        welcomeWrapper.appendChild(welcomeDecoEl);
+    }
 
     // 뱃지에 장식 구매자 표시
     const badgesEl = document.getElementById('profileBadges');
