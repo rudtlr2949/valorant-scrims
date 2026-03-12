@@ -2847,9 +2847,17 @@ function updateSidebar() {
 
     // 배너 색상
     const bannerEl = document.getElementById('profileBanner');
+    bannerEl.className = 'profile-banner';  // 클래스 초기화
+    bannerEl.style.background = '';  // 인라인 스타일 초기화
+    
     if (state.currentUser.banner_color) {
+        // Discord 배너 색상
         bannerEl.style.background = state.currentUser.banner_color;
+    } else if (state.currentUser.premium_type === 2 || state.currentUser.premium_type === 3) {
+        // 니트로 사용자면 애니메이션 배너
+        bannerEl.className = 'profile-banner nitro-banner';
     }
+    // else: 기본 배너 (CSS의 var(--val-dark-3))
 
     // 팀 정보
     if (state.currentTeam) {
@@ -3632,18 +3640,15 @@ function applyNitroEffect(user, type) {
     const avatarEl = document.getElementById('profileAvatar');
     avatarEl.classList.add('avatar-nitro');
 
-    const bannerEl = document.getElementById('profileBanner');
-    if (user.banner_color) {
-        bannerEl.style.background = user.banner_color;
-    } else if (type === 'full') {
-        bannerEl.classList.add('nitro-banner');
-    } else {
-        bannerEl.style.background = 'linear-gradient(135deg, #6366f1, #4f46e5)';
-    }
+    // 배너는 updateSidebar에서 이미 처리됨 (중복 제거)
 
-    document.getElementById('welcomeName').style.background = 'linear-gradient(135deg, #8b5cf6, #ec4899)';
-    document.getElementById('welcomeName').style.webkitBackgroundClip = 'text';
-    document.getElementById('welcomeName').style.webkitTextFillColor = 'transparent';
+    // 환영 메시지 니트로 효과
+    const welcomeName = document.getElementById('welcomeName');
+    if (welcomeName) {
+        welcomeName.style.background = 'linear-gradient(135deg, #8b5cf6, #ec4899)';
+        welcomeName.style.webkitBackgroundClip = 'text';
+        welcomeName.style.webkitTextFillColor = 'transparent';
+    }
 }
 
 function applyAvatarDecoration(user) {
