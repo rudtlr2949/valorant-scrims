@@ -2845,19 +2845,17 @@ function updateSidebar() {
     document.getElementById('profileName').textContent = state.currentUser.name || 'Unknown';
     document.getElementById('profileTag').textContent = 'Discord 연동 ✅';
 
-    // 배너 색상
+    // 배너 설정
     const bannerEl = document.getElementById('profileBanner');
     bannerEl.className = 'profile-banner';  // 클래스 초기화
     bannerEl.style.background = '';  // 인라인 스타일 초기화
     
-    if (state.currentUser.banner_color) {
-        // Discord 배너 색상
-        bannerEl.style.background = state.currentUser.banner_color;
-    } else if (state.currentUser.premium_type === 2 || state.currentUser.premium_type === 3) {
-        // 니트로 사용자면 애니메이션 배너
+    // 니트로 사용자만 특별 배너, 나머지는 기본 배너 (var(--val-dark-3))
+    if (state.currentUser.premium_type === 2 || state.currentUser.premium_type === 3) {
+        // 니트로: 애니메이션 배너
         bannerEl.className = 'profile-banner nitro-banner';
     }
-    // else: 기본 배너 (CSS의 var(--val-dark-3))
+    // else: 기본 회색 배너 (CSS의 var(--val-dark-3))
 
     // 팀 정보
     if (state.currentTeam) {
