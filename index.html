@@ -2766,8 +2766,20 @@ function checkDiscordLogin() {
         localStorage.removeItem('discordUser'); // 중복 방지
         updateUserUI();
         loadUserTeam();
-        // 환영 애니메이션 표시
-        showWelcome(user);
+        
+        // 티어 인증 대기 중이었다면 자동 진행
+        const pendingTierVerify = localStorage.getItem('pendingTierVerify');
+        if (pendingTierVerify === 'true') {
+            localStorage.removeItem('pendingTierVerify');
+            // 환영 애니메이션 생략하고 바로 티어 인증
+            setTimeout(() => {
+                switchTab('settings');
+                setTimeout(() => autoVerifyRiotFromDiscord(), 500);
+            }, 500);
+        } else {
+            // 환영 애니메이션 표시
+            showWelcome(user);
+        }
     }
 }
 
@@ -4173,6 +4185,44 @@ async function autoVerifyRiotFromDiscord() {
     if (saved) {
         statusEl.textContent = 'ℹ️ 이미 인증되었습니다';
         statusEl.className = 'verify-status';
+        setTimeout(() => statusEl.textContent = '', 3000);
+        return;
+    }
+    
+    // connections 권한 체크
+    statusEl.textContent = '🔍 권한 확인 중...';
+    statusEl.className = 'verify-status loading';
+    
+    try {
+        const testRes = await fetch('https://discord.com/api/users/@me/connections', {
+            headers: { 'Authorization': `Bearer ${state.currentUser.discordAccessToken}` }
+        });
+        
+        // 403 = connections 권한 없음
+        if (testRes.status === 403 || testRes.status === 401) {
+            console.log('❌ connections 권한 없음, 재승인 필요');
+            statusEl.textContent = '🔑 추가 권한이 필요합니다';
+            statusEl.className = 'verify-status';
+            
+            // 사용자에게 안내
+            if (confirm('티어 인증을 위해 Discord 연동 계정 권한이 필요합니다.\n\n권한 승인 페이지로 이동하시겠습니까?')) {
+                // 티어 인증 시도 중이라는 플래그 저장
+                localStorage.setItem('pendingTierVerify', 'true');
+                // connections 권한 요청 페이지로 이동
+                window.location.href = '/api/auth-tier';
+            } else {
+                statusEl.textContent = '';
+                if (verifyBtn) {
+                    verifyBtn.disabled = false;
+                    verifyBtn.textContent = '🎮 티어 인증하기';
+                }
+            }
+            return;
+        }
+    } catch (error) {
+        console.error('권한 체크 실패:', error);
+        statusEl.textContent = '❌ 권한 확인 중 오류 발생';
+        statusEl.className = 'verify-status error';
         setTimeout(() => statusEl.textContent = '', 3000);
         return;
     }
