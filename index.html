@@ -1771,7 +1771,8 @@ body {
                                     <div id="tierName" style="font-weight:600; font-size:0.95rem; color:#fff; margin-bottom:4px;"></div>
                                     <div id="tierRR" style="font-size:0.85rem; color:#4ade80;"></div>
                                 </div>
-                                <span style="margin-left:auto; font-size:0.7rem; color:#4ade80;">✅ 인증됨</span>
+                                <button onclick="refreshTierData()" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:#fff;cursor:pointer;font-size:0.75rem;padding:6px 10px;border-radius:6px;margin-left:auto;" title="티어 업데이트">🔄</button>
+                                <span style="font-size:0.7rem; color:#4ade80;">✅</span>
                                 <button onclick="resetRiotVerify()" style="background:none;border:none;color:#aaa;cursor:pointer;font-size:0.8rem;">✕</button>
                             </div>
                             
@@ -2850,10 +2851,11 @@ function checkDiscordLogin() {
 
 // ===== 자동 티어 인증 시도 =====
 async function tryAutoTierVerify() {
-    // 이미 인증된 경우 스킵
+    // 이미 인증된 경우 스킵 (connections 권한 요청 안 함!)
     const saved = localStorage.getItem('riotVerified');
     if (saved) {
         console.log('✅ 이미 티어 인증됨, 자동 인증 스킵');
+        console.log('💡 티어 업데이트는 설정 탭에서 "새로고침" 클릭');
         return;
     }
     
@@ -4694,6 +4696,23 @@ function renderMapStats(maps) {
             </div>
         `;
     }).join('');
+}
+
+// ===== 티어 새로고침 (수동) =====
+async function refreshTierData() {
+    console.log('🔄 티어 새로고침 시작...');
+    
+    // 기존 티어 정보 삭제
+    localStorage.removeItem('riotVerified');
+    
+    // connections 권한으로 재인증
+    if (confirm('티어 정보를 업데이트하려면 Discord 권한 승인이 필요합니다.\n\n계속하시겠습니까?')) {
+        localStorage.setItem('pendingTierVerify', 'true');
+        window.location.href = '/api/auth-tier';
+    } else {
+        // 취소하면 기존 데이터 유지
+        console.log('❌ 새로고침 취소됨');
+    }
 }
 
 // ===== 티어 초기화 =====
