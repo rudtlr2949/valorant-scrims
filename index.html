@@ -1774,6 +1774,65 @@ body {
                                 <span style="margin-left:auto; font-size:0.7rem; color:#4ade80;">✅ 인증됨</span>
                                 <button onclick="resetRiotVerify()" style="background:none;border:none;color:#aaa;cursor:pointer;font-size:0.8rem;">✕</button>
                             </div>
+                            
+                            <!-- 게임 통계 완전판 -->
+                            <div id="gameStatsSection" style="margin-top:20px; display:none;">
+                                <!-- 플레이어 카드 배너 & 레벨 -->
+                                <div id="playerCardBanner" style="position:relative; height:120px; border-radius:8px; background-size:cover; background-position:center; margin-bottom:15px; overflow:hidden; background-color:#1a1d29;">
+                                    <div style="position:absolute; inset:0; background:linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 60%);"></div>
+                                    <div style="position:absolute; bottom:12px; left:15px; right:15px; display:flex; justify-content:space-between; align-items:end;">
+                                        <span id="accountLevel" style="color:#fff; font-weight:700; font-size:1.1rem; text-shadow:0 2px 4px rgba(0,0,0,0.5);">⭐ Level --</span>
+                                        <span id="statsBasedOn" style="font-size:0.7rem; color:#aaa; background:rgba(0,0,0,0.5); padding:4px 8px; border-radius:4px;"></span>
+                                    </div>
+                                </div>
+                                
+                                <!-- 스크림 특화 지표 -->
+                                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:15px;">
+                                    <!-- 팀플레이 점수 -->
+                                    <div style="background:rgba(74,222,128,0.1); border:1px solid rgba(74,222,128,0.3); border-radius:8px; padding:12px;">
+                                        <div style="font-size:0.75rem; color:#4ade80; margin-bottom:4px;">🤝 팀플레이</div>
+                                        <div id="teamplayScore" style="font-size:1.3rem; font-weight:700; color:#fff;">--</div>
+                                        <div id="teamplayDesc" style="font-size:0.7rem; color:#aaa; margin-top:2px;">--</div>
+                                    </div>
+                                    
+                                    <!-- 주 역할 -->
+                                    <div style="background:rgba(139,92,246,0.1); border:1px solid rgba(139,92,246,0.3); border-radius:8px; padding:12px;">
+                                        <div style="font-size:0.75rem; color:#a78bfa; margin-bottom:4px;">🎯 주 역할</div>
+                                        <div id="mainRole" style="font-size:1rem; font-weight:700; color:#fff;">--</div>
+                                        <div id="mainRolePercent" style="font-size:0.7rem; color:#aaa; margin-top:2px;">--</div>
+                                    </div>
+                                </div>
+                                
+                                <!-- 역할 적성도 -->
+                                <div style="margin-bottom:15px; background:rgba(255,255,255,0.02); padding:12px; border-radius:8px;">
+                                    <div style="font-size:0.85rem; color:#aaa; margin-bottom:10px;">
+                                        <strong style="color:#fff;">🎭 역할 적성도</strong>
+                                    </div>
+                                    <div id="roleProficiency"></div>
+                                </div>
+                                
+                                <!-- Top 3 에이전트 -->
+                                <div style="margin-bottom:15px;">
+                                    <div style="font-size:0.85rem; color:#aaa; margin-bottom:10px;">
+                                        <strong style="color:#fff;">🎮 주요 에이전트</strong>
+                                    </div>
+                                    <div id="topAgentsList"></div>
+                                </div>
+                                
+                                <!-- 맵 퍼포먼스 (밴픽 가이드) -->
+                                <div>
+                                    <div style="font-size:0.85rem; color:#aaa; margin-bottom:10px;">
+                                        <strong style="color:#fff;">🗺️ 맵 퍼포먼스 (밴픽 가이드)</strong>
+                                    </div>
+                                    <div id="mapStatsList"></div>
+                                </div>
+                                
+                                <!-- 로딩 -->
+                                <div id="statsLoading" style="text-align:center; padding:30px; color:#aaa; display:none;">
+                                    <div style="font-size:1.5rem; margin-bottom:10px;">🔄</div>
+                                    <div>게임 통계 불러오는 중...</div>
+                                </div>
+                            </div>
                         </div>
                         
                         <!-- 인증 전: 티어 인증 버튼 -->
@@ -4295,6 +4354,8 @@ async function autoVerifyRiotFromDiscord() {
         const tierName = data.tier;
         const rr = data.rr || 0;
         const tierBase = tierName.split(' ')[0];
+        const puuid = data.puuid;
+        const region = data.region || 'KR';
         
         // localStorage 저장
         const riotData = {
@@ -4302,6 +4363,8 @@ async function autoVerifyRiotFromDiscord() {
             tag: tag,
             tier: tierName,
             rr: rr,
+            puuid: puuid,
+            region: region.toLowerCase(),
             verifiedAt: Date.now(),
             autoVerified: true
         };
@@ -4334,6 +4397,227 @@ function showVerifiedTier(tierName, rr, tierBase, name, tag) {
     document.getElementById('tierName').textContent = tierName + '  ' + name + '#' + tag;
     document.getElementById('tierRR').textContent = rr + ' RR';
     document.getElementById('tierIcon').src = TIER_ICONS[tierBase] || TIER_ICONS['Diamond'];
+    
+    // 게임 통계 불러오기
+    loadGameStats(name, tag);
+}
+
+// ===== 게임 통계 불러오기 =====
+async function loadGameStats(name, tag) {
+    const statsSection = document.getElementById('gameStatsSection');
+    const statsLoading = document.getElementById('statsLoading');
+    
+    // 저장된 데이터 확인
+    const saved = localStorage.getItem('riotVerified');
+    if (!saved) return;
+    
+    const data = JSON.parse(saved);
+    const puuid = data.puuid;
+    const region = data.region || 'kr';
+    
+    if (!puuid) {
+        console.log('⚠️ PUUID 없음, 통계 불러오기 생략');
+        return;
+    }
+    
+    try {
+        statsSection.style.display = 'block';
+        statsLoading.style.display = 'block';
+        
+        console.log(`📊 게임 통계 불러오기: ${name}#${tag} (${region})`);
+        
+        const res = await fetch(`/api/game-stats?name=${encodeURIComponent(name)}&tag=${encodeURIComponent(tag)}&puuid=${puuid}&region=${region}`);
+        const result = await res.json();
+        
+        statsLoading.style.display = 'none';
+        
+        if (!result.success) {
+            console.error('❌ 통계 불러오기 실패:', result.error);
+            return;
+        }
+        
+        console.log('✅ 통계 불러오기 성공:', result);
+        
+        // 플레이어 카드 배너
+        if (result.account && result.account.card) {
+            const banner = document.getElementById('playerCardBanner');
+            banner.style.backgroundImage = `url(${result.account.card.wide})`;
+            
+            // 레벨
+            document.getElementById('accountLevel').textContent = `⭐ Level ${result.account.level}`;
+        }
+        
+        // 통계 기반 정보
+        if (result.matchCount > 0) {
+            document.getElementById('statsBasedOn').textContent = `최근 ${result.matchCount}경기`;
+        }
+        
+        // 팀플레이 점수
+        if (result.stats && result.stats.teamplay) {
+            renderTeamplayScore(result.stats.teamplay);
+        }
+        
+        // 역할 적성도
+        if (result.stats && result.stats.roles) {
+            renderRoles(result.stats.roles);
+        }
+        
+        // Top 3 에이전트
+        if (result.stats && result.stats.agents) {
+            renderTopAgents(result.stats.agents);
+        }
+        
+        // 맵 통계
+        if (result.stats && result.stats.maps) {
+            renderMapStats(result.stats.maps);
+        }
+        
+    } catch (error) {
+        console.error('❌ 통계 불러오기 에러:', error);
+        statsLoading.style.display = 'none';
+    }
+}
+
+// ===== 팀플레이 점수 렌더링 =====
+function renderTeamplayScore(teamplay) {
+    const score = parseFloat(teamplay.score);
+    const contribution = teamplay.assistContribution;
+    
+    document.getElementById('teamplayScore').textContent = score.toFixed(1) + '/10';
+    
+    let desc = '';
+    if (score >= 8) desc = '어시 ' + contribution + '% • 탁월';
+    else if (score >= 6) desc = '어시 ' + contribution + '% • 우수';
+    else if (score >= 4) desc = '어시 ' + contribution + '% • 보통';
+    else desc = '어시 ' + contribution + '% • 개인플';
+    
+    document.getElementById('teamplayDesc').textContent = desc;
+}
+
+// ===== 역할 렌더링 =====
+function renderRoles(roles) {
+    document.getElementById('mainRole').textContent = roles.mainRole;
+    document.getElementById('mainRolePercent').textContent = roles.mainRolePercent + '%';
+    
+    const roleColors = {
+        '듀얼리스트': '#ef4444',
+        '컨트롤러': '#3b82f6',
+        '센티넬': '#10b981',
+        '이니시에이터': '#f59e0b'
+    };
+    
+    const roleIcons = {
+        '듀얼리스트': '⚔️',
+        '컨트롤러': '💨',
+        '센티넬': '🛡️',
+        '이니시에이터': '🔍'
+    };
+    
+    const proficiency = roles.proficiency;
+    const sortedRoles = Object.entries(proficiency)
+        .sort((a, b) => b[1] - a[1])
+        .filter(([role, percent]) => percent > 0);
+    
+    const roleNames = {
+        'duelist': '듀얼리스트',
+        'controller': '컨트롤러',
+        'sentinel': '센티넬',
+        'initiator': '이니시에이터'
+    };
+    
+    const container = document.getElementById('roleProficiency');
+    container.innerHTML = sortedRoles.map(([roleKey, percent]) => {
+        const roleName = roleNames[roleKey];
+        const color = roleColors[roleName] || '#666';
+        const icon = roleIcons[roleName] || '•';
+        
+        return `
+            <div style="margin-bottom:8px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                    <span style="font-size:0.8rem; color:#ccc;">${icon} ${roleName}</span>
+                    <span style="font-size:0.75rem; font-weight:600; color:${color};">${percent}%</span>
+                </div>
+                <div style="height:6px; background:rgba(255,255,255,0.05); border-radius:3px; overflow:hidden;">
+                    <div style="height:100%; width:${percent}%; background:${color}; border-radius:3px; transition:width 0.3s;"></div>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+// ===== Top 에이전트 렌더링 =====
+function renderTopAgents(agents) {
+    const container = document.getElementById('topAgentsList');
+    
+    if (!agents || agents.length === 0) {
+        container.innerHTML = '<div style="padding:10px; text-align:center; color:#666;">경기 기록이 없습니다</div>';
+        return;
+    }
+    
+    container.innerHTML = agents.map((agent, index) => `
+        <div style="display:flex; align-items:center; gap:12px; padding:12px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.05); border-radius:8px; margin-bottom:8px;">
+            <div style="width:36px; height:36px; background:linear-gradient(135deg, rgba(255,70,85,0.3), rgba(255,70,85,0.1)); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.1rem; flex-shrink:0;">
+                ${index === 0 ? '🥇' : index === 1 ? '🥈' : '🥉'}
+            </div>
+            <div style="flex:1; min-width:0;">
+                <div style="font-weight:700; color:#fff; font-size:0.95rem; margin-bottom:3px;">${agent.agent}</div>
+                <div style="font-size:0.75rem; color:#888;">
+                    ${agent.games}경기 • 
+                    K/D ${agent.kd} • 
+                    평균 ${agent.avgKills}/${agent.avgDeaths}/${agent.avgAssists}
+                </div>
+            </div>
+            <div style="text-align:right; flex-shrink:0;">
+                <div style="font-size:1rem; font-weight:700; color:${agent.winRate >= 50 ? '#4ade80' : '#f87171'};">
+                    ${agent.winRate}%
+                </div>
+                <div style="font-size:0.65rem; color:#666;">승률</div>
+            </div>
+        </div>
+    `).join('');
+}
+
+// ===== 맵 통계 렌더링 (밴픽 가이드) =====
+function renderMapStats(maps) {
+    const container = document.getElementById('mapStatsList');
+    
+    if (!maps || maps.length === 0) {
+        container.innerHTML = '<div style="padding:10px; text-align:center; color:#666;">맵 기록이 없습니다</div>';
+        return;
+    }
+    
+    container.innerHTML = maps.map(map => {
+        let recommendation = '';
+        let bgColor = 'rgba(255,255,255,0.02)';
+        let borderColor = 'rgba(255,255,255,0.05)';
+        
+        if (map.winRate >= 60) {
+            recommendation = '✅ Pick 추천';
+            bgColor = 'rgba(74,222,128,0.05)';
+            borderColor = 'rgba(74,222,128,0.2)';
+        } else if (map.winRate <= 40) {
+            recommendation = '❌ Ban 추천';
+            bgColor = 'rgba(248,113,113,0.05)';
+            borderColor = 'rgba(248,113,113,0.2)';
+        } else {
+            recommendation = '⚪ 중립';
+        }
+        
+        return `
+            <div style="display:flex; align-items:center; gap:12px; padding:10px; background:${bgColor}; border:1px solid ${borderColor}; border-radius:6px; margin-bottom:6px;">
+                <div style="flex:1;">
+                    <div style="font-weight:600; color:#fff; font-size:0.85rem; margin-bottom:2px;">${map.map}</div>
+                    <div style="font-size:0.7rem; color:#888;">${map.games}경기 • ${map.wins}승</div>
+                </div>
+                <div style="text-align:right;">
+                    <div style="font-size:0.95rem; font-weight:700; color:${map.winRate >= 50 ? '#4ade80' : '#f87171'}; margin-bottom:2px;">
+                        ${map.winRate}%
+                    </div>
+                    <div style="font-size:0.7rem; color:#aaa;">${recommendation}</div>
+                </div>
+            </div>
+        `;
+    }).join('');
 }
 
 // ===== 티어 초기화 =====
