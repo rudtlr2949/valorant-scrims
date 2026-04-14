@@ -2843,68 +2843,9 @@ function checkDiscordLogin() {
             // 환영 애니메이션 표시
             showWelcome(user);
             
-            // 자동 티어 인증 시도 (아직 인증 안 된 경우만)
-            setTimeout(() => tryAutoTierVerify(), 1000);
+            // 자동 티어 인증 비활성화 (수동 인증만 가능)
+            // 사용자가 직접 "티어 인증하기" 버튼 클릭해야 함
         }
-    }
-}
-
-// ===== 자동 티어 인증 시도 =====
-async function tryAutoTierVerify() {
-    // 이미 인증된 경우 스킵 (connections 권한 요청 안 함!)
-    const saved = localStorage.getItem('riotVerified');
-    if (saved) {
-        console.log('✅ 이미 티어 인증됨, 자동 인증 스킵');
-        console.log('💡 티어 업데이트는 설정 탭에서 "새로고침" 클릭');
-        return;
-    }
-    
-    // Discord 토큰 확인
-    if (!state.currentUser || !state.currentUser.discordAccessToken) {
-        console.log('⚠️ Discord 토큰 없음, 자동 인증 스킵');
-        return;
-    }
-    
-    try {
-        console.log('🔍 Riot 계정 연동 확인 중...');
-        
-        // connections 권한으로 Riot 계정 확인
-        const connectionsRes = await fetch('https://discord.com/api/users/@me/connections', {
-            headers: { 'Authorization': `Bearer ${state.currentUser.discordAccessToken}` }
-        });
-        
-        // connections 권한 없으면 자동으로 권한 요청
-        if (connectionsRes.status === 403 || connectionsRes.status === 401) {
-            console.log('🔑 connections 권한 필요, 자동 요청 시작...');
-            
-            // 플래그 저장
-            localStorage.setItem('pendingTierVerify', 'true');
-            
-            // connections 권한 요청 페이지로 자동 이동
-            setTimeout(() => {
-                window.location.href = '/api/auth-tier';
-            }, 1500);
-            return;
-        }
-        
-        const connections = await connectionsRes.json();
-        const riotConnection = connections.find(c => c.type === 'riotgames');
-        
-        // Riot 계정 연동 안 되어 있으면 스킵
-        if (!riotConnection) {
-            console.log('ℹ️ Riot 계정 연동 안 됨, 수동 인증 필요');
-            return;
-        }
-        
-        console.log('✅ Riot 계정 연동 확인:', riotConnection.name);
-        console.log('🎮 자동 티어 인증 시작...');
-        
-        // 자동으로 티어 인증 진행 (silent 모드)
-        autoVerifyRiotFromDiscord(true);
-        
-    } catch (error) {
-        console.log('⚠️ 자동 인증 확인 실패:', error.message);
-        // 에러 발생 시 조용히 스킵
     }
 }
 
