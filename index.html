@@ -2646,7 +2646,7 @@ function updateAllTranslations() {
     
     // 6. 사이드바 프로필 태그 (Discord 연동)
     const profileTag = document.getElementById('profileTag');
-    if (profileTag && !profileTag.innerHTML.includes('KOV')) {
+    if (profileTag) {
         profileTag.textContent = t('sidebar_profile_tag');
     }
     
@@ -2814,10 +2814,7 @@ function checkDiscordLogin() {
             public_flags: userData.public_flags || 0,
             premium_type: userData.premium_type || 0,
             avatar_decoration: userData.avatar_decoration || null,
-            discordAccessToken: discordToken || null,  // ← 추가!
-            kov_member: userData.kov_member || false,
-            kov_tier: userData.kov_tier || null,
-            kov_role_ids: userData.kov_role_ids || [],
+            discordAccessToken: discordToken || null,
             teamId: null,
             noShow: 0
         };
@@ -2950,13 +2947,8 @@ function updateSidebar() {
     // 뱃지 & 니트로 적용
     applyDiscordBadges(state.currentUser);
 
-    // KOV 서버 인증 티어 표시
-    loadKovTier();
-
-    // 저장된 라이엇 티어 복원 (KOV 티어 없을 때만)
-    if (!state.currentUser?.kov_tier) {
-        loadSavedRiotVerify();
-    }
+    // 저장된 라이엇 티어 복원
+    loadSavedRiotVerify();
     
     // discordAccessToken 복원 (자동 마이그레이션)
     if (state.currentUser && !state.currentUser.discordAccessToken) {
@@ -2967,29 +2959,6 @@ function updateSidebar() {
         }
     }
 }
-
-function loadKovTier() {
-    const user = state.currentUser;
-    if (!user || !user.kov_tier) return;
-
-    const tierName = user.kov_tier;
-    const tierBase = tierName.split(' ')[0];
-
-    // 라이엇 수동 입력창 숨기고 KOV 인증 티어 표시
-    document.getElementById('riotInputSection').style.display = 'none';
-    document.getElementById('riotTierDisplay').style.display = 'block';
-    document.getElementById('tierName').textContent = tierName;
-    document.getElementById('tierRR').textContent = 'KOV 서버 인증 ✅';
-    document.getElementById('tierIcon').src = TIER_ICONS[tierBase] || TIER_ICONS['Diamond'];
-
-    // 인증 버튼 숨기기 (KOV 인증이 우선)
-    const resetBtn = document.querySelector('#tierBadge button');
-    if (resetBtn) resetBtn.style.display = 'none';
-}
-
-
-
-
 
 // ===== 고급 필터 티어 드롭다운 =====
 function toggleAdvTierDropdown() {
