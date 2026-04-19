@@ -1729,9 +1729,8 @@ body {
         </header>
 
         <nav class="nav">
-            <button class="nav-btn active" data-tab="home">🏠 홈</button>
-            <button class="nav-btn" data-tab="scrims" data-i18n="nav_find">스크림 찾기</button>
-            <button class="nav-btn" data-tab="myteam" data-i18n="nav_myteam">내 팀</button>
+            <button class="nav-btn active" data-tab="home">프로필</button>
+            <button class="nav-btn" data-tab="scrims">스크림 찾기</button>
             <button class="nav-btn" data-tab="create" data-i18n="nav_register">스크림 등록</button>
             <button class="nav-btn" data-tab="history" data-i18n="nav_history">매칭 내역</button>
         </nav>
@@ -1869,34 +1868,39 @@ body {
                 <!-- 로그인 상태: 내 통계 -->
                 <div id="homeStats" style="display:none;">
 
-                    <!-- 플레이어 카드 배너 -->
-                    <div id="homeBanner" style="position:relative; height:140px; border-radius:12px; background-size:cover; background-position:center; margin-bottom:16px; overflow:hidden; background:linear-gradient(135deg, #1a1d29, #0f1923);">
-                        <div style="position:absolute; inset:0; background:linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.2) 60%, transparent 100%);"></div>
-                        <div style="position:absolute; bottom:14px; left:16px; right:16px; display:flex; justify-content:space-between; align-items:flex-end;">
-                            <div>
-                                <div id="homePlayerName" style="color:#fff; font-weight:800; font-size:1.1rem; text-shadow:0 2px 8px rgba(0,0,0,0.8);">--</div>
-                                <div id="homeAccountLevel" style="color:rgba(255,255,255,0.6); font-size:0.8rem; margin-top:2px;">⭐ Level --</div>
+                    <!-- 플레이어 카드 배너 (풀사이즈) -->
+                    <div id="homeBanner" style="position:relative; height:200px; border-radius:14px; background-size:cover; background-position:center; margin-bottom:14px; overflow:hidden; background:linear-gradient(135deg, #1a1d29, #0f1923);">
+                        <div style="position:absolute; inset:0; background:linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.4) 50%, rgba(0,0,0,0.1) 100%);"></div>
+                        <!-- 상단: 레벨 + 경기 기준 -->
+                        <div style="position:absolute; top:14px; left:16px; right:16px; display:flex; justify-content:space-between; align-items:center;">
+                            <span id="homeAccountLevel" style="color:rgba(255,255,255,0.7); font-size:0.78rem; background:rgba(0,0,0,0.4); padding:3px 10px; border-radius:20px; backdrop-filter:blur(4px);">⭐ Level --</span>
+                            <span id="homeBasedOn" style="color:rgba(255,255,255,0.5); font-size:0.7rem; background:rgba(0,0,0,0.4); padding:3px 10px; border-radius:20px; backdrop-filter:blur(4px);"></span>
+                        </div>
+                        <!-- 하단: 플레이어 정보 + 핵심 통계 -->
+                        <div style="position:absolute; bottom:0; left:0; right:0; padding:14px 16px;">
+                            <!-- 플레이어명 + 티어 -->
+                            <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:12px;">
+                                <div>
+                                    <div id="homePlayerName" style="color:#fff; font-weight:800; font-size:1.2rem; text-shadow:0 2px 8px rgba(0,0,0,0.8);">--</div>
+                                    <div id="homeTier" style="color:#4ade80; font-size:0.82rem; font-weight:600; margin-top:2px;">--</div>
+                                </div>
+                                <div id="homeRR" style="color:rgba(255,255,255,0.7); font-size:0.82rem; font-weight:600; background:rgba(255,255,255,0.1); padding:4px 10px; border-radius:20px;">-- RR</div>
                             </div>
-                            <div style="text-align:right;">
-                                <div id="homeTier" style="color:#fff; font-weight:700; font-size:0.95rem;">--</div>
-                                <div id="homeRR" style="color:#4ade80; font-size:0.75rem;">-- RR</div>
+                            <!-- 핵심 통계 3개 (배너 안에 통합) -->
+                            <div style="display:flex; gap:0; background:rgba(0,0,0,0.45); border-radius:10px; overflow:hidden; backdrop-filter:blur(8px);">
+                                <div style="flex:1; padding:10px 0; text-align:center; border-right:1px solid rgba(255,255,255,0.08);">
+                                    <div id="homeWinRate" style="font-size:1.15rem; font-weight:800; color:#4ade80;">--%</div>
+                                    <div style="font-size:0.62rem; color:rgba(255,255,255,0.4); margin-top:2px;">승률</div>
+                                </div>
+                                <div style="flex:1; padding:10px 0; text-align:center; border-right:1px solid rgba(255,255,255,0.08);">
+                                    <div id="homeKD" style="font-size:1.15rem; font-weight:800; color:#fff;">--</div>
+                                    <div style="font-size:0.62rem; color:rgba(255,255,255,0.4); margin-top:2px;">K/D</div>
+                                </div>
+                                <div style="flex:1; padding:10px 0; text-align:center;">
+                                    <div id="homeGames" style="font-size:1.15rem; font-weight:800; color:#fff;">--</div>
+                                    <div style="font-size:0.62rem; color:rgba(255,255,255,0.4); margin-top:2px;">경기</div>
+                                </div>
                             </div>
-                        </div>
-                    </div>
-
-                    <!-- 핵심 지표 3개 -->
-                    <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin-bottom:12px;">
-                        <div style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:10px; padding:12px; text-align:center;">
-                            <div id="homeWinRate" style="font-size:1.3rem; font-weight:800; color:#4ade80;">--%</div>
-                            <div style="font-size:0.68rem; color:#666; margin-top:3px;">승률</div>
-                        </div>
-                        <div style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:10px; padding:12px; text-align:center;">
-                            <div id="homeKD" style="font-size:1.3rem; font-weight:800; color:#fff;">--</div>
-                            <div style="font-size:0.68rem; color:#666; margin-top:3px;">K/D</div>
-                        </div>
-                        <div style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:10px; padding:12px; text-align:center;">
-                            <div id="homeGames" style="font-size:1.3rem; font-weight:800; color:#fff;">--</div>
-                            <div style="font-size:0.68rem; color:#666; margin-top:3px;">경기 수</div>
                         </div>
                     </div>
 
@@ -4062,20 +4066,64 @@ async function loadHomeStats() {
     }
 }
 
+// ===== 에이전트 아이콘 맵 =====
+const AGENT_ICONS = {
+    'Jett':       'dee7a7b0-4b0d-49de-b7fa-4e807e09b71a',
+    'Raze':       'f94c3b30-42be-e959-889c-5aa313dba261',
+    'Reyna':      'a3bfb853-43b2-7238-a4f1-ad90e9e46bcc',
+    'Phoenix':    'eb93336a-449b-9c1b-0a54-a891f7adea46',
+    'Yoru':       '7f94d92c-4234-0a36-9646-3a87eb8b5eaa',
+    'Neon':       'bb2a4828-46eb-8cd1-e765-15848195d751',
+    'Iso':        '0e38b510-41a8-5780-7e1a-74a7e5abfa8c',
+    'Brimstone':  '9f0d8ba9-4140-b941-57d3-a7ad57c6b417',
+    'Omen':       '8e253930-4c05-31dd-1b6c-968525494517',
+    'Viper':      '707eab51-4836-f488-046a-cda6bf494859',
+    'Astra':      '41fb69c1-4189-7b37-f117-bcaf1e96f1bf',
+    'Harbor':     '95b78ed7-4637-86d9-7e41-71ba8c293152',
+    'Clove':      '1dbf2edd-4729-0984-3115-daa5eed44993',
+    'Killjoy':    '1e58de9c-4950-5125-93e9-a0aee9f98746',
+    'Cypher':     '117ed9e3-49f3-6512-3ccf-0cada7e3823b',
+    'Sage':       '569fdd95-4d10-43ab-ca70-79becc718b46',
+    'Chamber':    '22697a3d-45bf-8dd7-4fec-84a9e28c69d3',
+    'Deadlock':   'cc8b64c8-4b25-4ff9-6e7f-37b4da43d235',
+    'Vyse':       'efba5359-4016-a1e5-7626-b1ae76895940',
+    'Sova':       '320b2a48-4d9b-a075-30f1-1f93a9b638fa',
+    'Breach':     '5f8d3a7f-467b-97f3-062c-d110a4bfb09e',
+    'Skye':       '6f2a04ca-43e0-be17-7f36-b3908627744d',
+    'KAY/O':      '601dbbe7-43ce-be57-2a40-4abd24953621',
+    'Fade':       'dade69b4-4f5a-8528-247b-219e5a1facd6',
+    'Gekko':      'e370fa57-4757-3604-3648-499e1f642d3f',
+    'Tejo':       '6693a8aa-4f75-7ee4-af43-30a8faaa6162',
+    'Waylay':     'df1cb487-4902-002c-8591-0fab0f4da717'
+};
+
+function getAgentIconUrl(agentName) {
+    const uuid = AGENT_ICONS[agentName];
+    if (uuid) return `https://media.valorant-api.com/agents/${uuid}/displayiconsmall.png`;
+    return null;
+}
+
 function renderHomeAgents(agents) {
     const medals = ['🥇', '🥈', '🥉'];
-    document.getElementById('homeAgentsList').innerHTML = agents.map((a, i) => `
-        <div style="display:flex; align-items:center; gap:12px; padding:10px 12px; background:rgba(255,255,255,0.03); border-radius:8px; margin-bottom:7px; border-left:3px solid ${i===0?'#ffd700':i===1?'#c0c0c0':'#cd7f32'};">
-            <span style="font-size:1.1rem;">${medals[i]}</span>
-            <div style="flex:1;">
+    const colors = ['#ffd700', '#c0c0c0', '#cd7f32'];
+    document.getElementById('homeAgentsList').innerHTML = agents.map((a, i) => {
+        const iconUrl = getAgentIconUrl(a.agent);
+        const iconHtml = iconUrl
+            ? `<img src="${iconUrl}" alt="${a.agent}" style="width:40px; height:40px; border-radius:50%; object-fit:cover; background:rgba(255,70,85,0.2); flex-shrink:0;" onerror="this.style.display='none'">`
+            : `<span style="font-size:1.1rem; flex-shrink:0;">${medals[i]}</span>`;
+        return `
+        <div style="display:flex; align-items:center; gap:12px; padding:10px 12px; background:rgba(255,255,255,0.03); border-radius:8px; margin-bottom:7px; border-left:3px solid ${colors[i]};">
+            ${iconHtml}
+            <div style="flex:1; min-width:0;">
                 <div style="font-weight:700; color:#fff; font-size:0.88rem;">${a.agent}</div>
                 <div style="font-size:0.7rem; color:#888; margin-top:2px;">${a.games}경기 · K/D ${a.kd} · ${a.avgKills}/${a.avgDeaths}/${a.avgAssists}</div>
             </div>
-            <div style="text-align:right;">
+            <div style="text-align:right; flex-shrink:0;">
                 <div style="font-size:1rem; font-weight:800; color:${a.winRate>=50?'#4ade80':'#f87171'};">${a.winRate}%</div>
                 <div style="font-size:0.62rem; color:#666;">승률</div>
             </div>
-        </div>`).join('');
+        </div>`;
+    }).join('');
 }
 
 function renderHomeMaps(maps) {
@@ -4702,10 +4750,15 @@ function renderTopAgents(agents) {
         container.innerHTML = '<div style="text-align:center; color:#555; padding:10px; font-size:0.85rem;">경기 기록이 없습니다</div>';
         return;
     }
-    const medals = ['🥇', '🥈', '🥉'];
-    container.innerHTML = agents.map((agent, i) => `
-        <div style="display:flex; align-items:center; gap:12px; padding:11px 12px; background:rgba(255,255,255,0.03); border-radius:8px; margin-bottom:7px; border-left:3px solid ${i===0?'#ffd700':i===1?'#c0c0c0':'#cd7f32'};">
-            <span style="font-size:1.2rem; flex-shrink:0;">${medals[i]}</span>
+    const colors = ['#ffd700', '#c0c0c0', '#cd7f32'];
+    container.innerHTML = agents.map((agent, i) => {
+        const iconUrl = getAgentIconUrl(agent.agent);
+        const iconHtml = iconUrl
+            ? `<img src="${iconUrl}" alt="${agent.agent}" style="width:40px; height:40px; border-radius:50%; object-fit:cover; background:rgba(255,70,85,0.2); flex-shrink:0;" onerror="this.style.display='none'">`
+            : `<span style="font-size:1.2rem; flex-shrink:0;">${['🥇','🥈','🥉'][i]}</span>`;
+        return `
+        <div style="display:flex; align-items:center; gap:12px; padding:11px 12px; background:rgba(255,255,255,0.03); border-radius:8px; margin-bottom:7px; border-left:3px solid ${colors[i]};">
+            ${iconHtml}
             <div style="flex:1; min-width:0;">
                 <div style="font-weight:700; color:#fff; font-size:0.9rem;">${agent.agent}</div>
                 <div style="font-size:0.72rem; color:#888; margin-top:2px;">
@@ -4716,7 +4769,8 @@ function renderTopAgents(agents) {
                 <div style="font-size:1.05rem; font-weight:800; color:${agent.winRate >= 50 ? '#4ade80' : '#f87171'};">${agent.winRate}%</div>
                 <div style="font-size:0.65rem; color:#666;">승률</div>
             </div>
-        </div>`).join('');
+        </div>`;
+    }).join('');
 }
 
 // ===== 맵 통계 렌더링 (밴픽 가이드) =====
