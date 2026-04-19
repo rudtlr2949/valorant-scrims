@@ -1729,7 +1729,8 @@ body {
         </header>
 
         <nav class="nav">
-            <button class="nav-btn active" data-tab="scrims" data-i18n="nav_find">스크림 찾기</button>
+            <button class="nav-btn active" data-tab="home">🏠 홈</button>
+            <button class="nav-btn" data-tab="scrims" data-i18n="nav_find">스크림 찾기</button>
             <button class="nav-btn" data-tab="myteam" data-i18n="nav_myteam">내 팀</button>
             <button class="nav-btn" data-tab="create" data-i18n="nav_register">스크림 등록</button>
             <button class="nav-btn" data-tab="history" data-i18n="nav_history">매칭 내역</button>
@@ -1853,7 +1854,100 @@ body {
             </aside>
 
         <main class="main-content main-area">
-            <div class="tab-content active" id="scrims">
+            <!-- 홈 탭 -->
+            <div class="tab-content active" id="home">
+                <!-- 비로그인 상태 -->
+                <div id="homeGuest" style="display:none; text-align:center; padding:60px 20px;">
+                    <div style="font-size:3rem; margin-bottom:16px;">🎮</div>
+                    <div style="font-size:1.2rem; font-weight:700; color:#fff; margin-bottom:8px;">발로란트 스크림 매칭</div>
+                    <div style="font-size:0.9rem; color:#888; margin-bottom:24px;">로그인하면 본인의 전적 통계를 확인할 수 있습니다</div>
+                    <button onclick="handleLogin()" style="padding:12px 32px; background:#ff4658; color:#fff; border:none; border-radius:8px; font-size:1rem; font-weight:700; cursor:pointer;">
+                        Discord로 로그인
+                    </button>
+                </div>
+
+                <!-- 로그인 상태: 내 통계 -->
+                <div id="homeStats" style="display:none;">
+
+                    <!-- 플레이어 카드 배너 -->
+                    <div id="homeBanner" style="position:relative; height:140px; border-radius:12px; background-size:cover; background-position:center; margin-bottom:16px; overflow:hidden; background:linear-gradient(135deg, #1a1d29, #0f1923);">
+                        <div style="position:absolute; inset:0; background:linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.2) 60%, transparent 100%);"></div>
+                        <div style="position:absolute; bottom:14px; left:16px; right:16px; display:flex; justify-content:space-between; align-items:flex-end;">
+                            <div>
+                                <div id="homePlayerName" style="color:#fff; font-weight:800; font-size:1.1rem; text-shadow:0 2px 8px rgba(0,0,0,0.8);">--</div>
+                                <div id="homeAccountLevel" style="color:rgba(255,255,255,0.6); font-size:0.8rem; margin-top:2px;">⭐ Level --</div>
+                            </div>
+                            <div style="text-align:right;">
+                                <div id="homeTier" style="color:#fff; font-weight:700; font-size:0.95rem;">--</div>
+                                <div id="homeRR" style="color:#4ade80; font-size:0.75rem;">-- RR</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 핵심 지표 3개 -->
+                    <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin-bottom:12px;">
+                        <div style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:10px; padding:12px; text-align:center;">
+                            <div id="homeWinRate" style="font-size:1.3rem; font-weight:800; color:#4ade80;">--%</div>
+                            <div style="font-size:0.68rem; color:#666; margin-top:3px;">승률</div>
+                        </div>
+                        <div style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:10px; padding:12px; text-align:center;">
+                            <div id="homeKD" style="font-size:1.3rem; font-weight:800; color:#fff;">--</div>
+                            <div style="font-size:0.68rem; color:#666; margin-top:3px;">K/D</div>
+                        </div>
+                        <div style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:10px; padding:12px; text-align:center;">
+                            <div id="homeGames" style="font-size:1.3rem; font-weight:800; color:#fff;">--</div>
+                            <div style="font-size:0.68rem; color:#666; margin-top:3px;">경기 수</div>
+                        </div>
+                    </div>
+
+                    <!-- 팀플레이 + 주 역할 -->
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:12px;">
+                        <div style="background:linear-gradient(135deg, rgba(74,222,128,0.12), rgba(74,222,128,0.04)); border:1px solid rgba(74,222,128,0.25); border-radius:10px; padding:12px;">
+                            <div style="font-size:0.68rem; color:#4ade80; margin-bottom:5px;">🤝 팀플레이</div>
+                            <div id="homeTeamplay" style="font-size:1.4rem; font-weight:800; color:#fff;">--</div>
+                            <div id="homeTeamplayDesc" style="font-size:0.68rem; color:rgba(255,255,255,0.4); margin-top:3px;">--</div>
+                        </div>
+                        <div style="background:linear-gradient(135deg, rgba(139,92,246,0.12), rgba(139,92,246,0.04)); border:1px solid rgba(139,92,246,0.25); border-radius:10px; padding:12px;">
+                            <div style="font-size:0.68rem; color:#a78bfa; margin-bottom:5px;">🎯 주 역할</div>
+                            <div id="homeMainRole" style="font-size:1rem; font-weight:800; color:#fff;">--</div>
+                            <div id="homeMainRolePercent" style="font-size:0.68rem; color:rgba(255,255,255,0.4); margin-top:3px;">--</div>
+                        </div>
+                    </div>
+
+                    <!-- Top 에이전트 -->
+                    <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); border-radius:10px; padding:14px; margin-bottom:12px;">
+                        <div style="font-size:0.75rem; font-weight:700; color:#fff; margin-bottom:12px; letter-spacing:0.05em;">🎮 주요 에이전트</div>
+                        <div id="homeAgentsList"></div>
+                    </div>
+
+                    <!-- 맵 밴픽 가이드 -->
+                    <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); border-radius:10px; padding:14px; margin-bottom:12px;">
+                        <div style="font-size:0.75rem; font-weight:700; color:#fff; margin-bottom:12px; letter-spacing:0.05em;">🗺️ 맵 밴픽 가이드</div>
+                        <div id="homeMapList"></div>
+                    </div>
+
+                    <!-- 최근 20경기 기준 -->
+                    <div style="text-align:center; font-size:0.72rem; color:#555; margin-bottom:8px;" id="homeBasedOn"></div>
+
+                    <!-- 티어 미인증 안내 -->
+                    <div id="homeNoVerify" style="display:none; text-align:center; padding:30px 20px; background:rgba(255,70,85,0.05); border:1px solid rgba(255,70,85,0.2); border-radius:10px;">
+                        <div style="font-size:1.5rem; margin-bottom:10px;">🎮</div>
+                        <div style="color:#fff; font-weight:600; margin-bottom:6px;">티어 인증이 필요합니다</div>
+                        <div style="color:#888; font-size:0.85rem; margin-bottom:16px;">설정 탭에서 티어 인증 후 전적을 확인할 수 있습니다</div>
+                        <button onclick="switchTab('settings')" style="padding:10px 24px; background:#ff4658; color:#fff; border:none; border-radius:8px; font-size:0.9rem; font-weight:600; cursor:pointer;">
+                            ⚙️ 설정으로 이동
+                        </button>
+                    </div>
+
+                    <!-- 로딩 -->
+                    <div id="homeLoading" style="text-align:center; padding:40px; display:none;">
+                        <div style="font-size:1.5rem; margin-bottom:10px;">🔄</div>
+                        <div style="color:#888; font-size:0.85rem;">전적 불러오는 중...</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-content" id="scrims">
                 <div class="filters">
                     <h2 data-i18n="msg_scrimlist">스크림 목록</h2>
                     
@@ -2768,9 +2862,13 @@ function setupEventListeners() {
 function switchTab(tabName) {
     document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
     document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-    document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
-    document.getElementById(tabName).classList.add('active');
-    if (tabName === 'scrims') loadScrims();
+    const btn = document.querySelector(`[data-tab="${tabName}"]`);
+    if (btn) btn.classList.add('active');
+    const tab = document.getElementById(tabName);
+    if (tab) tab.classList.add('active');
+    
+    if (tabName === 'home') loadHomeStats();
+    else if (tabName === 'scrims') loadScrims();
     else if (tabName === 'history') loadHistory();
 }
 
@@ -3763,9 +3861,10 @@ function showWelcome(user) {
     
     overlay.classList.add('show');
     
-    // 1.8초 후 자동으로 닫기
+    // 1.8초 후 홈 탭으로 이동
     setTimeout(() => {
         overlay.classList.remove('show');
+        switchTab('home');
     }, 1800);
 }
 
@@ -3874,6 +3973,135 @@ function handleCreateScrim(e) {
     alert('스크림이 등록되었습니다!');
     e.target.reset();
     switchTab('scrims');
+}
+
+// ===== 홈 탭 통계 로드 =====
+async function loadHomeStats() {
+    // 비로그인 상태
+    if (!state.currentUser) {
+        document.getElementById('homeGuest').style.display = 'block';
+        document.getElementById('homeStats').style.display = 'none';
+        return;
+    }
+    
+    document.getElementById('homeGuest').style.display = 'none';
+    document.getElementById('homeStats').style.display = 'block';
+    
+    // 티어 인증 확인
+    const saved = localStorage.getItem('riotVerified');
+    if (!saved) {
+        document.getElementById('homeNoVerify').style.display = 'block';
+        document.getElementById('homeLoading').style.display = 'none';
+        return;
+    }
+    
+    const riotData = JSON.parse(saved);
+    
+    // 플레이어 이름 + 티어 표시
+    document.getElementById('homePlayerName').textContent = `${riotData.name}#${riotData.tag}`;
+    document.getElementById('homeTier').textContent = riotData.tier || '--';
+    document.getElementById('homeRR').textContent = `${riotData.rr || 0} RR`;
+    document.getElementById('homeNoVerify').style.display = 'none';
+    document.getElementById('homeLoading').style.display = 'block';
+    
+    try {
+        // 계정 정보 + 게임 통계 로드
+        const res = await fetch(`/api/game-stats?name=${encodeURIComponent(riotData.name)}&tag=${encodeURIComponent(riotData.tag)}&puuid=${riotData.puuid}&region=${riotData.region || 'kr'}`);
+        const result = await res.json();
+        
+        document.getElementById('homeLoading').style.display = 'none';
+        
+        if (!result.success) return;
+        
+        // 플레이어 카드 배너
+        if (result.account?.card?.wide) {
+            document.getElementById('homeBanner').style.backgroundImage = `url(${result.account.card.wide})`;
+        }
+        if (result.account?.level) {
+            document.getElementById('homeAccountLevel').textContent = `⭐ Level ${result.account.level}`;
+        }
+        
+        // 핵심 지표
+        if (result.stats?.overall) {
+            const o = result.stats.overall;
+            document.getElementById('homeWinRate').textContent = `${o.winRate}%`;
+            document.getElementById('homeWinRate').style.color = o.winRate >= 50 ? '#4ade80' : '#f87171';
+            document.getElementById('homeKD').textContent = o.avgKD;
+            document.getElementById('homeGames').textContent = o.games;
+            document.getElementById('homeBasedOn').textContent = `최근 ${result.matchCount}경기 기준`;
+        }
+        
+        // 팀플레이
+        if (result.stats?.teamplay) {
+            const t = result.stats.teamplay;
+            const score = parseFloat(t.score);
+            document.getElementById('homeTeamplay').textContent = `${score.toFixed(1)}/10`;
+            let desc = score >= 8 ? '🔥 탁월' : score >= 6 ? '👍 우수' : score >= 4 ? '😐 보통' : '⚠️ 개인플';
+            document.getElementById('homeTeamplayDesc').textContent = `어시 ${t.assistContribution}% • ${desc}`;
+        }
+        
+        // 주 역할
+        if (result.stats?.roles) {
+            document.getElementById('homeMainRole').textContent = result.stats.roles.mainRole;
+            document.getElementById('homeMainRolePercent').textContent = `${result.stats.roles.mainRolePercent}% 플레이`;
+        }
+        
+        // 에이전트
+        if (result.stats?.agents) {
+            renderHomeAgents(result.stats.agents);
+        }
+        
+        // 맵
+        if (result.stats?.maps) {
+            renderHomeMaps(result.stats.maps);
+        }
+        
+    } catch (e) {
+        console.error('홈 통계 로드 실패:', e);
+        document.getElementById('homeLoading').style.display = 'none';
+    }
+}
+
+function renderHomeAgents(agents) {
+    const medals = ['🥇', '🥈', '🥉'];
+    document.getElementById('homeAgentsList').innerHTML = agents.map((a, i) => `
+        <div style="display:flex; align-items:center; gap:12px; padding:10px 12px; background:rgba(255,255,255,0.03); border-radius:8px; margin-bottom:7px; border-left:3px solid ${i===0?'#ffd700':i===1?'#c0c0c0':'#cd7f32'};">
+            <span style="font-size:1.1rem;">${medals[i]}</span>
+            <div style="flex:1;">
+                <div style="font-weight:700; color:#fff; font-size:0.88rem;">${a.agent}</div>
+                <div style="font-size:0.7rem; color:#888; margin-top:2px;">${a.games}경기 · K/D ${a.kd} · ${a.avgKills}/${a.avgDeaths}/${a.avgAssists}</div>
+            </div>
+            <div style="text-align:right;">
+                <div style="font-size:1rem; font-weight:800; color:${a.winRate>=50?'#4ade80':'#f87171'};">${a.winRate}%</div>
+                <div style="font-size:0.62rem; color:#666;">승률</div>
+            </div>
+        </div>`).join('');
+}
+
+function renderHomeMaps(maps) {
+    document.getElementById('homeMapList').innerHTML = maps.map(m => {
+        let tag, tagColor;
+        if (m.winRate >= 60) { tag = '✅ Pick'; tagColor = '#4ade80'; }
+        else if (m.winRate <= 40) { tag = '❌ Ban'; tagColor = '#f87171'; }
+        else { tag = '⚪ 중립'; tagColor = '#888'; }
+        const barColor = m.winRate >= 50 ? '#4ade80' : '#f87171';
+        return `
+            <div style="padding:9px 12px; border:1px solid rgba(255,255,255,0.07); border-radius:8px; margin-bottom:7px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                    <div>
+                        <span style="font-weight:700; color:#fff; font-size:0.85rem;">${m.map}</span>
+                        <span style="font-size:0.68rem; color:#555; margin-left:6px;">${m.games}경기</span>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <span style="font-size:0.9rem; font-weight:800; color:${barColor};">${m.winRate}%</span>
+                        <span style="font-size:0.68rem; color:${tagColor}; font-weight:600;">${tag}</span>
+                    </div>
+                </div>
+                <div style="height:4px; background:rgba(255,255,255,0.05); border-radius:99px; overflow:hidden;">
+                    <div style="height:100%; width:${m.winRate}%; background:${barColor}; border-radius:99px;"></div>
+                </div>
+            </div>`;
+    }).join('');
 }
 
 function loadScrims() {
@@ -4609,6 +4837,9 @@ function loadSavedRiotVerify() {
 document.addEventListener('DOMContentLoaded', function() {
     loadSavedRiotVerify();
     
+    // 홈 탭 초기화
+    setTimeout(() => loadHomeStats(), 300);
+    
     // auth-callback에서 서버사이드로 처리된 Riot 데이터 확인
     const pendingRiotData = localStorage.getItem('pendingRiotData');
     if (pendingRiotData) {
@@ -4619,7 +4850,6 @@ document.addEventListener('DOMContentLoaded', function() {
             const data = JSON.parse(pendingRiotData);
             console.log('✅ 서버에서 티어 인증 완료:', data.name);
             
-            // localStorage에 저장
             localStorage.setItem('riotVerified', JSON.stringify({
                 name: data.name,
                 tag: data.tag,
@@ -4630,10 +4860,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 verifiedAt: Date.now()
             }));
             
-            // UI 업데이트
             setTimeout(() => {
                 const tierBase = data.tier.split(' ')[0];
                 showVerifiedTier(data.tier, data.rr, tierBase, data.name, data.tag);
+                loadHomeStats(); // 홈 탭도 업데이트
             }, 500);
             
         } catch(e) {
