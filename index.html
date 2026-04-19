@@ -4200,74 +4200,51 @@ function renderRecentMatches(matches) {
             ? `<img src="${iconUrl}" alt="${m.agent}" style="width:38px;height:38px;border-radius:50%;object-fit:cover;flex-shrink:0;border:2px solid ${winColor}33;" onerror="this.style.display='none'">`
             : `<div style="width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,0.06);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:0.7rem;color:#888;border:2px solid ${winColor}33;">${m.agent?m.agent.slice(0,2):'??'}</div>`;
 
-        return `
-        <div style="display:flex;align-items:center;gap:8px;padding:9px 11px;background:${winBg};border:1px solid ${winBorder};border-radius:8px;margin-bottom:5px;border-left:3px solid ${winColor};">
-
-            <!-- 1. 에이전트 아이콘 -->
-            ${iconHtml}
-
-            <!-- 2. 맵 이름 + 에이전트 -->
-            <div style="flex:1.2;min-width:0;">
-                <div style="font-weight:700;color:#fff;font-size:0.82rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${m.map||'--'}</div>
-                <div style="font-size:0.68rem;color:#888;margin-top:1px;">${m.agent||'--'}</div>
-            </div>
-
-            <!-- 3. 라운드 수 + 승패 -->
-            <div style="text-align:center;flex-shrink:0;min-width:46px;">
-                <div style="font-size:0.8rem;font-weight:800;color:${winColor};">${winText}</div>
-                <div style="font-size:0.65rem;color:#666;margin-top:1px;">${m.score||'--'}</div>
-            </div>
-
-            <!-- 구분선 -->
-            <div style="width:1px;height:28px;background:rgba(255,255,255,0.07);flex-shrink:0;"></div>
-
-            <!-- 4. K/D 비율 -->
-            <div style="text-align:center;flex-shrink:0;min-width:34px;">
-                <div style="font-size:0.82rem;font-weight:700;color:${kdColor};">${m.kd||'--'}</div>
-                <div style="font-size:0.58rem;color:#555;margin-top:1px;">K/D</div>
-            </div>
-
-            <!-- 5. K/D/A -->
-            <div style="text-align:center;flex-shrink:0;min-width:52px;">
-                <div style="font-size:0.75rem;font-weight:700;color:#e2e8f0;">${m.kills}/${m.deaths}/${m.assists}</div>
-                <div style="font-size:0.58rem;color:#555;margin-top:1px;">KDA</div>
-            </div>
-
-            <!-- 6. ACS -->
-            <div style="text-align:center;flex-shrink:0;min-width:34px;">
-                <div style="font-size:0.82rem;font-weight:700;color:#a78bfa;">${m.acs}</div>
-                <div style="font-size:0.58rem;color:#555;margin-top:1px;">ACS</div>
-            </div>
-
-            <!-- 7. HS% -->
-            <div style="text-align:center;flex-shrink:0;min-width:34px;">
-                <div style="font-size:0.82rem;font-weight:700;color:#f59e0b;">${m.hsRate}%</div>
-                <div style="font-size:0.58rem;color:#555;margin-top:1px;">HS</div>
-            </div>
-
-            <!-- 8. +/- -->
-            <div style="text-align:center;flex-shrink:0;min-width:28px;">
-                <div style="font-size:0.82rem;font-weight:800;color:${pmColor};">${pmText}</div>
-                <div style="font-size:0.58rem;color:#555;margin-top:1px;">+/-</div>
-            </div>
-
-        </div>`;
+        return '<div style="display:flex;align-items:center;gap:8px;padding:9px 11px;background:' + winBg + ';border:1px solid ' + winBorder + ';border-radius:8px;margin-bottom:5px;border-left:3px solid ' + winColor + ';">'
+            + iconHtml
+            + '<div style="flex:1.2;min-width:0;">'
+            + '<div style="font-weight:700;color:#fff;font-size:0.82rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + (m.map||'--') + '</div>'
+            + '<div style="font-size:0.68rem;color:#888;margin-top:1px;">' + (m.agent||'--') + '</div>'
+            + '</div>'
+            + '<div style="text-align:center;flex-shrink:0;min-width:42px;">'
+            + '<div style="font-size:0.8rem;font-weight:800;color:' + winColor + ';">' + winText + '</div>'
+            + '<div style="font-size:0.65rem;color:#666;margin-top:1px;">' + (m.score||'--') + '</div>'
+            + '</div>'
+            + '<div style="width:1px;height:28px;background:rgba(255,255,255,0.07);flex-shrink:0;"></div>'
+            + '<div style="text-align:center;flex-shrink:0;min-width:34px;">'
+            + '<div style="font-size:0.82rem;font-weight:700;color:' + kdColor + ';">' + (m.kd||'--') + '</div>'
+            + '<div style="font-size:0.58rem;color:#555;margin-top:1px;">K/D</div>'
+            + '</div>'
+            + '<div style="text-align:center;flex-shrink:0;min-width:52px;">'
+            + '<div style="font-size:0.75rem;font-weight:700;color:#e2e8f0;">' + m.kills + '/' + m.deaths + '/' + m.assists + '</div>'
+            + '<div style="font-size:0.58rem;color:#555;margin-top:1px;">KDA</div>'
+            + '</div>'
+            + '<div style="text-align:center;flex-shrink:0;min-width:34px;">'
+            + '<div style="font-size:0.82rem;font-weight:700;color:#a78bfa;">' + m.acs + '</div>'
+            + '<div style="font-size:0.58rem;color:#555;margin-top:1px;">ACS</div>'
+            + '</div>'
+            + '<div style="text-align:center;flex-shrink:0;min-width:34px;">'
+            + '<div style="font-size:0.82rem;font-weight:700;color:#f59e0b;">' + m.hsRate + '%</div>'
+            + '<div style="font-size:0.58rem;color:#555;margin-top:1px;">HS</div>'
+            + '</div>'
+            + '<div style="text-align:center;flex-shrink:0;min-width:28px;">'
+            + '<div style="font-size:0.82rem;font-weight:800;color:' + pmColor + ';">' + pmText + '</div>'
+            + '<div style="font-size:0.58rem;color:#555;margin-top:1px;">+/-</div>'
+            + '</div>'
+            + '</div>';
     };
 
     // 날짜 그룹 헤더 + 경기 카드 렌더링
     container.innerHTML = Object.values(groups).map(group => {
         const winRateColor = group.wins >= group.losses ? '#4ade80' : '#f87171';
-        return `
-        <div style="margin-bottom:16px;">
-            <!-- 날짜 헤더 -->
-            <div style="display:flex; align-items:center; gap:10px; margin-bottom:8px; padding-bottom:6px; border-bottom:1px solid rgba(255,255,255,0.07);">
-                <span style="font-size:0.8rem; font-weight:700; color:#ccc;">${group.label}</span>
-                <span style="font-size:0.72rem; color:${winRateColor}; font-weight:600;">${group.wins}승 ${group.losses}패</span>
-                <span style="font-size:0.68rem; color:#555;">${group.matches.length}경기</span>
-            </div>
-            <!-- 경기 목록 -->
-            ${group.matches.map(renderMatchCard).join('')}
-        </div>`;
+        return '<div style="margin-bottom:16px;">'
+            + '<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid rgba(255,255,255,0.07);">'
+            + '<span style="font-size:0.8rem;font-weight:700;color:#ccc;">' + group.label + '</span>'
+            + '<span style="font-size:0.72rem;color:' + winRateColor + ';font-weight:600;">' + group.wins + '승 ' + group.losses + '패</span>'
+            + '<span style="font-size:0.68rem;color:#555;">' + group.matches.length + '경기</span>'
+            + '</div>'
+            + group.matches.map(renderMatchCard).join('')
+            + '</div>';
     }).join('');
 }
 
