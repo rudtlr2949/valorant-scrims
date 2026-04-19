@@ -4051,9 +4051,7 @@ async function loadHomeStats() {
     
     try {
         // 계정 정보 + 게임 통계 로드
-        const region = (riotData.region || 'kr').toLowerCase();
-        console.log(`📊 API 호출: name=${riotData.name} tag=${riotData.tag} region=${region} puuid=${riotData.puuid?.slice(0,8)}`);
-        const res = await fetch(`/api/game-stats?name=${encodeURIComponent(riotData.name)}&tag=${encodeURIComponent(riotData.tag)}&puuid=${riotData.puuid}&region=${region}`);
+        const res = await fetch(`/api/game-stats?name=${encodeURIComponent(riotData.name)}&tag=${encodeURIComponent(riotData.tag)}&puuid=${riotData.puuid}&region=${riotData.region || 'kr'}`);
         const result = await res.json();
         console.log('📦 API 응답:', result.success, '경기수:', result.matchCount, '최근경기:', result.recentMatches?.length);
         
@@ -4129,15 +4127,9 @@ async function loadHomeStats() {
         }
         
     } catch (e) {
-        console.error('홈 통계 로드 실패:', e.message, e.stack);
+        console.error('홈 통계 로드 실패:', e);
         const loadingEl = document.getElementById('homeLoading');
         if (loadingEl) loadingEl.style.display = 'none';
-        // 화면에 에러 표시
-        const noVerify = document.getElementById('homeNoVerify');
-        if (noVerify) {
-            noVerify.style.display = 'block';
-            noVerify.innerHTML = '<div style="color:#f87171; font-size:0.85rem;">⚠️ 오류: ' + e.message + '</div>';
-        }
     }
 }
 
