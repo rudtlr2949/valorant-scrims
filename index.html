@@ -4341,7 +4341,7 @@ function renderHomeMaps(maps) {
         const barColor = m.winRate >= 50 ? '#4ade80' : '#f87171';
         const mapImg = MAP_IMAGES[m.map] || '';
         const bgStyle = mapImg
-            ? `background:linear-gradient(to right, rgba(15,25,35,0.92) 0%, rgba(15,25,35,0.7) 50%, rgba(15,25,35,0.4) 100%), url('${mapImg}') center/cover no-repeat;`
+            ? `background:linear-gradient(to right, rgba(15,25,35,0.92) 0%, rgba(15,25,35,0.7) 50%, rgba(15,25,35,0.4) 100%), url(${mapImg}) center/cover no-repeat;`
             : 'background:rgba(255,255,255,0.03);';
         return `
             <div style="position:relative; ${bgStyle} border:1px solid rgba(255,255,255,0.1); border-radius:10px; margin-bottom:8px; overflow:hidden; padding:10px 14px;">
@@ -4998,7 +4998,7 @@ function renderMapStats(maps) {
         const barColor = map.winRate >= 50 ? '#4ade80' : '#f87171';
         const mapImg = MAP_IMAGES[map.map] || '';
         const bgStyle = mapImg
-            ? `background:linear-gradient(to right, rgba(15,25,35,0.92) 0%, rgba(15,25,35,0.7) 50%, rgba(15,25,35,0.4) 100%), url('${mapImg}') center/cover no-repeat;`
+            ? `background:linear-gradient(to right, rgba(15,25,35,0.92) 0%, rgba(15,25,35,0.7) 50%, rgba(15,25,35,0.4) 100%), url(${mapImg}) center/cover no-repeat;`
             : 'background:rgba(255,255,255,0.03);';
         return `
             <div style="position:relative; ${bgStyle} border:1px solid rgba(255,255,255,0.1); border-radius:10px; margin-bottom:8px; overflow:hidden; padding:10px 14px;">
