@@ -4051,7 +4051,9 @@ async function loadHomeStats() {
     
     try {
         // 계정 정보 + 게임 통계 로드
-        const res = await fetch(`/api/game-stats?name=${encodeURIComponent(riotData.name)}&tag=${encodeURIComponent(riotData.tag)}&puuid=${riotData.puuid}&region=${riotData.region || 'kr'}`);
+        const region = (riotData.region || 'kr').toLowerCase();
+        console.log(`📊 API 호출: name=${riotData.name} tag=${riotData.tag} region=${region} puuid=${riotData.puuid?.slice(0,8)}`);
+        const res = await fetch(`/api/game-stats?name=${encodeURIComponent(riotData.name)}&tag=${encodeURIComponent(riotData.tag)}&puuid=${riotData.puuid}&region=${region}`);
         const result = await res.json();
         console.log('📦 API 응답:', result.success, '경기수:', result.matchCount, '최근경기:', result.recentMatches?.length);
         
@@ -4127,9 +4129,15 @@ async function loadHomeStats() {
         }
         
     } catch (e) {
-        console.error('홈 통계 로드 실패:', e);
+        console.error('홈 통계 로드 실패:', e.message, e.stack);
         const loadingEl = document.getElementById('homeLoading');
         if (loadingEl) loadingEl.style.display = 'none';
+        // 화면에 에러 표시
+        const noVerify = document.getElementById('homeNoVerify');
+        if (noVerify) {
+            noVerify.style.display = 'block';
+            noVerify.innerHTML = '<div style="color:#f87171; font-size:0.85rem;">⚠️ 오류: ' + e.message + '</div>';
+        }
     }
 }
 
@@ -4250,6 +4258,21 @@ function renderRecentMatches(matches) {
 
 
 // ===== 에이전트 아이콘 맵 =====
+// ===== 맵 이미지 URL 맵 =====
+const MAP_IMAGES = {
+    'Ascent':    'https://media.valorant-api.com/maps/7eaecc1b-4337-bbf6-6ab9-04b8f06b3319/splash.png',
+    'Bind':      'https://media.valorant-api.com/maps/2c9d57ec-4431-9c5e-2939-8f9ef6dd5cba/splash.png',
+    'Haven':     'https://media.valorant-api.com/maps/2bee0dc9-4ffe-519b-1cbd-7825ad097fbf/splash.png',
+    'Split':     'https://media.valorant-api.com/maps/d960549e-485c-e861-8d71-aa9d1aed12a2/splash.png',
+    'Icebox':    'https://media.valorant-api.com/maps/e2ad5c54-4114-a870-9641-8ea21279579a/splash.png',
+    'Breeze':    'https://media.valorant-api.com/maps/2fb9a4fd-47b8-4e7d-a969-74b4046ebd53/splash.png',
+    'Fracture':  'https://media.valorant-api.com/maps/b529448b-4d60-346e-e89e-00a4c527a405/splash.png',
+    'Pearl':     'https://media.valorant-api.com/maps/fd267378-4d1d-484f-ff52-77821ed10dc2/splash.png',
+    'Lotus':     'https://media.valorant-api.com/maps/2fe4ed3a-450a-948b-6d6b-e89a78e680a9/splash.png',
+    'Sunset':    'https://media.valorant-api.com/maps/92584fbe-486a-b1b2-9faa-39f2a00b33b1/splash.png',
+    'Abyss':     'https://media.valorant-api.com/maps/224b0a95-48b9-f703-1bd8-67aca101a61f/splash.png',
+};
+
 const AGENT_ICONS = {
     'Jett':       'add6443a-41bd-e414-f6ad-e58d267f4e95',
     'Raze':       'f94c3b30-42be-e959-889c-5aa313dba261',
@@ -4316,19 +4339,23 @@ function renderHomeMaps(maps) {
         else if (m.winRate <= 40) { tag = '❌ Ban'; tagColor = '#f87171'; }
         else { tag = '⚪ 중립'; tagColor = '#888'; }
         const barColor = m.winRate >= 50 ? '#4ade80' : '#f87171';
+        const mapImg = MAP_IMAGES[m.map] || '';
+        const bgStyle = mapImg
+            ? `background:linear-gradient(to right, rgba(15,25,35,0.92) 0%, rgba(15,25,35,0.7) 50%, rgba(15,25,35,0.4) 100%), url('${mapImg}') center/cover no-repeat;`
+            : 'background:rgba(255,255,255,0.03);';
         return `
-            <div style="padding:9px 12px; border:1px solid rgba(255,255,255,0.07); border-radius:8px; margin-bottom:7px;">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+            <div style="position:relative; ${bgStyle} border:1px solid rgba(255,255,255,0.1); border-radius:10px; margin-bottom:8px; overflow:hidden; padding:10px 14px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:7px;">
                     <div>
-                        <span style="font-weight:700; color:#fff; font-size:0.85rem;">${m.map}</span>
-                        <span style="font-size:0.68rem; color:#555; margin-left:6px;">${m.games}경기</span>
+                        <span style="font-weight:800; color:#fff; font-size:0.88rem; text-shadow:0 1px 4px rgba(0,0,0,0.8);">${m.map}</span>
+                        <span style="font-size:0.68rem; color:rgba(255,255,255,0.45); margin-left:7px;">${m.games}경기 · ${m.wins}승</span>
                     </div>
                     <div style="display:flex; align-items:center; gap:8px;">
-                        <span style="font-size:0.9rem; font-weight:800; color:${barColor};">${m.winRate}%</span>
-                        <span style="font-size:0.68rem; color:${tagColor}; font-weight:600;">${tag}</span>
+                        <span style="font-size:0.95rem; font-weight:800; color:${barColor}; text-shadow:0 1px 4px rgba(0,0,0,0.8);">${m.winRate}%</span>
+                        <span style="font-size:0.68rem; color:${tagColor}; font-weight:700;">${tag}</span>
                     </div>
                 </div>
-                <div style="height:4px; background:rgba(255,255,255,0.05); border-radius:99px; overflow:hidden;">
+                <div style="height:4px; background:rgba(255,255,255,0.1); border-radius:99px; overflow:hidden;">
                     <div style="height:100%; width:${m.winRate}%; background:${barColor}; border-radius:99px;"></div>
                 </div>
             </div>`;
@@ -4964,30 +4991,29 @@ function renderMapStats(maps) {
         return;
     }
     container.innerHTML = maps.map(map => {
-        let tag, tagColor, border;
-        if (map.winRate >= 60) {
-            tag = '✅ Pick'; tagColor = '#4ade80'; border = 'rgba(74,222,128,0.25)';
-        } else if (map.winRate <= 40) {
-            tag = '❌ Ban'; tagColor = '#f87171'; border = 'rgba(248,113,113,0.25)';
-        } else {
-            tag = '⚪ 중립'; tagColor = '#888'; border = 'rgba(255,255,255,0.08)';
-        }
-        const barWidth = map.winRate;
+        let tag, tagColor;
+        if (map.winRate >= 60) { tag = '✅ Pick'; tagColor = '#4ade80'; }
+        else if (map.winRate <= 40) { tag = '❌ Ban'; tagColor = '#f87171'; }
+        else { tag = '⚪ 중립'; tagColor = '#888'; }
         const barColor = map.winRate >= 50 ? '#4ade80' : '#f87171';
+        const mapImg = MAP_IMAGES[map.map] || '';
+        const bgStyle = mapImg
+            ? `background:linear-gradient(to right, rgba(15,25,35,0.92) 0%, rgba(15,25,35,0.7) 50%, rgba(15,25,35,0.4) 100%), url('${mapImg}') center/cover no-repeat;`
+            : 'background:rgba(255,255,255,0.03);';
         return `
-            <div style="padding:10px 12px; border:1px solid ${border}; border-radius:8px; margin-bottom:7px;">
+            <div style="position:relative; ${bgStyle} border:1px solid rgba(255,255,255,0.1); border-radius:10px; margin-bottom:8px; overflow:hidden; padding:10px 14px;">
                 <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:7px;">
                     <div>
-                        <span style="font-weight:700; color:#fff; font-size:0.85rem;">${map.map}</span>
-                        <span style="font-size:0.7rem; color:#666; margin-left:8px;">${map.games}경기</span>
+                        <span style="font-weight:800; color:#fff; font-size:0.85rem; text-shadow:0 1px 4px rgba(0,0,0,0.8);">${map.map}</span>
+                        <span style="font-size:0.68rem; color:rgba(255,255,255,0.45); margin-left:7px;">${map.games}경기 · ${map.wins}승</span>
                     </div>
                     <div style="display:flex; align-items:center; gap:8px;">
-                        <span style="font-size:0.9rem; font-weight:800; color:${barColor};">${map.winRate}%</span>
-                        <span style="font-size:0.7rem; color:${tagColor}; font-weight:600;">${tag}</span>
+                        <span style="font-size:0.95rem; font-weight:800; color:${barColor}; text-shadow:0 1px 4px rgba(0,0,0,0.8);">${map.winRate}%</span>
+                        <span style="font-size:0.68rem; color:${tagColor}; font-weight:700;">${tag}</span>
                     </div>
                 </div>
-                <div style="height:4px; background:rgba(255,255,255,0.06); border-radius:99px; overflow:hidden;">
-                    <div style="height:100%; width:${barWidth}%; background:${barColor}; border-radius:99px;"></div>
+                <div style="height:4px; background:rgba(255,255,255,0.1); border-radius:99px; overflow:hidden;">
+                    <div style="height:100%; width:${map.winRate}%; background:${barColor}; border-radius:99px;"></div>
                 </div>
             </div>`;
     }).join('');
