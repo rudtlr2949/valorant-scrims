@@ -4062,10 +4062,7 @@ async function loadHomeStats() {
             return;
         }
         
-        // 플레이어 카드 배너
-        if (result.account?.card?.wide) {
-            document.getElementById('homeBanner').style.backgroundImage = `url(${result.account.card.wide})`;
-        }
+        // 계정 레벨
         if (result.account?.level) {
             document.getElementById('homeAccountLevel').textContent = `⭐ Level ${result.account.level}`;
         }
@@ -4093,7 +4090,7 @@ async function loadHomeStats() {
         if (riotData.tier) {
             const tierBase = riotData.tier.split(' ')[0];
             const tierIconEl = document.getElementById('homeTierIcon');
-            if (TIER_ICONS[tierBase]) {
+            if (tierIconEl && TIER_ICONS[tierBase]) {
                 tierIconEl.src = TIER_ICONS[tierBase];
                 tierIconEl.style.display = 'block';
             }
@@ -4131,7 +4128,8 @@ async function loadHomeStats() {
         
     } catch (e) {
         console.error('홈 통계 로드 실패:', e);
-        document.getElementById('homeLoading').style.display = 'none';
+        const loadingEl = document.getElementById('homeLoading');
+        if (loadingEl) loadingEl.style.display = 'none';
     }
 }
 
