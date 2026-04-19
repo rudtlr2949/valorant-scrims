@@ -4178,7 +4178,7 @@ function renderRecentMatches(matches) {
         const winBg = m.won ? 'rgba(74,222,128,0.05)' : 'rgba(248,113,113,0.05)';
         const winBorder = m.won ? 'rgba(74,222,128,0.18)' : 'rgba(248,113,113,0.18)';
         const winText = m.won ? '승' : '패';
-        const iconUrl = getAgentIconUrl(m.agent);
+        const iconUrl = m.agentIconUrl || getAgentIconUrl(m.agent);
 
         // 시간
         let timeStr = '';
@@ -4251,7 +4251,7 @@ function renderRecentMatches(matches) {
 
 // ===== 에이전트 아이콘 맵 =====
 const AGENT_ICONS = {
-    'Jett':       'dee7a7b0-4b0d-49de-b7fa-4e807e09b71a',
+    'Jett':       'add6443a-41bd-e414-f6ad-e58d267f4e95',
     'Raze':       'f94c3b30-42be-e959-889c-5aa313dba261',
     'Reyna':      'a3bfb853-43b2-7238-a4f1-ad90e9e46bcc',
     'Phoenix':    'eb93336a-449b-9c1b-0a54-a891f7adea46',
@@ -4290,7 +4290,7 @@ function renderHomeAgents(agents) {
     const medals = ['🥇', '🥈', '🥉'];
     const colors = ['#ffd700', '#c0c0c0', '#cd7f32'];
     document.getElementById('homeAgentsList').innerHTML = agents.map((a, i) => {
-        const iconUrl = getAgentIconUrl(a.agent);
+        const iconUrl = a.iconUrl || getAgentIconUrl(a.agent);
         const iconHtml = iconUrl
             ? `<img src="${iconUrl}" alt="${a.agent}" style="width:40px; height:40px; border-radius:50%; object-fit:cover; background:rgba(255,70,85,0.2); flex-shrink:0;" onerror="this.style.display='none'">`
             : `<span style="font-size:1.1rem; flex-shrink:0;">${medals[i]}</span>`;
@@ -4935,7 +4935,7 @@ function renderTopAgents(agents) {
     }
     const colors = ['#ffd700', '#c0c0c0', '#cd7f32'];
     container.innerHTML = agents.map((agent, i) => {
-        const iconUrl = getAgentIconUrl(agent.agent);
+        const iconUrl = agent.iconUrl || getAgentIconUrl(agent.agent);
         const iconHtml = iconUrl
             ? `<img src="${iconUrl}" alt="${agent.agent}" style="width:40px; height:40px; border-radius:50%; object-fit:cover; background:rgba(255,70,85,0.2); flex-shrink:0;" onerror="this.style.display='none'">`
             : `<span style="font-size:1.2rem; flex-shrink:0;">${['🥇','🥈','🥉'][i]}</span>`;
