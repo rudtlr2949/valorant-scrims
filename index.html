@@ -4649,6 +4649,21 @@ function loadSavedRiotVerify() {
 // ===== 페이지 로드 시 실행 =====
 document.addEventListener('DOMContentLoaded', function() {
     loadSavedRiotVerify();
+    
+    // pendingTierVerify 처리 (auth-tier 승인 후 돌아왔을 때)
+    const pendingTierVerify = localStorage.getItem('pendingTierVerify');
+    if (pendingTierVerify === 'true') {
+        localStorage.removeItem('pendingTierVerify');
+        
+        // 로그인 상태 확인 후 티어 인증 진행
+        setTimeout(() => {
+            if (state.currentUser && state.currentUser.discordAccessToken) {
+                console.log('🎮 pendingTierVerify 감지 → 티어 인증 시작');
+                switchTab('settings');
+                setTimeout(() => autoVerifyRiotFromDiscord(true), 500);
+            }
+        }, 1000);
+    }
 });
     </script>
 
