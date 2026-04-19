@@ -1868,38 +1868,58 @@ body {
                 <!-- 로그인 상태: 내 통계 -->
                 <div id="homeStats" style="display:none;">
 
-                    <!-- 플레이어 카드 배너 (풀사이즈) -->
-                    <div id="homeBanner" style="position:relative; height:130px; border-radius:14px; background-size:contain; background-position:center; background-repeat:no-repeat; margin-bottom:14px; overflow:hidden; background-color:#0f1923;">
-                        <div style="position:absolute; inset:0; background:linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.4) 50%, rgba(0,0,0,0.1) 100%);"></div>
-                        <!-- 상단: 레벨 + 경기 기준 -->
-                        <div style="position:absolute; top:14px; left:16px; right:16px; display:flex; justify-content:space-between; align-items:center;">
-                            <span id="homeAccountLevel" style="color:rgba(255,255,255,0.7); font-size:0.78rem; background:rgba(0,0,0,0.4); padding:3px 10px; border-radius:20px; backdrop-filter:blur(4px);">⭐ Level --</span>
-                            <span id="homeBasedOn" style="color:rgba(255,255,255,0.5); font-size:0.7rem; background:rgba(0,0,0,0.4); padding:3px 10px; border-radius:20px; backdrop-filter:blur(4px);"></span>
-                        </div>
-                        <!-- 하단: 플레이어 정보 + 핵심 통계 -->
-                        <div style="position:absolute; bottom:0; left:0; right:0; padding:14px 16px;">
-                            <!-- 플레이어명 + 티어 -->
-                            <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:12px;">
-                                <div>
-                                    <div id="homePlayerName" style="color:#fff; font-weight:800; font-size:1.2rem; text-shadow:0 2px 8px rgba(0,0,0,0.8);">--</div>
-                                    <div id="homeTier" style="color:#4ade80; font-size:0.82rem; font-weight:600; margin-top:2px;">--</div>
-                                </div>
-                                <div id="homeRR" style="color:rgba(255,255,255,0.7); font-size:0.82rem; font-weight:600; background:rgba(255,255,255,0.1); padding:4px 10px; border-radius:20px;">-- RR</div>
+                    <!-- 플레이어 정보 헤더 (배너 없이 깔끔하게) -->
+                    <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); border-radius:12px; padding:14px; margin-bottom:12px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                            <div>
+                                <div id="homePlayerName" style="color:#fff; font-weight:800; font-size:1rem;">--</div>
+                                <div id="homeAccountLevel" style="color:#888; font-size:0.75rem; margin-top:2px;">⭐ Level --</div>
                             </div>
-                            <!-- 핵심 통계 3개 (배너 안에 통합) -->
-                            <div style="display:flex; gap:0; background:rgba(0,0,0,0.45); border-radius:10px; overflow:hidden; backdrop-filter:blur(8px);">
-                                <div style="flex:1; padding:10px 0; text-align:center; border-right:1px solid rgba(255,255,255,0.08);">
-                                    <div id="homeWinRate" style="font-size:1.15rem; font-weight:800; color:#4ade80;">--%</div>
-                                    <div style="font-size:0.62rem; color:rgba(255,255,255,0.4); margin-top:2px;">승률</div>
-                                </div>
-                                <div style="flex:1; padding:10px 0; text-align:center; border-right:1px solid rgba(255,255,255,0.08);">
-                                    <div id="homeKD" style="font-size:1.15rem; font-weight:800; color:#fff;">--</div>
-                                    <div style="font-size:0.62rem; color:rgba(255,255,255,0.4); margin-top:2px;">K/D</div>
-                                </div>
-                                <div style="flex:1; padding:10px 0; text-align:center;">
-                                    <div id="homeGames" style="font-size:1.15rem; font-weight:800; color:#fff;">--</div>
-                                    <div style="font-size:0.62rem; color:rgba(255,255,255,0.4); margin-top:2px;">경기</div>
-                                </div>
+                            <span id="homeBasedOn" style="font-size:0.68rem; color:#555; background:rgba(255,255,255,0.05); padding:3px 8px; border-radius:20px;"></span>
+                        </div>
+
+                        <!-- 티어 -->
+                        <div style="display:flex; align-items:center; gap:8px; padding:8px 10px; background:rgba(255,70,85,0.08); border:1px solid rgba(255,70,85,0.2); border-radius:8px; margin-bottom:12px;">
+                            <img id="homeTierIcon" src="" alt="" style="width:32px; height:32px; display:none;">
+                            <div>
+                                <div id="homeTier" style="color:#fff; font-weight:700; font-size:0.95rem;">--</div>
+                                <div id="homeRR" style="color:#ff4658; font-size:0.72rem;">-- RR</div>
+                            </div>
+                        </div>
+
+                        <!-- 핵심 통계: 판수/승/패/승률 -->
+                        <div style="display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:6px; margin-bottom:8px;">
+                            <div style="background:rgba(255,255,255,0.04); border-radius:8px; padding:8px 4px; text-align:center;">
+                                <div id="homeGames" style="font-size:1.05rem; font-weight:800; color:#fff;">--</div>
+                                <div style="font-size:0.6rem; color:#666; margin-top:2px;">판수</div>
+                            </div>
+                            <div style="background:rgba(74,222,128,0.08); border-radius:8px; padding:8px 4px; text-align:center;">
+                                <div id="homeWins" style="font-size:1.05rem; font-weight:800; color:#4ade80;">--</div>
+                                <div style="font-size:0.6rem; color:#666; margin-top:2px;">승</div>
+                            </div>
+                            <div style="background:rgba(248,113,113,0.08); border-radius:8px; padding:8px 4px; text-align:center;">
+                                <div id="homeLosses" style="font-size:1.05rem; font-weight:800; color:#f87171;">--</div>
+                                <div style="font-size:0.6rem; color:#666; margin-top:2px;">패</div>
+                            </div>
+                            <div style="background:rgba(255,255,255,0.04); border-radius:8px; padding:8px 4px; text-align:center;">
+                                <div id="homeWinRate" style="font-size:1.05rem; font-weight:800; color:#4ade80;">--%</div>
+                                <div style="font-size:0.6rem; color:#666; margin-top:2px;">승률</div>
+                            </div>
+                        </div>
+
+                        <!-- 전투 통계: 헤드샷률/ACS/KDA -->
+                        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:6px;">
+                            <div style="background:rgba(255,255,255,0.04); border-radius:8px; padding:8px 4px; text-align:center;">
+                                <div id="homeHS" style="font-size:1.05rem; font-weight:800; color:#f59e0b;">--%</div>
+                                <div style="font-size:0.6rem; color:#666; margin-top:2px;">헤드샷</div>
+                            </div>
+                            <div style="background:rgba(255,255,255,0.04); border-radius:8px; padding:8px 4px; text-align:center;">
+                                <div id="homeACS" style="font-size:1.05rem; font-weight:800; color:#a78bfa;">--</div>
+                                <div style="font-size:0.6rem; color:#666; margin-top:2px;">ACS</div>
+                            </div>
+                            <div style="background:rgba(255,255,255,0.04); border-radius:8px; padding:8px 4px; text-align:center;">
+                                <div id="homeKDA" style="font-size:0.85rem; font-weight:800; color:#fff;">--/--/--</div>
+                                <div style="font-size:0.6rem; color:#666; margin-top:2px;">K/D/A</div>
                             </div>
                         </div>
                     </div>
@@ -1929,9 +1949,6 @@ body {
                         <div style="font-size:0.75rem; font-weight:700; color:#fff; margin-bottom:12px; letter-spacing:0.05em;">🗺️ 맵 밴픽 가이드</div>
                         <div id="homeMapList"></div>
                     </div>
-
-                    <!-- 최근 20경기 기준 -->
-                    <div style="text-align:center; font-size:0.72rem; color:#555; margin-bottom:8px;" id="homeBasedOn"></div>
 
                     <!-- 티어 미인증 안내 -->
                     <div id="homeNoVerify" style="display:none; text-align:center; padding:30px 20px; background:rgba(255,70,85,0.05); border:1px solid rgba(255,70,85,0.2); border-radius:10px;">
@@ -4028,11 +4045,30 @@ async function loadHomeStats() {
         // 핵심 지표
         if (result.stats?.overall) {
             const o = result.stats.overall;
+            
+            // 판수/승/패/승률
+            document.getElementById('homeGames').textContent = o.games;
+            document.getElementById('homeWins').textContent = o.wins;
+            document.getElementById('homeLosses').textContent = o.losses;
             document.getElementById('homeWinRate').textContent = `${o.winRate}%`;
             document.getElementById('homeWinRate').style.color = o.winRate >= 50 ? '#4ade80' : '#f87171';
-            document.getElementById('homeKD').textContent = o.avgKD;
-            document.getElementById('homeGames').textContent = o.games;
+            
+            // 헤드샷/ACS/KDA
+            document.getElementById('homeHS').textContent = `${o.headshotRate}%`;
+            document.getElementById('homeACS').textContent = o.acs;
+            document.getElementById('homeKDA').textContent = `${o.avgKills}/${o.avgDeaths}/${o.avgAssists}`;
+            
             document.getElementById('homeBasedOn').textContent = `최근 ${result.matchCount}경기 기준`;
+        }
+        
+        // 티어 아이콘
+        if (riotData.tier) {
+            const tierBase = riotData.tier.split(' ')[0];
+            const tierIconEl = document.getElementById('homeTierIcon');
+            if (TIER_ICONS[tierBase]) {
+                tierIconEl.src = TIER_ICONS[tierBase];
+                tierIconEl.style.display = 'block';
+            }
         }
         
         // 팀플레이
