@@ -2818,19 +2818,11 @@ function checkDiscordLogin() {
         const pendingTierVerify = localStorage.getItem('pendingTierVerify');
         if (pendingTierVerify === 'true') {
             localStorage.removeItem('pendingTierVerify');
-            
-            // connections 권한이 있는 토큰인지 확인
-            if (user.hasConnectionsScope) {
-                // connections 권한 있음 → 티어 인증 진행
-                setTimeout(() => {
-                    switchTab('settings');
-                    setTimeout(() => autoVerifyRiotFromDiscord(true), 500);
-                }, 500);
-            } else {
-                // connections 권한 없음 → 루프 방지, 그냥 메인으로
-                console.log('⚠️ connections 권한 없음');
-                showWelcome(user);
-            }
+            // connections 승인 후 돌아온 것 → 바로 티어 인증
+            setTimeout(() => {
+                switchTab('settings');
+                setTimeout(() => autoVerifyRiotFromDiscord(true), 500);
+            }, 500);
         } else {
             showWelcome(user);
         }
@@ -4219,38 +4211,6 @@ async function autoVerifyRiotFromDiscord(silent = false) {
         return;
     }
     
-    // connections 권한 체크 (자동 모드에서는 스킵)
-    if (!silent) {
-        statusEl.textContent = '🔍 권한 확인 중...';
-        statusEl.className = 'verify-status loading';
-        
-        try {
-            const testRes = await fetch('https://discord.com/api/users/@me/connections', {
-                headers: { 'Authorization': `Bearer ${state.currentUser.discordAccessToken}` }
-            });
-            
-            if (testRes.status === 403 || testRes.status === 401) {
-                // connections 권한 없음 → auth-tier로 이동 (1회만)
-                statusEl.textContent = '🔑 Riot 계정 연동 권한이 필요합니다';
-                statusEl.className = 'verify-status';
-                localStorage.setItem('pendingTierVerify', 'true');
-                setTimeout(() => { window.location.href = '/api/auth-tier'; }, 1000);
-                return;
-            }
-        } catch (error) {
-            statusEl.textContent = '❌ 권한 확인 중 오류 발생';
-            statusEl.className = 'verify-status error';
-            setTimeout(() => statusEl.textContent = '', 3000);
-            return;
-        }
-    }
-    
-    // silent 모드에서 connections 권한 없으면 중단 (루프 방지)
-    if (silent && !state.currentUser.hasConnectionsScope) {
-        console.log('⚠️ connections 권한 없음, 인증 중단');
-        return;
-    }
-    
     // 로딩 시작
     if (!silent && verifyBtn) {
         verifyBtn.disabled = true;
@@ -4260,7 +4220,7 @@ async function autoVerifyRiotFromDiscord(silent = false) {
     if (!silent) {
         statusEl.textContent = '🔗 Discord 연동 계정 확인 중...';
         statusEl.className = 'verify-status loading';
-        guideBox.style.display = 'none';
+        if (guideBox) guideBox.style.display = 'none';
     }
     
     try {
@@ -4270,7 +4230,14 @@ async function autoVerifyRiotFromDiscord(silent = false) {
         });
         
         if (!connectionsRes.ok) {
-            throw new Error('Discord 연동 계정 조회 실패');
+            // connections 권한 없음 → auth-tier로 1회만 이동
+            if (!silent) {
+                statusEl.textContent = '🔑 Discord 권한이 필요합니다';
+                statusEl.className = 'verify-status';
+                localStorage.setItem('pendingTierVerify', 'true');
+                setTimeout(() => { window.location.href = '/api/auth-tier'; }, 1000);
+            }
+            return;
         }
         
         const connections = await connectionsRes.json();
