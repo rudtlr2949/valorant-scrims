@@ -1950,6 +1950,12 @@ body {
                         <div id="homeMapList"></div>
                     </div>
 
+                    <!-- 최근 경기 전적 -->
+                    <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); border-radius:10px; padding:14px; margin-bottom:12px;">
+                        <div style="font-size:0.75rem; font-weight:700; color:#fff; margin-bottom:12px; letter-spacing:0.05em;">🕐 최근 경기</div>
+                        <div id="homeRecentMatches"></div>
+                    </div>
+
                     <!-- 티어 미인증 안내 -->
                     <div id="homeNoVerify" style="display:none; text-align:center; padding:30px 20px; background:rgba(255,70,85,0.05); border:1px solid rgba(255,70,85,0.2); border-radius:10px;">
                         <div style="font-size:1.5rem; margin-bottom:10px;">🎮</div>
@@ -4095,12 +4101,80 @@ async function loadHomeStats() {
         if (result.stats?.maps) {
             renderHomeMaps(result.stats.maps);
         }
+
+        // 최근 경기
+        if (result.recentMatches) {
+            renderRecentMatches(result.recentMatches);
+        }
         
     } catch (e) {
         console.error('홈 통계 로드 실패:', e);
         document.getElementById('homeLoading').style.display = 'none';
     }
 }
+
+// ===== 최근 경기 렌더링 =====
+function renderRecentMatches(matches) {
+    const container = document.getElementById('homeRecentMatches');
+    if (!matches || matches.length === 0) {
+        container.innerHTML = '<div style="text-align:center; color:#555; font-size:0.85rem; padding:10px;">경기 기록이 없습니다</div>';
+        return;
+    }
+
+    container.innerHTML = matches.map(m => {
+        const winColor = m.won ? '#4ade80' : '#f87171';
+        const winBg = m.won ? 'rgba(74,222,128,0.06)' : 'rgba(248,113,113,0.06)';
+        const winBorder = m.won ? 'rgba(74,222,128,0.2)' : 'rgba(248,113,113,0.2)';
+        const winText = m.won ? '승' : '패';
+        const iconUrl = getAgentIconUrl(m.agent);
+
+        let timeStr = '';
+        if (m.gameStart) {
+            const date = new Date(m.gameStart * 1000);
+            const now = new Date();
+            const diffMs = now - date;
+            const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+            const diffDays = Math.floor(diffHours / 24);
+            if (diffHours < 1) timeStr = '방금 전';
+            else if (diffHours < 24) timeStr = diffHours + '시간 전';
+            else if (diffDays < 7) timeStr = diffDays + '일 전';
+            else timeStr = date.toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' });
+        }
+
+        const kdVal = m.deaths > 0 ? m.kills / m.deaths : m.kills;
+        const kdColor = kdVal >= 1.5 ? '#4ade80' : kdVal >= 1.0 ? '#fff' : '#f87171';
+
+        const iconHtml = iconUrl
+            ? '<img src="' + iconUrl + '" alt="' + m.agent + '" style="width:36px; height:36px; border-radius:50%; object-fit:cover; flex-shrink:0; background:rgba(255,255,255,0.05);" onerror="this.style.display=\'none\'">'
+            : '<div style="width:36px; height:36px; border-radius:50%; background:rgba(255,255,255,0.05); flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:0.7rem; color:#888;">' + (m.agent ? m.agent.slice(0,2) : '--') + '</div>';
+
+        return '<div style="display:flex; align-items:center; gap:10px; padding:10px 12px; background:' + winBg + '; border:1px solid ' + winBorder + '; border-radius:8px; margin-bottom:6px; border-left:3px solid ' + winColor + ';">'
+            + '<div style="width:22px; text-align:center; flex-shrink:0;">'
+            + '<div style="font-size:0.75rem; font-weight:800; color:' + winColor + ';">' + winText + '</div>'
+            + '<div style="font-size:0.6rem; color:#555; margin-top:1px;">' + (m.score || '') + '</div>'
+            + '</div>'
+            + iconHtml
+            + '<div style="flex:1; min-width:0;">'
+            + '<div style="font-weight:700; color:#fff; font-size:0.85rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">' + (m.agent || '--') + '</div>'
+            + '<div style="font-size:0.7rem; color:#888; margin-top:1px;">' + (m.map || '--') + '</div>'
+            + '</div>'
+            + '<div style="text-align:center; flex-shrink:0;">'
+            + '<div style="font-size:0.85rem; font-weight:700; color:' + kdColor + ';">' + m.kills + '/' + m.deaths + '/' + m.assists + '</div>'
+            + '<div style="font-size:0.6rem; color:#555; margin-top:1px;">K/D/A</div>'
+            + '</div>'
+            + '<div style="text-align:center; flex-shrink:0; min-width:42px;">'
+            + '<div style="font-size:0.85rem; font-weight:700; color:#a78bfa;">' + m.acs + '</div>'
+            + '<div style="font-size:0.6rem; color:#555; margin-top:1px;">ACS</div>'
+            + '</div>'
+            + '<div style="text-align:center; flex-shrink:0; min-width:38px;">'
+            + '<div style="font-size:0.8rem; font-weight:700; color:#f59e0b;">' + m.hsRate + '%</div>'
+            + '<div style="font-size:0.6rem; color:#555; margin-top:1px;">HS</div>'
+            + '</div>'
+            + '<div style="font-size:0.62rem; color:#555; flex-shrink:0; min-width:36px; text-align:right;">' + timeStr + '</div>'
+            + '</div>';
+    }).join('');
+}
+
 
 // ===== 에이전트 아이콘 맵 =====
 const AGENT_ICONS = {
