@@ -4031,14 +4031,36 @@ async function loadHomeStats() {
     document.getElementById('homeNoVerify').style.display = 'none';
     document.getElementById('homeLoading').style.display = 'block';
     
+    // puuid 없으면 재인증 필요
+    if (!riotData.puuid) {
+        console.log('⚠️ PUUID 없음 → 재인증 필요');
+        document.getElementById('homeLoading').style.display = 'none';
+        document.getElementById('homeNoVerify').style.display = 'block';
+        document.getElementById('homeNoVerify').innerHTML = `
+            <div style="font-size:1.5rem; margin-bottom:10px;">🔄</div>
+            <div style="color:#fff; font-weight:600; margin-bottom:6px;">재인증이 필요합니다</div>
+            <div style="color:#888; font-size:0.85rem; margin-bottom:16px;">전적 조회를 위해 티어를 다시 인증해주세요</div>
+            <button onclick="resetAndReVerify()" style="padding:10px 24px; background:#ff4658; color:#fff; border:none; border-radius:8px; font-size:0.9rem; font-weight:600; cursor:pointer;">
+                🎮 티어 재인증하기
+            </button>
+        `;
+        return;
+    }
+    
+    console.log(`📊 게임 통계 로드: ${riotData.name}#${riotData.tag} puuid:${riotData.puuid?.slice(0,8)}... region:${riotData.region}`);
+    
     try {
         // 계정 정보 + 게임 통계 로드
         const res = await fetch(`/api/game-stats?name=${encodeURIComponent(riotData.name)}&tag=${encodeURIComponent(riotData.tag)}&puuid=${riotData.puuid}&region=${riotData.region || 'kr'}`);
         const result = await res.json();
+        console.log('📦 API 응답:', result.success, '경기수:', result.matchCount, '최근경기:', result.recentMatches?.length);
         
         document.getElementById('homeLoading').style.display = 'none';
         
-        if (!result.success) return;
+        if (!result.success) {
+            console.error('❌ API 실패:', result.error);
+            return;
+        }
         
         // 플레이어 카드 배너
         if (result.account?.card?.wide) {
@@ -4921,6 +4943,11 @@ function renderMapStats(maps) {
 }
 
 // ===== 티어 인증 시작 (Discord connections, 1회만) =====
+function resetAndReVerify() {
+    localStorage.removeItem('riotVerified');
+    window.location.href = '/api/auth-tier';
+}
+
 function startTierVerify() {
     const saved = localStorage.getItem('riotVerified');
     if (saved) {
