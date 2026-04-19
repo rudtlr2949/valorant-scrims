@@ -2814,18 +2814,8 @@ function checkDiscordLogin() {
             loadRiotFromDB(user.discordId);
         }
         
-        // 티어 인증 대기 중이었다면 자동 진행
-        const pendingTierVerify = localStorage.getItem('pendingTierVerify');
-        if (pendingTierVerify === 'true') {
-            localStorage.removeItem('pendingTierVerify');
-            // connections 승인 후 돌아온 것 → 바로 티어 인증
-            setTimeout(() => {
-                switchTab('settings');
-                setTimeout(() => autoVerifyRiotFromDiscord(true), 500);
-            }, 500);
-        } else {
-            showWelcome(user);
-        }
+        // 환영 애니메이션 표시
+        showWelcome(user);
     }
 }
 
@@ -4230,11 +4220,10 @@ async function autoVerifyRiotFromDiscord(silent = false) {
         });
         
         if (!connectionsRes.ok) {
-            // connections 권한 없음 → auth-tier로 1회만 이동
+            // connections 권한 없음 → auth-tier로 이동
             if (!silent) {
                 statusEl.textContent = '🔑 Discord 권한이 필요합니다';
                 statusEl.className = 'verify-status';
-                localStorage.setItem('pendingTierVerify', 'true');
                 setTimeout(() => { window.location.href = '/api/auth-tier'; }, 1000);
             }
             return;
@@ -4561,32 +4550,22 @@ function renderMapStats(maps) {
 
 // ===== 티어 인증 시작 (Discord connections, 1회만) =====
 function startTierVerify() {
-    // 이미 인증된 경우
     const saved = localStorage.getItem('riotVerified');
     if (saved) {
         document.getElementById('verifyStatus').textContent = 'ℹ️ 이미 인증되었습니다';
         setTimeout(() => document.getElementById('verifyStatus').textContent = '', 2000);
         return;
     }
-    
-    // pendingTierVerify 플래그 저장 후 connections 권한 요청
-    localStorage.setItem('pendingTierVerify', 'true');
+    // 바로 auth-tier로 이동 (state=tierverify로 서버에서 처리)
     window.location.href = '/api/auth-tier';
 }
 
 // ===== 티어 새로고침 (수동) =====
 async function refreshTierData() {
-    const saved = localStorage.getItem('riotVerified');
-    if (!saved) return;
-    
-    // 티어 초기화 후 재인증
     localStorage.removeItem('riotVerified');
     document.getElementById('riotConnectionGuide').style.display = 'block';
     document.getElementById('riotTierDisplay').style.display = 'none';
     document.getElementById('gameStatsSection').style.display = 'none';
-    
-    // connections 재인증
-    localStorage.setItem('pendingTierVerify', 'true');
     window.location.href = '/api/auth-tier';
 }
 
@@ -4650,20 +4629,40 @@ function loadSavedRiotVerify() {
 document.addEventListener('DOMContentLoaded', function() {
     loadSavedRiotVerify();
     
-    // pendingTierVerify 처리 (auth-tier 승인 후 돌아왔을 때)
-    const pendingTierVerify = localStorage.getItem('pendingTierVerify');
-    if (pendingTierVerify === 'true') {
+    // auth-callback에서 서버사이드로 처리된 Riot 데이터 확인
+    const pendingRiotData = localStorage.getItem('pendingRiotData');
+    if (pendingRiotData) {
+        localStorage.removeItem('pendingRiotData');
         localStorage.removeItem('pendingTierVerify');
         
-        // 로그인 상태 확인 후 티어 인증 진행
-        setTimeout(() => {
-            if (state.currentUser && state.currentUser.discordAccessToken) {
-                console.log('🎮 pendingTierVerify 감지 → 티어 인증 시작');
-                switchTab('settings');
-                setTimeout(() => autoVerifyRiotFromDiscord(true), 500);
-            }
-        }, 1000);
+        try {
+            const data = JSON.parse(pendingRiotData);
+            console.log('✅ 서버에서 티어 인증 완료:', data.name);
+            
+            // localStorage에 저장
+            localStorage.setItem('riotVerified', JSON.stringify({
+                name: data.name,
+                tag: data.tag,
+                tier: data.tier,
+                rr: data.rr,
+                puuid: data.puuid,
+                region: (data.region || 'KR').toLowerCase(),
+                verifiedAt: Date.now()
+            }));
+            
+            // UI 업데이트
+            setTimeout(() => {
+                const tierBase = data.tier.split(' ')[0];
+                showVerifiedTier(data.tier, data.rr, tierBase, data.name, data.tag);
+            }, 500);
+            
+        } catch(e) {
+            console.error('pendingRiotData 처리 실패:', e);
+        }
     }
+    
+    // 기존 pendingTierVerify 제거 (더 이상 사용 안 함)
+    localStorage.removeItem('pendingTierVerify');
 });
     </script>
 
