@@ -4051,7 +4051,9 @@ async function loadHomeStats() {
     
     try {
         // 계정 정보 + 게임 통계 로드
-        const res = await fetch(`/api/game-stats?name=${encodeURIComponent(riotData.name)}&tag=${encodeURIComponent(riotData.tag)}&puuid=${riotData.puuid}&region=${riotData.region || 'kr'}`);
+        const region = (riotData.region || 'kr').toLowerCase();
+        console.log(`📊 API 호출: name=${riotData.name} tag=${riotData.tag} region=${region} puuid=${riotData.puuid?.slice(0,8)}`);
+        const res = await fetch(`/api/game-stats?name=${encodeURIComponent(riotData.name)}&tag=${encodeURIComponent(riotData.tag)}&puuid=${riotData.puuid}&region=${region}`);
         const result = await res.json();
         console.log('📦 API 응답:', result.success, '경기수:', result.matchCount, '최근경기:', result.recentMatches?.length);
         
@@ -4127,9 +4129,15 @@ async function loadHomeStats() {
         }
         
     } catch (e) {
-        console.error('홈 통계 로드 실패:', e);
+        console.error('홈 통계 로드 실패:', e.message, e.stack);
         const loadingEl = document.getElementById('homeLoading');
         if (loadingEl) loadingEl.style.display = 'none';
+        // 화면에 에러 표시
+        const noVerify = document.getElementById('homeNoVerify');
+        if (noVerify) {
+            noVerify.style.display = 'block';
+            noVerify.innerHTML = '<div style="color:#f87171; font-size:0.85rem;">⚠️ 오류: ' + e.message + '</div>';
+        }
     }
 }
 
@@ -4197,7 +4205,7 @@ function renderRecentMatches(matches) {
         const pmText = pm > 0 ? `+${pm}` : `${pm}`;
 
         const iconHtml = iconUrl
-            ? `<img src="${iconUrl}" alt="${m.agent}" style="width:38px;height:38px;border-radius:50%;object-fit:cover;flex-shrink:0;border:2px solid ${winColor}33;" onerror="this.style.display='none'">`
+            ? `<img src="${iconUrl}" alt="${m.agent}" style="width:38px;height:38px;border-radius:50%;object-fit:cover;flex-shrink:0;border:2px solid ${winColor}33;" style="opacity:1">`
             : `<div style="width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,0.06);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:0.7rem;color:#888;border:2px solid ${winColor}33;">${m.agent?m.agent.slice(0,2):'??'}</div>`;
 
         return '<div style="display:flex;align-items:center;gap:8px;padding:9px 11px;background:' + winBg + ';border:1px solid ' + winBorder + ';border-radius:8px;margin-bottom:5px;border-left:3px solid ' + winColor + ';">'
@@ -4307,7 +4315,7 @@ function renderHomeAgents(agents) {
     document.getElementById('homeAgentsList').innerHTML = agents.map((a, i) => {
         const iconUrl = a.iconUrl || getAgentIconUrl(a.agent);
         const iconHtml = iconUrl
-            ? `<img src="${iconUrl}" alt="${a.agent}" style="width:40px; height:40px; border-radius:50%; object-fit:cover; background:rgba(255,70,85,0.2); flex-shrink:0;" onerror="this.style.display='none'">`
+            ? `<img src="${iconUrl}" alt="${a.agent}" style="width:40px; height:40px; border-radius:50%; object-fit:cover; background:rgba(255,70,85,0.2); flex-shrink:0;">`
             : `<span style="font-size:1.1rem; flex-shrink:0;">${medals[i]}</span>`;
         return `
         <div style="display:flex; align-items:center; gap:12px; padding:10px 12px; background:rgba(255,255,255,0.03); border-radius:8px; margin-bottom:7px; border-left:3px solid ${colors[i]};">
@@ -4956,7 +4964,7 @@ function renderTopAgents(agents) {
     container.innerHTML = agents.map((agent, i) => {
         const iconUrl = agent.iconUrl || getAgentIconUrl(agent.agent);
         const iconHtml = iconUrl
-            ? `<img src="${iconUrl}" alt="${agent.agent}" style="width:40px; height:40px; border-radius:50%; object-fit:cover; background:rgba(255,70,85,0.2); flex-shrink:0;" onerror="this.style.display='none'">`
+            ? `<img src="${iconUrl}" alt="${agent.agent}" style="width:40px; height:40px; border-radius:50%; object-fit:cover; background:rgba(255,70,85,0.2); flex-shrink:0;">`
             : `<span style="font-size:1.2rem; flex-shrink:0;">${['🥇','🥈','🥉'][i]}</span>`;
         return `
         <div style="display:flex; align-items:center; gap:12px; padding:11px 12px; background:rgba(255,255,255,0.03); border-radius:8px; margin-bottom:7px; border-left:3px solid ${colors[i]};">
