@@ -172,6 +172,16 @@ export default async function handler(req, res) {
 
 game-stats.js
 12KB
+갱식 — 오전 10:53
+export default async function handler(req, res) {
+  const { name, tag, puuid, region } = req.query;
+  
+  const henrikApiKey = process.env.HENRIK_API_KEY;
+
+  if (!henrikApiKey) {
+
+game-stats.js
+12KB
 ﻿
 export default async function handler(req, res) {
   const { name, tag, puuid, region } = req.query;
@@ -267,26 +277,25 @@ export default async function handler(req, res) {
       }
 
       const won = playerData.team.toLowerCase() === 'red'
-        ? match.teams.red.has_won
-        : match.teams.blue.has_won;
+        ? match.teams?.red?.has_won
+        : match.teams?.blue?.has_won;
 
-      const kills = playerData.stats.kills || 0;
-      const deaths = playerData.stats.deaths || 0;
-      const assists = playerData.stats.assists || 0;
-      const score = playerData.stats.score || 0;
-      const headshots = playerData.stats.headshots || 0;
-      const bodyshots = playerData.stats.bodyshots || 0;
-      const legshots = playerData.stats.legshots || 0;
+      const kills = playerData.stats?.kills || 0;
+      const deaths = playerData.stats?.deaths || 0;
+      const assists = playerData.stats?.assists || 0;
+      const score = playerData.stats?.score || 0;
+      const headshots = playerData.stats?.headshots || 0;
+      const bodyshots = playerData.stats?.bodyshots || 0;
+      const legshots = playerData.stats?.legshots || 0;
 
-      const redRounds = match.teams.red.rounds_won || 0;
-      const blueRounds = match.teams.blue.rounds_won || 0;
+      const redRounds = match.teams?.red?.rounds_won || 0;
+      const blueRounds = match.teams?.blue?.rounds_won || 0;
       const totalRounds = redRounds + blueRounds;
       const acs = totalRounds > 0 ? Math.round(score / totalRounds) : 0;
 
       const totalShots = headshots + bodyshots + legshots;
       const hsRate = totalShots > 0 ? Math.round((headshots / totalShots) * 100) : 0;
 
-      // 팀 점수
       const myTeam = playerData.team.toLowerCase();
       const myRoundsWon = myTeam === 'red' ? redRounds : blueRounds;
       const enemyRoundsWon = myTeam === 'red' ? blueRounds : redRounds;
@@ -367,24 +376,25 @@ function calculateStats(matches, playerName, playerTag, mapImageMap = {}) {
     if (!playerData) return;
 
     totalGames++;
-    
-    const won = playerData.team.toLowerCase() === match.teams.red.has_won ? 
-                match.teams.red.has_won : 
-                match.teams.blue.has_won;
-    
+
+    const myTeamWon = playerData.team.toLowerCase() === 'red'
+      ? match.teams?.red?.has_won
+      : match.teams?.blue?.has_won;
+
+    const won = myTeamWon;
     if (won) totalWins++;
 
-    const kills = playerData.stats.kills || 0;
-    const deaths = playerData.stats.deaths || 0;
-    const assists = playerData.stats.assists || 0;
-    const headshots = playerData.stats.headshots || 0;
-    const bodyshots = playerData.stats.bodyshots || 0;
-    const legshots = playerData.stats.legshots || 0;
-    const score = playerData.stats.score || 0;
+    const kills = playerData.stats?.kills || 0;
+    const deaths = playerData.stats?.deaths || 0;
+    const assists = playerData.stats?.assists || 0;
+    const headshots = playerData.stats?.headshots || 0;
+    const bodyshots = playerData.stats?.bodyshots || 0;
+    const legshots = playerData.stats?.legshots || 0;
+    const score = playerData.stats?.score || 0;
 
-    // 라운드 수 계산
-    const redRounds = match.teams.red.rounds_won || 0;
-    const blueRounds = match.teams.blue.rounds_won || 0;
+    // 라운드 수 계산 (TDM은 teams 구조가 다를 수 있음)
+    const redRounds = match.teams?.red?.rounds_won || 0;
+    const blueRounds = match.teams?.blue?.rounds_won || 0;
     const matchRounds = redRounds + blueRounds;
 
     totalKills += kills;
