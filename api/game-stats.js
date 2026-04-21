@@ -62,9 +62,9 @@ export default async function handler(req, res) {
 
     const fetchMatches = async (start = 0) => {
       const url = `https://api.henrikdev.xyz/valorant/v3/by-puuid/matches/${region}/${puuid}?size=10&start=${start}`;
-      const res = await fetch(url, { headers: { 'Authorization': henrikApiKey } });
-      if (!res.ok) return [];
-      const data = await res.json();
+      const matchRes = await fetch(url, { headers: { 'Authorization': henrikApiKey } });
+      if (!matchRes.ok) return [];
+      const data = await matchRes.json();
       return data.data || [];
     };
 
