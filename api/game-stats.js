@@ -1,3 +1,178 @@
+갱식
+igyeongsig_
+🐹
+
+갱식 — 26. 4. 19. 오후 2:42
+KEYS *
+첨부 파일 형식: archive
+valorant-NO-LOOP-FINAL.zip
+39.36 KB
+갱식 — 26. 4. 19. 오후 2:52
+The resource https://discord.com/assets/189422196a4f8b53.woff2 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate as value and it is preloaded intentionally.
+sentry.71d62a4ae007c740.js:15 AnalyticsTrackImpressionContext function unimplemented
+sentry.71d62a4ae007c740.js:15 AnalyticsTrackImpressionContext function unimplemented
+갱식 — 26. 4. 19. 오후 2:59
+첨부 파일 형식: archive
+valorant-PENDING-FIX.zip
+39.50 KB
+(index):2772 Uncaught TypeError: Cannot read properties of null (reading 'classList')
+    at switchTab ((index):2772:54)
+    at (index):4662:17
+switchTab    @    (index):2772
+(anonymous)    @    (index):4662
+setTimeout
+(anonymous)    @    (index):4659
+갱식 — 26. 4. 19. 오후 3:11
+첨부 파일 형식: archive
+valorant-FIXED-FINAL.zip
+40.31 KB
+갱식 — 26. 4. 19. 오후 3:22
+첨부 파일 형식: archive
+valorant-UI-IMPROVED.zip
+39.40 KB
+갱식 — 26. 4. 19. 오후 3:34
+첨부 파일 형식: archive
+valorant-HOME-TAB.zip
+41.31 KB
+갱식 — 26. 4. 19. 오후 3:54
+첨부 파일 형식: archive
+valorant-UI-V2.zip
+42.78 KB
+갱식 — 26. 4. 19. 오후 4:02
+첨부 파일 형식: archive
+valorant-BANNER-FIX.zip
+42.78 KB
+갱식 — 26. 4. 19. 오후 4:10
+첨부 파일 형식: archive
+valorant-BANNER-CONTAIN.zip
+42.77 KB
+갱식 — 26. 4. 19. 오후 4:34
+첨부 파일 형식: archive
+valorant-STATS-V3.zip
+43.02 KB
+갱식 — 26. 4. 19. 오후 4:48
+첨부 파일 형식: archive
+valorant-MATCH-HISTORY.zip
+44.14 KB
+갱식 — 26. 4. 19. 오후 4:56
+첨부 파일 형식: archive
+valorant-MATCH-DEBUG.zip
+44.50 KB
+(index):4133 홈 통계 로드 실패: TypeError: Cannot read properties of null (reading 'style')
+    at loadHomeStats ((index):4067:50)
+첨부 파일 형식: archive
+valorant-NULL-FIX.zip
+44.52 KB
+갱식 — 26. 4. 19. 오후 5:11
+첨부 파일 형식: archive
+valorant-20GAMES.zip
+44.60 KB
+갱식 — 26. 4. 19. 오후 5:37
+첨부 파일 형식: archive
+valorant-DATE-GROUP.zip
+44.99 KB
+갱식 — 26. 4. 19. 오후 7:44
+첨부 파일 형식: archive
+valorant-MATCH-LAYOUT.zip
+45.47 KB
+첨부 파일 형식: archive
+valorant-SYNTAX-FIX.zip
+45.47 KB
+갱식 — 26. 4. 19. 오후 7:56
+첨부 파일 형식: archive
+valorant-MATCH-CLEAN.zip
+45.38 KB
+갱식 — 26. 4. 19. 오후 8:04
+첨부 파일 형식: archive
+valorant-AGENT-ICON-FIX.zip
+45.46 KB
+갱식 — 26. 4. 19. 오후 8:20
+첨부 파일 형식: archive
+valorant-DEBUG-V2.zip
+46.14 KB
+첨부 파일 형식: archive
+valorant-MAP-BG.zip
+46.02 KB
+갱식 — 26. 4. 19. 오후 8:31
+첨부 파일 형식: archive
+valorant-ICON-FIXED.zip
+46.12 KB
+첨부 파일 형식: archive
+valorant-FINAL-CLEAN.zip
+47.25 KB
+갱식 — 26. 4. 19. 오후 8:39
+Something went wrong
+There was an issue displaying the content.
+Please contact us if the error persists.
+갱식 — 26. 4. 19. 오후 8:52
+첨부 파일 형식: archive
+valorant-MAPIMG-API.zip
+46.35 KB
+갱식 — 오전 10:22
+첨부 파일 형식: archive
+valorant-MAPIMG-API.zip
+46.35 KB
+/api/game-stats?name=ArmyD9&tag=lol&puuid=346909be-2154-5e9f-88e4-bbab1ada512d&region=kr:1 
+
+
+            Failed to load resource: the server responded with a status of 404 ()
+(색인):4894  ❌ 통계 불러오기 에러: SyntaxError: Unexpected token 'T', "The page c"... is not valid JSON
+loadGameStats @ (색인):4894
+/api/game-stats?name=ArmyD9&tag=lol&puuid=346909be-2154-5e9f-88e4-bbab1ada512d&region=kr:1 
+
+
+            Failed to load resource: the server responded with a status of 404 ()
+(색인):4894  ❌ 통계 불러오기 에러: SyntaxError: Unexpected token 'T', "The page c"... is not valid JSON
+loadGameStats @ (색인):4894
+(색인):4050 📊 게임 통계 로드: ArmyD9#lol puuid:346909be... region:kr
+(색인):4055 📊 API 호출: name=ArmyD9 tag=lol region=kr puuid=346909be
+/api/game-stats?name=ArmyD9&tag=lol&puuid=346909be-2154-5e9f-88e4-bbab1ada512d&region=kr:1 
+
+
+            Failed to load resource: the server responded with a status of 404 ()
+(색인):4132  홈 통계 로드 실패: Unexpected token 'T', "The page c"... is not valid JSON SyntaxError: Unexpected token 'T', "The page c"... is not valid JSON
+갱식 — 오전 10:31
+첨부 파일 형식: archive
+valorant-MAP-CLEAN.zip
+45.78 KB
+첨부 파일 형식: archive
+valorant-MAPIMG-V2.zip
+45.89 KB
+갱식 — 오전 10:44
+export default async function handler(req, res) {
+  const { name, tag, puuid, region } = req.query;
+  
+  const henrikApiKey = process.env.HENRIK_API_KEY;
+
+  if (!henrikApiKey) {
+
+game-stats.js
+12KB
+Failed to load resource: the server responded with a status of 500 ()
+(색인):4834  ❌ 통계 불러오기 실패: mapImageMap is not defined
+loadGameStats @ (색인):4834
+/api/game-stats?name=ArmyD9&tag=lol&puuid=346909be-2154-5e9f-88e4-bbab1ada512d&region=kr:1 
+
+
+            Failed to load resource: the server responded with a status of 500 ()
+(색인):4834  ❌ 통계 불러오기 실패: mapImageMap is not defined
+loadGameStats @ (색인):4834
+/api/game-stats?name=ArmyD9&tag=lol&puuid=346909be-2154-5e9f-88e4-bbab1ada512d&region=kr:1 
+
+
+            Failed to load resource: the server responded with a status of 500 ()
+(색인):4058 📦 API 응답: false 경기수: undefined 최근경기: undefined
+(색인):4063  ❌ API 실패: mapImageMap is not defined
+export default async function handler(req, res) {
+  const { name, tag, puuid, region } = req.query;
+  
+  const henrikApiKey = process.env.HENRIK_API_KEY;
+
+  if (!henrikApiKey) {
+
+game-stats.js
+12KB
+﻿
 export default async function handler(req, res) {
   const { name, tag, puuid, region } = req.query;
   
@@ -77,7 +252,7 @@ export default async function handler(req, res) {
     console.log(`✅ 경기 조회: ${batch1.length}개 + ${batch2.length}개 = ${matches.length}개`);
 
     // 3. 통계 계산
-    const stats = calculateStats(matches, name, tag);
+    const stats = calculateStats(matches, name, tag, mapImageMap);
 
     // 최근 경기 상세 데이터
     const recentMatches = matches.map(match => {
@@ -155,7 +330,7 @@ export default async function handler(req, res) {
   }
 }
 
-function calculateStats(matches, playerName, playerTag) {
+function calculateStats(matches, playerName, playerTag, mapImageMap = {}) {
   const agentStats = {};
   const mapStats = {};
   let totalKills = 0;
@@ -321,3 +496,5 @@ function calculateStats(matches, playerName, playerTag) {
     }
   };
 }
+game-stats.js
+12KB
