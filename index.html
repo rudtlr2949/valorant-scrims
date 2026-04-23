@@ -4077,13 +4077,26 @@ async function loadHomeStats() {
             document.getElementById('homeGames').textContent = o.games;
             document.getElementById('homeWins').textContent = o.wins;
             document.getElementById('homeLosses').textContent = o.losses;
-            document.getElementById('homeWinRate').textContent = `${o.winRate}%`;
-            document.getElementById('homeWinRate').style.color = o.winRate >= 50 ? '#4ade80' : '#f87171';
-            
-            // 헤드샷/ACS/KDA
-            document.getElementById('homeHS').textContent = `${o.headshotRate}%`;
-            document.getElementById('homeACS').textContent = o.acs;
-            document.getElementById('homeKDA').textContent = `${o.avgKills}/${o.avgDeaths}/${o.avgAssists}`;
+
+            const wrEl = document.getElementById('homeWinRate');
+            wrEl.textContent = `${o.winRate}%`;
+            wrEl.style.color = o.winRate >= 55 ? '#4ade80' : o.winRate >= 45 ? '#e2e8f0' : '#f87171';
+
+            // 헤드샷 색상 (22%+ 잘함, 14%+ 보통)
+            const hsEl = document.getElementById('homeHS');
+            hsEl.textContent = `${o.headshotRate}%`;
+            hsEl.style.color = o.headshotRate >= 22 ? '#4ade80' : o.headshotRate >= 14 ? '#e2e8f0' : '#f87171';
+
+            // ACS 색상 (200+ 잘함, 150+ 보통)
+            const acsEl = document.getElementById('homeACS');
+            acsEl.textContent = o.acs;
+            acsEl.style.color = o.acs >= 200 ? '#4ade80' : o.acs >= 150 ? '#e2e8f0' : '#f87171';
+
+            // KDA 색상 (K/D 기준)
+            const kdaEl = document.getElementById('homeKDA');
+            kdaEl.textContent = `${o.avgKills}/${o.avgDeaths}/${o.avgAssists}`;
+            const kdVal = parseFloat(o.avgKD || 0);
+            kdaEl.style.color = kdVal >= 1.5 ? '#4ade80' : kdVal >= 1.0 ? '#e2e8f0' : '#f87171';
             
             document.getElementById('homeBasedOn').textContent = `최근 ${result.matchCount}경기 기준`;
         }
