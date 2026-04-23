@@ -4212,6 +4212,15 @@ function renderRecentMatches(matches) {
             ? `<img src="${iconUrl}" alt="${m.agent}" style="width:38px;height:38px;border-radius:50%;object-fit:cover;flex-shrink:0;border:2px solid ${winColor}33;">`
             : `<div style="width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,0.06);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:0.7rem;color:#888;border:2px solid ${winColor}33;">${m.agent?m.agent.slice(0,2):'??'}</div>`;
 
+        // KDA 색상 (K/D 기준 동일)
+        const kdaColor = kdVal >= 1.5 ? '#4ade80' : kdVal >= 1.0 ? '#e2e8f0' : '#f87171';
+
+        // ACS 색상 (200+ 잘함, 150+ 보통, 미만 안좋음)
+        const acsColor = m.acs >= 200 ? '#4ade80' : m.acs >= 150 ? '#e2e8f0' : '#f87171';
+
+        // HS% 색상 (22%+ 잘함, 14%+ 보통, 미만 안좋음)
+        const hsColor = m.hsRate >= 22 ? '#4ade80' : m.hsRate >= 14 ? '#e2e8f0' : '#f87171';
+
         return '<div style="display:flex;align-items:center;gap:8px;padding:9px 11px;' + mapBg + 'border:1px solid ' + winBorder + ';border-radius:8px;margin-bottom:5px;border-left:3px solid ' + winColor + ';">'
             + iconHtml
             + '<div style="flex:1.2;min-width:0;">'
@@ -4228,15 +4237,15 @@ function renderRecentMatches(matches) {
             + '<div style="font-size:0.58rem;color:#555;margin-top:1px;">K/D</div>'
             + '</div>'
             + '<div style="text-align:center;flex-shrink:0;min-width:52px;">'
-            + '<div style="font-size:0.75rem;font-weight:700;color:#e2e8f0;">' + m.kills + '/' + m.deaths + '/' + m.assists + '</div>'
+            + '<div style="font-size:0.75rem;font-weight:700;color:' + kdaColor + ';">' + m.kills + '/' + m.deaths + '/' + m.assists + '</div>'
             + '<div style="font-size:0.58rem;color:#555;margin-top:1px;">KDA</div>'
             + '</div>'
             + '<div style="text-align:center;flex-shrink:0;min-width:34px;">'
-            + '<div style="font-size:0.82rem;font-weight:700;color:#a78bfa;">' + m.acs + '</div>'
+            + '<div style="font-size:0.82rem;font-weight:700;color:' + acsColor + ';">' + m.acs + '</div>'
             + '<div style="font-size:0.58rem;color:#555;margin-top:1px;">ACS</div>'
             + '</div>'
             + '<div style="text-align:center;flex-shrink:0;min-width:34px;">'
-            + '<div style="font-size:0.82rem;font-weight:700;color:#f59e0b;">' + m.hsRate + '%</div>'
+            + '<div style="font-size:0.82rem;font-weight:700;color:' + hsColor + ';">' + m.hsRate + '%</div>'
             + '<div style="font-size:0.58rem;color:#555;margin-top:1px;">HS</div>'
             + '</div>'
             + '<div style="text-align:center;flex-shrink:0;min-width:28px;">'
