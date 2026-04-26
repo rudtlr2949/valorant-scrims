@@ -1677,6 +1677,9 @@ body {
         cursor: not-allowed !important;
     }
 
+#homeAgentsList::-webkit-scrollbar,
+#homeMapList::-webkit-scrollbar { display: none; }
+#homeAgentsList, #homeMapList { cursor: grab; }
 </style>
 </head>
 <body>
@@ -1929,12 +1932,12 @@ body {
                         <!-- 요원 통계 -->
                         <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); border-radius:10px; padding:12px;">
                             <div style="font-size:0.72rem; font-weight:700; color:#fff; margin-bottom:10px;">🎮 요원 통계</div>
-                            <div id="homeAgentsList"></div>
+                            <div id="homeAgentsList" style="overflow-y:auto; max-height:260px; scrollbar-width:none; -ms-overflow-style:none;"></div>
                         </div>
                         <!-- 맵 통계 -->
                         <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); border-radius:10px; padding:12px;">
                             <div style="font-size:0.72rem; font-weight:700; color:#fff; margin-bottom:10px;">🗺️ 맵 통계</div>
-                            <div id="homeMapList"></div>
+                            <div id="homeMapList" style="overflow-y:auto; max-height:260px; scrollbar-width:none; -ms-overflow-style:none;"></div>
                         </div>
                     </div>
 
@@ -4297,23 +4300,25 @@ function getAgentIconUrl(agentName) {
 
 function renderHomeAgents(agents) {
     const colors = ['#ffd700', '#c0c0c0', '#cd7f32'];
-    document.getElementById('homeAgentsList').innerHTML = agents.map((a, i) => {
+    const el = document.getElementById('homeAgentsList');
+    el.innerHTML = agents.map((a, i) => {
         const iconUrl = a.iconUrl || getAgentIconUrl(a.agent);
+        const color = colors[i] || '#666';
         const iconHtml = iconUrl
-            ? '<img src="' + iconUrl + '" alt="' + a.agent + '" style="width:28px;height:28px;border-radius:50%;object-fit:cover;flex-shrink:0;border:1.5px solid ' + colors[i] + ';">'
-            : '<div style="width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,0.06);flex-shrink:0;border:1.5px solid ' + colors[i] + ';display:flex;align-items:center;justify-content:center;font-size:0.6rem;color:#888;">' + (a.agent?a.agent.slice(0,2):'?') + '</div>';
+            ? '<img src="' + iconUrl + '" alt="' + a.agent + '" style="width:28px;height:28px;border-radius:50%;object-fit:cover;flex-shrink:0;border:1.5px solid ' + color + ';">'
+            : '<div style="width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,0.06);flex-shrink:0;border:1.5px solid ' + color + ';display:flex;align-items:center;justify-content:center;font-size:0.6rem;color:#888;">' + (a.agent?a.agent.slice(0,2):'?') + '</div>';
         const wrColor  = a.winRate >= 60 ? '#ff4658' : a.winRate >= 52 ? '#4ade80' : a.winRate >= 45 ? '#e2e8f0' : '#666';
         const kdVal    = parseFloat(a.kd);
         const kdColor  = kdVal >= 2.0 ? '#ff4658' : kdVal >= 1.5 ? '#4ade80' : kdVal >= 1.0 ? '#e2e8f0' : '#666';
         const acsColor = a.acs >= 250 ? '#ff4658' : a.acs >= 200 ? '#4ade80' : a.acs >= 150 ? '#e2e8f0' : '#666';
         const hsColor  = a.hsRate >= 30 ? '#ff4658' : a.hsRate >= 20 ? '#4ade80' : a.hsRate >= 13 ? '#e2e8f0' : '#666';
-        return '<div style="margin-bottom:7px;padding:8px;background:rgba(255,255,255,0.03);border-radius:8px;border-left:2px solid ' + colors[i] + ';">'
+        return '<div style="margin-bottom:7px;padding:8px;background:rgba(255,255,255,0.03);border-radius:8px;border-left:2px solid ' + color + ';">'
             + '<div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">'
             + iconHtml
             + '<div style="font-weight:700;color:#fff;font-size:0.78rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + a.agent + '</div>'
             + '<div style="margin-left:auto;font-size:0.6rem;color:#555;flex-shrink:0;">' + a.games + '판</div>'
             + '</div>'
-            + '<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:2px;">'
+            + '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:2px;">'
             + statCell(a.winRate + '%', '승률', wrColor)
             + statCell(a.kd, 'K/D', kdColor)
             + statCell(a.acs, 'ACS', acsColor)
@@ -4321,10 +4326,12 @@ function renderHomeAgents(agents) {
             + '</div>'
             + '</div>';
     }).join('');
+    addDragScroll(el);
 }
 
 function renderHomeMaps(maps) {
-    document.getElementById('homeMapList').innerHTML = maps.slice(0, 5).map(m => {
+    const el = document.getElementById('homeMapList');
+    el.innerHTML = maps.map(m => {
         const mapImg = m.imageUrl || '';
         const bgStyle = mapImg
             ? 'background:linear-gradient(rgba(10,15,25,0.82),rgba(10,15,25,0.82)),url(' + mapImg + ') center/cover no-repeat;'
@@ -4340,6 +4347,31 @@ function renderHomeMaps(maps) {
             + '</div>'
             + '</div>';
     }).join('');
+    addDragScroll(el);
+}
+
+function addDragScroll(el) {
+    var isDown = false, startY = 0, scrollTop = 0;
+    el.addEventListener('mousedown', function(e) {
+        isDown = true;
+        startY = e.pageY - el.offsetTop;
+        scrollTop = el.scrollTop;
+        el.style.cursor = 'grabbing';
+    });
+    el.addEventListener('mouseleave', function() { isDown = false; el.style.cursor = 'default'; });
+    el.addEventListener('mouseup', function() { isDown = false; el.style.cursor = 'default'; });
+    el.addEventListener('mousemove', function(e) {
+        if (!isDown) return;
+        e.preventDefault();
+        var y = e.pageY - el.offsetTop;
+        el.scrollTop = scrollTop - (y - startY);
+    });
+    // 터치 지원
+    el.addEventListener('touchstart', function(e) { startY = e.touches[0].pageY; scrollTop = el.scrollTop; }, { passive:true });
+    el.addEventListener('touchmove', function(e) {
+        var y = e.touches[0].pageY;
+        el.scrollTop = scrollTop - (y - startY);
+    }, { passive:true });
 }
 
 function statCell(value, label, color) {
