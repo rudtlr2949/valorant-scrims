@@ -1924,16 +1924,18 @@ body {
                         </div>
                     </div>
 
-                    <!-- Top 에이전트 -->
-                    <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); border-radius:10px; padding:14px; margin-bottom:12px;">
-                        <div style="font-size:0.75rem; font-weight:700; color:#fff; margin-bottom:12px; letter-spacing:0.05em;">🎮 주요 에이전트</div>
-                        <div id="homeAgentsList"></div>
-                    </div>
-
-                    <!-- 맵 밴픽 가이드 -->
-                    <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); border-radius:10px; padding:14px; margin-bottom:12px;">
-                        <div style="font-size:0.75rem; font-weight:700; color:#fff; margin-bottom:12px; letter-spacing:0.05em;">🗺️ 맵 밴픽 가이드</div>
-                        <div id="homeMapList"></div>
+                    <!-- 요원 통계 + 맵 통계 -->
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:12px;">
+                        <!-- 요원 통계 -->
+                        <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); border-radius:10px; padding:12px;">
+                            <div style="font-size:0.72rem; font-weight:700; color:#fff; margin-bottom:10px;">🎮 요원 통계</div>
+                            <div id="homeAgentsList"></div>
+                        </div>
+                        <!-- 맵 통계 -->
+                        <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); border-radius:10px; padding:12px;">
+                            <div style="font-size:0.72rem; font-weight:700; color:#fff; margin-bottom:10px;">🗺️ 맵 통계</div>
+                            <div id="homeMapList"></div>
+                        </div>
                     </div>
 
                     <!-- 최근 경기 전적 -->
@@ -4294,55 +4296,60 @@ function getAgentIconUrl(agentName) {
 }
 
 function renderHomeAgents(agents) {
-    const medals = ['🥇', '🥈', '🥉'];
     const colors = ['#ffd700', '#c0c0c0', '#cd7f32'];
     document.getElementById('homeAgentsList').innerHTML = agents.map((a, i) => {
         const iconUrl = a.iconUrl || getAgentIconUrl(a.agent);
         const iconHtml = iconUrl
-            ? `<img src="${iconUrl}" alt="${a.agent}" style="width:40px; height:40px; border-radius:50%; object-fit:cover; background:rgba(255,70,85,0.2); flex-shrink:0;">`
-            : `<span style="font-size:1.1rem; flex-shrink:0;">${medals[i]}</span>`;
-        return `
-        <div style="display:flex; align-items:center; gap:12px; padding:10px 12px; background:rgba(255,255,255,0.03); border-radius:8px; margin-bottom:7px; border-left:3px solid ${colors[i]};">
-            ${iconHtml}
-            <div style="flex:1; min-width:0;">
-                <div style="font-weight:700; color:#fff; font-size:0.88rem;">${a.agent}</div>
-                <div style="font-size:0.7rem; color:#888; margin-top:2px;">${a.games}경기 · K/D ${a.kd} · ${a.avgKills}/${a.avgDeaths}/${a.avgAssists}</div>
-            </div>
-            <div style="text-align:right; flex-shrink:0;">
-                <div style="font-size:1rem; font-weight:800; color:${a.winRate>=50?'#4ade80':'#f87171'};">${a.winRate}%</div>
-                <div style="font-size:0.62rem; color:#666;">승률</div>
-            </div>
-        </div>`;
+            ? '<img src="' + iconUrl + '" alt="' + a.agent + '" style="width:32px;height:32px;border-radius:50%;object-fit:cover;flex-shrink:0;border:2px solid ' + colors[i] + ';">'
+            : '<div style="width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,0.06);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:0.7rem;color:#888;border:2px solid ' + colors[i] + ';">' + (a.agent?a.agent.slice(0,2):'?') + '</div>';
+        const wrColor = a.winRate >= 60 ? '#ff4658' : a.winRate >= 52 ? '#4ade80' : a.winRate >= 45 ? '#e2e8f0' : '#666';
+        const kdVal = parseFloat(a.kd);
+        const kdColor = kdVal >= 2.0 ? '#ff4658' : kdVal >= 1.5 ? '#4ade80' : kdVal >= 1.0 ? '#e2e8f0' : '#666';
+        return '<div style="margin-bottom:8px;padding:8px;background:rgba(255,255,255,0.03);border-radius:8px;border-left:2px solid ' + colors[i] + ';">'
+            + '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">'
+            + iconHtml
+            + '<div style="font-weight:700;color:#fff;font-size:0.8rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + a.agent + '</div>'
+            + '<div style="margin-left:auto;font-size:0.68rem;color:#666;">' + a.games + '경기</div>'
+            + '</div>'
+            + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:3px;">'
+            + '<div style="text-align:center;background:rgba(0,0,0,0.2);border-radius:5px;padding:3px 0;">'
+            + '<div style="font-size:0.78rem;font-weight:700;color:' + wrColor + ';">' + a.winRate + '%</div>'
+            + '<div style="font-size:0.55rem;color:#555;">승률</div>'
+            + '</div>'
+            + '<div style="text-align:center;background:rgba(0,0,0,0.2);border-radius:5px;padding:3px 0;">'
+            + '<div style="font-size:0.78rem;font-weight:700;color:' + kdColor + ';">' + a.kd + '</div>'
+            + '<div style="font-size:0.55rem;color:#555;">K/D</div>'
+            + '</div>'
+            + '<div style="text-align:center;background:rgba(0,0,0,0.2);border-radius:5px;padding:3px 0;grid-column:1/-1;">'
+            + '<div style="font-size:0.72rem;font-weight:600;color:#e2e8f0;">' + a.avgKills + '/' + a.avgDeaths + '/' + a.avgAssists + '</div>'
+            + '<div style="font-size:0.55rem;color:#555;">KDA</div>'
+            + '</div>'
+            + '</div>'
+            + '</div>';
     }).join('');
 }
 
 function renderHomeMaps(maps) {
-    document.getElementById('homeMapList').innerHTML = maps.map(m => {
-        let tag, tagColor;
-        if (m.winRate >= 60) { tag = '✅ Pick'; tagColor = '#4ade80'; }
-        else if (m.winRate <= 40) { tag = '❌ Ban'; tagColor = '#f87171'; }
-        else { tag = '⚪ 중립'; tagColor = '#888'; }
-        const barColor = m.winRate >= 50 ? '#4ade80' : '#f87171';
+    document.getElementById('homeMapList').innerHTML = maps.slice(0, 5).map(m => {
         const mapImg = m.imageUrl || '';
         const bgStyle = mapImg
-            ? `background:linear-gradient(rgba(15,25,35,0.75), rgba(15,25,35,0.75)), url(${mapImg}) center/cover no-repeat;`
+            ? 'background:linear-gradient(rgba(10,15,25,0.82),rgba(10,15,25,0.82)),url(' + mapImg + ') center/cover no-repeat;'
             : 'background:rgba(255,255,255,0.03);';
-        return `
-            <div style="position:relative; ${bgStyle} border:1px solid rgba(255,255,255,0.1); border-radius:10px; margin-bottom:8px; overflow:hidden; padding:10px 14px;">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:7px;">
-                    <div>
-                        <span style="font-weight:800; color:#fff; font-size:0.88rem; text-shadow:0 1px 4px rgba(0,0,0,0.8);">${m.map}</span>
-                        <span style="font-size:0.68rem; color:rgba(255,255,255,0.45); margin-left:7px;">${m.games}경기 · ${m.wins}승</span>
-                    </div>
-                    <div style="display:flex; align-items:center; gap:8px;">
-                        <span style="font-size:0.95rem; font-weight:800; color:${barColor}; text-shadow:0 1px 4px rgba(0,0,0,0.8);">${m.winRate}%</span>
-                        <span style="font-size:0.68rem; color:${tagColor}; font-weight:700;">${tag}</span>
-                    </div>
-                </div>
-                <div style="height:4px; background:rgba(255,255,255,0.1); border-radius:99px; overflow:hidden;">
-                    <div style="height:100%; width:${m.winRate}%; background:${barColor}; border-radius:99px;"></div>
-                </div>
-            </div>`;
+        const wrColor = m.winRate >= 60 ? '#ff4658' : m.winRate >= 52 ? '#4ade80' : m.winRate >= 45 ? '#e2e8f0' : '#666';
+        const hsColor = m.hsRate >= 30 ? '#ff4658' : m.hsRate >= 20 ? '#4ade80' : m.hsRate >= 13 ? '#e2e8f0' : '#666';
+        return '<div style="' + bgStyle + 'border:1px solid rgba(255,255,255,0.08);border-radius:8px;margin-bottom:8px;overflow:hidden;padding:8px 10px;">'
+            + '<div style="font-weight:700;color:#fff;font-size:0.8rem;margin-bottom:6px;text-shadow:0 1px 4px rgba(0,0,0,0.8);">' + m.map + '<span style="font-size:0.62rem;color:rgba(255,255,255,0.4);font-weight:400;margin-left:5px;">' + m.games + '경기</span></div>'
+            + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;">'
+            + '<div style="text-align:center;background:rgba(0,0,0,0.35);border-radius:5px;padding:4px 0;">'
+            + '<div style="font-size:0.82rem;font-weight:800;color:' + wrColor + ';">' + m.winRate + '%</div>'
+            + '<div style="font-size:0.55rem;color:#555;margin-top:1px;">승률</div>'
+            + '</div>'
+            + '<div style="text-align:center;background:rgba(0,0,0,0.35);border-radius:5px;padding:4px 0;">'
+            + '<div style="font-size:0.82rem;font-weight:800;color:' + hsColor + ';">' + (m.hsRate||0) + '%</div>'
+            + '<div style="font-size:0.55rem;color:#555;margin-top:1px;">헤드샷</div>'
+            + '</div>'
+            + '</div>'
+            + '</div>';
     }).join('');
 }
 
