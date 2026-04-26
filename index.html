@@ -4215,7 +4215,7 @@ function renderRecentMatches(matches) {
 
         // K/D 색상
         const kdVal = parseFloat(m.kd || 0);
-        const kdColor = kdVal >= 1.5 ? '#4ade80' : kdVal >= 1.0 ? '#e2e8f0' : '#f87171';
+        const kdColor = kdVal >= 2.0 ? '#ff4658' : kdVal >= 1.5 ? '#4ade80' : kdVal >= 1.0 ? '#e2e8f0' : '#666';
 
         // +/- 색상
         const pm = m.plusMinus || 0;
@@ -4226,14 +4226,14 @@ function renderRecentMatches(matches) {
             ? `<img src="${iconUrl}" alt="${m.agent}" style="width:38px;height:38px;border-radius:50%;object-fit:cover;flex-shrink:0;border:2px solid ${winColor}33;">`
             : `<div style="width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,0.06);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:0.7rem;color:#888;border:2px solid ${winColor}33;">${m.agent?m.agent.slice(0,2):'??'}</div>`;
 
-        // KDA 색상 (K/D 기준 동일)
-        const kdaColor = kdVal >= 1.5 ? '#4ade80' : kdVal >= 1.0 ? '#e2e8f0' : '#f87171';
+        // KDA 색상
+        const kdaColor = kdVal >= 2.0 ? '#ff4658' : kdVal >= 1.5 ? '#4ade80' : kdVal >= 1.0 ? '#e2e8f0' : '#666';
 
-        // ACS 색상 (200+ 잘함, 150+ 보통, 미만 안좋음)
-        const acsColor = m.acs >= 200 ? '#4ade80' : m.acs >= 150 ? '#e2e8f0' : '#f87171';
+        // ACS 색상
+        const acsColor = m.acs >= 250 ? '#ff4658' : m.acs >= 200 ? '#4ade80' : m.acs >= 150 ? '#e2e8f0' : '#666';
 
-        // HS% 색상 (22%+ 잘함, 14%+ 보통, 미만 안좋음)
-        const hsColor = m.hsRate >= 22 ? '#4ade80' : m.hsRate >= 14 ? '#e2e8f0' : '#f87171';
+        // HS% 색상
+        const hsColor = m.hsRate >= 30 ? '#ff4658' : m.hsRate >= 20 ? '#4ade80' : m.hsRate >= 13 ? '#e2e8f0' : '#666';
 
         return '<div style="display:flex;align-items:center;gap:8px;padding:9px 11px;' + mapBg + 'border:1px solid ' + winBorder + ';border-radius:8px;margin-bottom:5px;border-left:3px solid ' + winColor + ';">'
             + iconHtml
