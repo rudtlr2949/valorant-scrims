@@ -4098,21 +4098,6 @@ async function loadHomeStats() {
             }
         }
         
-        // 팀플레이
-        if (result.stats?.teamplay) {
-            const t = result.stats.teamplay;
-            const score = parseFloat(t.score);
-            document.getElementById('homeTeamplay').textContent = `${score.toFixed(1)}/10`;
-            let desc = score >= 8 ? '🔥 탁월' : score >= 6 ? '👍 우수' : score >= 4 ? '😐 보통' : '⚠️ 개인플';
-            document.getElementById('homeTeamplayDesc').textContent = `어시 ${t.assistContribution}% • ${desc}`;
-        }
-        
-        // 주 역할
-        if (result.stats?.roles) {
-            document.getElementById('homeMainRole').textContent = result.stats.roles.mainRole;
-            document.getElementById('homeMainRolePercent').textContent = `${result.stats.roles.mainRolePercent}% 플레이`;
-        }
-        
         // 에이전트
         if (result.stats?.agents) {
             renderHomeAgents(result.stats.agents);
