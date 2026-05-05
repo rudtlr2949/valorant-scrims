@@ -2759,12 +2759,7 @@ function updateAllTranslations() {
     // 3. 페이지 제목
     document.title = t('site_title');
     
-    // 4. 네비게이션 탭 강제 번역
-    const navBtns = document.querySelectorAll('.nav-btn');
-    if (navBtns[0]) navBtns[0].textContent = t('nav_find');
-    if (navBtns[1]) navBtns[1].textContent = t('nav_myteam');
-    if (navBtns[2]) navBtns[2].textContent = t('nav_register');
-    if (navBtns[3]) navBtns[3].textContent = t('nav_history');
+    // 4. 네비게이션 탭 - 고정 이름 사용 (번역 덮어쓰기 제거)
     
     // 5. 사이드바 통계 레이블
     const statLabels = document.querySelectorAll('.stat-label');
