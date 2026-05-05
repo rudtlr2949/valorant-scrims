@@ -1871,6 +1871,15 @@ body {
                 <!-- 로그인 상태: 내 통계 -->
                 <div id="homeStats" style="display:none;">
 
+                    <!-- 서브 탭 네비게이션 -->
+                    <div style="display:flex; gap:0; background:rgba(255,255,255,0.04); border-radius:10px; padding:4px; margin-bottom:14px;">
+                        <button id="subTab-profile" onclick="switchSubTab('profile')" style="flex:1; padding:8px 4px; background:#ff4658; color:#fff; border:none; border-radius:7px; font-size:0.78rem; font-weight:700; cursor:pointer; transition:all 0.2s;">프로필</button>
+                        <button id="subTab-datacenter" onclick="switchSubTab('datacenter')" style="flex:1; padding:8px 4px; background:transparent; color:#888; border:none; border-radius:7px; font-size:0.78rem; font-weight:600; cursor:pointer; transition:all 0.2s;">나만의 데이터센터</button>
+                        <button id="subTab-search" onclick="switchSubTab('search')" style="flex:1; padding:8px 4px; background:transparent; color:#888; border:none; border-radius:7px; font-size:0.78rem; font-weight:600; cursor:pointer; transition:all 0.2s;">전적검색</button>
+                    </div>
+
+                    <!-- ── 프로필 화면 ── -->
+                    <div id="subContent-profile">
                     <!-- 플레이어 정보 헤더 (배너 없이 깔끔하게) -->
                     <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); border-radius:12px; padding:14px; margin-bottom:12px;">
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
@@ -1929,12 +1938,10 @@ body {
 
                     <!-- 요원 통계 + 맵 통계 -->
                     <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:12px;">
-                        <!-- 요원 통계 -->
                         <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); border-radius:10px; padding:12px;">
                             <div style="font-size:0.72rem; font-weight:700; color:#fff; margin-bottom:10px;">🎮 요원 통계</div>
                             <div id="homeAgentsList" style="overflow-y:auto; max-height:260px; scrollbar-width:none; -ms-overflow-style:none;"></div>
                         </div>
-                        <!-- 맵 통계 -->
                         <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); border-radius:10px; padding:12px;">
                             <div style="font-size:0.72rem; font-weight:700; color:#fff; margin-bottom:10px;">🗺️ 맵 통계</div>
                             <div id="homeMapList" style="overflow-y:auto; max-height:260px; scrollbar-width:none; -ms-overflow-style:none;"></div>
@@ -1945,6 +1952,40 @@ body {
                     <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); border-radius:10px; padding:14px; margin-bottom:12px;">
                         <div style="font-size:0.75rem; font-weight:700; color:#fff; margin-bottom:12px; letter-spacing:0.05em;">🕐 최근 경기</div>
                         <div id="homeRecentMatches"></div>
+                    </div>
+                    </div>
+
+                    <!-- ── 나만의 데이터센터 화면 ── -->
+                    <div id="subContent-datacenter" style="display:none;">
+                        <div style="margin-bottom:14px;">
+                            <div style="font-size:0.95rem; font-weight:800; color:#fff; margin-bottom:4px;">🗂️ 나만의 데이터센터</div>
+                            <div style="font-size:0.75rem; color:#666;">원하는 경기를 묶어서 나만의 통계를 만들어보세요</div>
+                        </div>
+
+                        <!-- 묶음 목록 (빈 상태) -->
+                        <div id="datacenterList">
+                            <div style="text-align:center; padding:50px 20px; background:rgba(255,255,255,0.02); border:1px dashed rgba(255,255,255,0.1); border-radius:12px;">
+                                <div style="font-size:2rem; margin-bottom:12px;">📁</div>
+                                <div style="color:#888; font-size:0.85rem; margin-bottom:6px;">저장된 묶음이 없습니다</div>
+                                <div style="color:#555; font-size:0.75rem;">곧 경기 선택 후 저장하는 기능이 추가됩니다</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ── 전적검색 화면 ── -->
+                    <div id="subContent-search" style="display:none;">
+                        <div style="margin-bottom:14px;">
+                            <div style="font-size:0.95rem; font-weight:800; color:#fff; margin-bottom:4px;">🔍 전적검색</div>
+                            <div style="font-size:0.75rem; color:#666;">다른 플레이어의 전적을 검색해보세요</div>
+                        </div>
+                        <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); border-radius:10px; padding:16px;">
+                            <div style="display:flex; gap:8px; margin-bottom:8px;">
+                                <input id="searchName" type="text" placeholder="닉네임" style="flex:1; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); border-radius:8px; padding:10px 12px; color:#fff; font-size:0.85rem; outline:none;">
+                                <input id="searchTag" type="text" placeholder="#KR1" style="width:80px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); border-radius:8px; padding:10px 12px; color:#fff; font-size:0.85rem; outline:none;">
+                                <button onclick="searchPlayer()" style="padding:10px 16px; background:#ff4658; color:#fff; border:none; border-radius:8px; font-size:0.82rem; font-weight:700; cursor:pointer; flex-shrink:0;">검색</button>
+                            </div>
+                            <div id="searchResult" style="margin-top:12px;"></div>
+                        </div>
                     </div>
 
                     <!-- 티어 미인증 안내 -->
@@ -4259,6 +4300,36 @@ function renderRecentMatches(matches) {
     }).join('');
 }
 
+
+// ===== 서브 탭 전환 =====
+function switchSubTab(tab) {
+    const tabs = ['profile', 'datacenter', 'search'];
+    tabs.forEach(t => {
+        const btn = document.getElementById('subTab-' + t);
+        const content = document.getElementById('subContent-' + t);
+        if (t === tab) {
+            btn.style.background = '#ff4658';
+            btn.style.color = '#fff';
+            if (content) content.style.display = 'block';
+        } else {
+            btn.style.background = 'transparent';
+            btn.style.color = '#888';
+            if (content) content.style.display = 'none';
+        }
+    });
+}
+
+function searchPlayer() {
+    const name = document.getElementById('searchName').value.trim();
+    const tag  = document.getElementById('searchTag').value.replace('#','').trim();
+    const result = document.getElementById('searchResult');
+    if (!name || !tag) {
+        result.innerHTML = '<div style="color:#f87171; font-size:0.8rem;">닉네임과 태그를 모두 입력해주세요</div>';
+        return;
+    }
+    result.innerHTML = '<div style="color:#888; font-size:0.8rem; text-align:center; padding:20px;">🔍 검색 중...</div>';
+    // 추후 API 연동
+}
 
 // ===== 에이전트 아이콘 맵 =====
 // ===== 맵 이미지 URL 맵 =====
