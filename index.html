@@ -1733,6 +1733,7 @@ body {
 
         <nav class="nav">
             <button class="nav-btn active" data-tab="home">프로필</button>
+            <button class="nav-btn" data-tab="scrimMain">스크림</button>
             <button class="nav-btn" data-tab="datacenter">나만의 데이터센터</button>
             <button class="nav-btn" data-tab="searchTab">전적검색</button>
         </nav>
@@ -1971,7 +1972,7 @@ body {
                 </div>
             </div>
 
-            <div class="tab-content" id="scrims">
+            <div class="tab-content" id="scrims" style="display:none!important;">
                 <div class="filters">
                     <h2 data-i18n="msg_scrimlist">스크림 목록</h2>
                     
@@ -2226,6 +2227,16 @@ body {
             <div class="tab-content" id="history">
                 <h2 style="color: var(--val-red); margin-bottom: 20px;">매칭 내역</h2>
                 <div class="history-list" id="historyList"></div>
+            </div>
+
+            <!-- 스크림 탭 -->
+            <div class="tab-content" id="scrimMain">
+                <!-- 서브탭: 스크림 찾기 -->
+                <div style="display:flex; gap:0; background:rgba(255,255,255,0.04); border-radius:10px; padding:4px; margin-bottom:14px;">
+                    <button id="scrimSubTab-scrims" onclick="switchScrimSubTab('scrims')" style="flex:1; padding:8px 4px; background:#ff4658; color:#fff; border:none; border-radius:7px; font-size:0.78rem; font-weight:700; cursor:pointer; transition:all 0.2s;">스크림 찾기</button>
+                </div>
+                <!-- 스크림 찾기 콘텐츠 -->
+                <div id="scrimSubContent-scrims"></div>
             </div>
 
             <!-- 나만의 데이터센터 탭 -->
@@ -2917,6 +2928,7 @@ function switchTab(tabName) {
     if (tab) tab.classList.add('active');
     
     if (tabName === 'home') loadHomeStats();
+    else if (tabName === 'scrimMain') { switchScrimSubTab('scrims'); loadScrims(); }
     else if (tabName === 'scrims') loadScrims();
     else if (tabName === 'history') loadHistory();
 }
@@ -4025,6 +4037,24 @@ function handleCreateScrim(e) {
 }
 
 // ===== 홈 탭 통계 로드 =====
+function switchScrimSubTab(tab) {
+    // 스크림 탭 안 서브탭 전환
+    document.querySelectorAll('[id^="scrimSubContent-"]').forEach(el => el.style.display = 'none');
+    document.querySelectorAll('[id^="scrimSubTab-"]').forEach(btn => {
+        btn.style.background = 'transparent';
+        btn.style.color = '#888';
+    });
+    const content = document.getElementById('scrimSubContent-' + tab);
+    const btn = document.getElementById('scrimSubTab-' + tab);
+    if (content) {
+        // scrims 탭의 내용을 가져와서 표시
+        const scrimContent = document.getElementById('scrims');
+        content.innerHTML = scrimContent ? scrimContent.innerHTML : '';
+        content.style.display = 'block';
+    }
+    if (btn) { btn.style.background = '#ff4658'; btn.style.color = '#fff'; }
+}
+
 function switchSubTab(tab) {
     const tabs = ['scrims', 'create', 'history'];
     tabs.forEach(t => {
