@@ -1871,13 +1871,6 @@ body {
                 <!-- 로그인 상태: 내 통계 -->
                 <div id="homeStats" style="display:none;">
 
-                    <!-- 서브 탭: 스크림 찾기 / 스크림 등록 / 매칭 내역 -->
-                    <div style="display:flex; gap:0; background:rgba(255,255,255,0.04); border-radius:10px; padding:4px; margin-bottom:14px;">
-                        <button id="subTab-scrims" onclick="switchSubTab('scrims')" style="flex:1; padding:8px 4px; background:#ff4658; color:#fff; border:none; border-radius:7px; font-size:0.78rem; font-weight:700; cursor:pointer; transition:all 0.2s;">스크림 찾기</button>
-                        <button id="subTab-create" onclick="switchSubTab('create')" style="flex:1; padding:8px 4px; background:transparent; color:#888; border:none; border-radius:7px; font-size:0.78rem; font-weight:600; cursor:pointer; transition:all 0.2s;">스크림 등록</button>
-                        <button id="subTab-history" onclick="switchSubTab('history')" style="flex:1; padding:8px 4px; background:transparent; color:#888; border:none; border-radius:7px; font-size:0.78rem; font-weight:600; cursor:pointer; transition:all 0.2s;">매칭 내역</button>
-                    </div>
-
                     <!-- 플레이어 정보 헤더 (배너 없이 깔끔하게) -->
                     <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); border-radius:12px; padding:14px; margin-bottom:12px;">
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
@@ -2231,12 +2224,19 @@ body {
 
             <!-- 스크림 탭 -->
             <div class="tab-content" id="scrimMain">
-                <!-- 서브탭: 스크림 찾기 -->
+                <!-- 서브탭: 스크림 찾기 / 스크림 등록 / 매칭 내역 -->
                 <div style="display:flex; gap:0; background:rgba(255,255,255,0.04); border-radius:10px; padding:4px; margin-bottom:14px;">
                     <button id="scrimSubTab-scrims" onclick="switchScrimSubTab('scrims')" style="flex:1; padding:8px 4px; background:#ff4658; color:#fff; border:none; border-radius:7px; font-size:0.78rem; font-weight:700; cursor:pointer; transition:all 0.2s;">스크림 찾기</button>
+                    <button id="scrimSubTab-create" onclick="switchScrimSubTab('create')" style="flex:1; padding:8px 4px; background:transparent; color:#888; border:none; border-radius:7px; font-size:0.78rem; font-weight:600; cursor:pointer; transition:all 0.2s;">스크림 등록</button>
+                    <button id="scrimSubTab-history" onclick="switchScrimSubTab('history')" style="flex:1; padding:8px 4px; background:transparent; color:#888; border:none; border-radius:7px; font-size:0.78rem; font-weight:600; cursor:pointer; transition:all 0.2s;">매칭 내역</button>
                 </div>
-                <!-- 스크림 찾기 콘텐츠 -->
-                <div id="scrimSubContent-scrims"></div>
+                <div id="scrimSubContent-scrims" style="display:block;"></div>
+                <div id="scrimSubContent-create" style="display:none;">
+                    <div style="text-align:center; padding:40px 20px; color:#888; font-size:0.85rem;">🚧 준비 중입니다</div>
+                </div>
+                <div id="scrimSubContent-history" style="display:none;">
+                    <div style="text-align:center; padding:40px 20px; color:#888; font-size:0.85rem;">🚧 준비 중입니다</div>
+                </div>
             </div>
 
             <!-- 나만의 데이터센터 탭 -->
