@@ -5119,11 +5119,34 @@ function startTierVerify() {
 
 // ===== 티어 새로고침 (수동) =====
 async function refreshTierData() {
-    localStorage.removeItem('riotVerified');
-    document.getElementById('riotConnectionGuide').style.display = 'block';
-    document.getElementById('riotTierDisplay').style.display = 'none';
-    document.getElementById('gameStatsSection').style.display = 'none';
-    window.location.href = '/api/auth-tier';
+    const btn = document.querySelector('[onclick="refreshTierData()"]');
+    if (btn) { btn.textContent = '⏳'; btn.disabled = true; }
+
+    try {
+        // 백그라운드에서 티어 재조회 (페이지 이동 없음)
+        const saved = localStorage.getItem('riotVerified');
+        if (!saved) { window.location.href = '/api/auth-tier'; return; }
+        const riotData = JSON.parse(saved);
+
+        const res = await fetch('/api/auto-verify-riot?name=' + encodeURIComponent(riotData.name) + '&tag=' + encodeURIComponent(riotData.tag) + '&region=' + (riotData.region || 'kr'));
+        const result = await res.json();
+
+        if (result.success) {
+            // 저장 업데이트
+            const updated = { ...riotData, tier: result.tier, rr: result.rr };
+            localStorage.setItem('riotVerified', JSON.stringify(updated));
+
+            // 화면 업데이트 (번쩍임 없이)
+            document.getElementById('homeTier').textContent = result.tier || '--';
+            document.getElementById('homeRR').textContent = (result.rr || 0) + ' RR';
+
+            if (btn) { btn.textContent = '✅'; btn.disabled = false; setTimeout(() => { btn.textContent = '🔄'; }, 1500); }
+        } else {
+            if (btn) { btn.textContent = '❌'; btn.disabled = false; setTimeout(() => { btn.textContent = '🔄'; }, 1500); }
+        }
+    } catch(e) {
+        if (btn) { btn.textContent = '🔄'; btn.disabled = false; }
+    }
 }
 
 // ===== 티어 초기화 =====
