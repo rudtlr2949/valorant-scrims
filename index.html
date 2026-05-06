@@ -1888,16 +1888,16 @@ body {
                     </div>
 
                     <!-- 요원 통계 + 맵 통계 -->
-                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:12px;">
+                    <div style="margin-bottom:12px;">
                         <!-- 요원 통계 -->
-                        <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); border-radius:10px; padding:12px;">
+                        <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); border-radius:10px; padding:12px; margin-bottom:8px;">
                             <div style="font-size:0.72rem; font-weight:700; color:#fff; margin-bottom:10px;">🎮 요원 통계</div>
-                            <div id="homeAgentsList" style="overflow-y:auto; max-height:260px; scrollbar-width:none; -ms-overflow-style:none;"></div>
+                            <div id="homeAgentsList"></div>
                         </div>
                         <!-- 맵 통계 -->
                         <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); border-radius:10px; padding:12px;">
                             <div style="font-size:0.72rem; font-weight:700; color:#fff; margin-bottom:10px;">🗺️ 맵 통계</div>
-                            <div id="homeMapList" style="overflow-y:auto; max-height:260px; scrollbar-width:none; -ms-overflow-style:none;"></div>
+                            <div id="homeMapList"></div>
                         </div>
                     </div>
 
@@ -4366,34 +4366,29 @@ function getAgentIconUrl(agentName) {
 }
 
 function renderHomeAgents(agents) {
-    const colors = ['#ffd700', '#c0c0c0', '#cd7f32'];
     const el = document.getElementById('homeAgentsList');
+    const colors = ['#ffd700', '#c0c0c0', '#cd7f32'];
     el.innerHTML = agents.map((a, i) => {
         const iconUrl = a.iconUrl || getAgentIconUrl(a.agent);
-        const color = colors[i] || '#666';
+        const color = colors[i] || '#555';
         const iconHtml = iconUrl
-            ? '<img src="' + iconUrl + '" alt="' + a.agent + '" style="width:28px;height:28px;border-radius:50%;object-fit:cover;flex-shrink:0;border:1.5px solid ' + color + ';">'
-            : '<div style="width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,0.06);flex-shrink:0;border:1.5px solid ' + color + ';display:flex;align-items:center;justify-content:center;font-size:0.6rem;color:#888;">' + (a.agent?a.agent.slice(0,2):'?') + '</div>';
-        const wrColor  = a.winRate >= 60 ? '#ff4658' : a.winRate >= 52 ? '#4ade80' : a.winRate >= 45 ? '#e2e8f0' : '#666';
-        const kdVal    = parseFloat(a.kd);
-        const kdColor  = kdVal >= 2.0 ? '#ff4658' : kdVal >= 1.5 ? '#4ade80' : kdVal >= 1.0 ? '#e2e8f0' : '#666';
-        const acsColor = a.acs >= 250 ? '#ff4658' : a.acs >= 200 ? '#4ade80' : a.acs >= 150 ? '#e2e8f0' : '#666';
-        const hsColor  = a.hsRate >= 30 ? '#ff4658' : a.hsRate >= 20 ? '#4ade80' : a.hsRate >= 13 ? '#e2e8f0' : '#666';
-        return '<div style="margin-bottom:7px;padding:8px;background:rgba(255,255,255,0.03);border-radius:8px;border-left:2px solid ' + color + ';">'
-            + '<div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">'
+            ? '<img src="' + iconUrl + '" alt="' + a.agent + '" style="width:32px;height:32px;border-radius:50%;object-fit:cover;flex-shrink:0;border:1.5px solid ' + color + ';">'
+            : '<div style="width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,0.06);flex-shrink:0;border:1.5px solid ' + color + ';display:flex;align-items:center;justify-content:center;font-size:0.65rem;color:#888;">' + (a.agent?a.agent.slice(0,2):'?') + '</div>';
+        const wrColor = a.winRate >= 60 ? '#ff4658' : a.winRate >= 52 ? '#4ade80' : a.winRate >= 45 ? '#e2e8f0' : '#666';
+        const kdVal   = parseFloat(a.kd);
+        const kdColor = kdVal >= 2.0 ? '#ff4658' : kdVal >= 1.5 ? '#4ade80' : kdVal >= 1.0 ? '#e2e8f0' : '#666';
+        return '<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);">'
             + iconHtml
-            + '<div style="font-weight:700;color:#fff;font-size:0.78rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + a.agent + '</div>'
-            + '<div style="margin-left:auto;font-size:0.6rem;color:#555;flex-shrink:0;">' + a.games + '판</div>'
+            + '<div style="flex:1;min-width:0;">'
+            + '<div style="font-weight:700;color:#fff;font-size:0.85rem;">' + a.agent + '</div>'
+            + '<div style="font-size:0.65rem;color:#666;margin-top:1px;">' + a.games + '판</div>'
             + '</div>'
-            + '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:2px;">'
-            + statCell(a.winRate + '%', '승률', wrColor)
-            + statCell(a.kd, 'K/D', kdColor)
-            + statCell(a.acs, 'ACS', acsColor)
-            + statCell(a.hsRate + '%', 'HS', hsColor)
+            + '<div style="text-align:right;flex-shrink:0;">'
+            + '<div style="font-size:0.82rem;font-weight:700;color:' + wrColor + ';">' + a.winRate + '%</div>'
+            + '<div style="font-size:0.62rem;color:' + kdColor + ';margin-top:1px;">K/D ' + a.kd + '</div>'
             + '</div>'
             + '</div>';
     }).join('');
-    addDragScroll(el);
 }
 
 function renderHomeMaps(maps) {
@@ -4401,43 +4396,43 @@ function renderHomeMaps(maps) {
     el.innerHTML = maps.map(m => {
         const mapImg = m.imageUrl || '';
         const bgStyle = mapImg
-            ? 'background:linear-gradient(rgba(10,15,25,0.82),rgba(10,15,25,0.82)),url(' + mapImg + ') center/cover no-repeat;'
+            ? 'background:linear-gradient(to right,rgba(10,15,25,0.95) 0%,rgba(10,15,25,0.7) 100%),url(' + mapImg + ') center/cover no-repeat;'
             : 'background:rgba(255,255,255,0.03);';
         const wrColor = m.winRate >= 60 ? '#ff4658' : m.winRate >= 52 ? '#4ade80' : m.winRate >= 45 ? '#e2e8f0' : '#666';
         const hsColor = m.hsRate >= 30 ? '#ff4658' : m.hsRate >= 20 ? '#4ade80' : m.hsRate >= 13 ? '#e2e8f0' : '#666';
-        return '<div style="' + bgStyle + 'border:1px solid rgba(255,255,255,0.08);border-radius:8px;margin-bottom:7px;overflow:hidden;padding:8px 10px;">'
-            + '<div style="font-weight:700;color:#fff;font-size:0.78rem;margin-bottom:6px;text-shadow:0 1px 4px rgba(0,0,0,0.8);">' + m.map + '<span style="font-size:0.6rem;color:rgba(255,255,255,0.4);font-weight:400;margin-left:5px;">' + m.games + '판</span></div>'
-            + '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:2px;">'
-            + statCell(m.games + '판', '판수', '#e2e8f0')
-            + statCell(m.winRate + '%', '승률', wrColor)
-            + statCell((m.hsRate||0) + '%', 'HS', hsColor)
+        return '<div style="display:flex;align-items:center;gap:10px;padding:8px;' + bgStyle + 'border-radius:7px;margin-bottom:5px;">'
+            + '<div style="flex:1;min-width:0;">'
+            + '<div style="font-weight:700;color:#fff;font-size:0.85rem;text-shadow:0 1px 3px rgba(0,0,0,0.8);">' + m.map + '</div>'
+            + '<div style="font-size:0.65rem;color:rgba(255,255,255,0.4);margin-top:1px;">' + m.games + '판</div>'
+            + '</div>'
+            + '<div style="text-align:right;flex-shrink:0;">'
+            + '<div style="font-size:0.82rem;font-weight:700;color:' + wrColor + ';">' + m.winRate + '%</div>'
+            + '<div style="font-size:0.62rem;color:' + hsColor + ';margin-top:1px;">HS ' + (m.hsRate||0) + '%</div>'
             + '</div>'
             + '</div>';
     }).join('');
-    addDragScroll(el);
 }
 
 function addDragScroll(el) {
-    var isDown = false, startY = 0, scrollTop = 0;
+    var isDown = false, startX = 0, scrollLeft = 0;
     el.addEventListener('mousedown', function(e) {
         isDown = true;
-        startY = e.pageY - el.offsetTop;
-        scrollTop = el.scrollTop;
+        startX = e.pageX - el.offsetLeft;
+        scrollLeft = el.scrollLeft;
         el.style.cursor = 'grabbing';
     });
-    el.addEventListener('mouseleave', function() { isDown = false; el.style.cursor = 'default'; });
-    el.addEventListener('mouseup', function() { isDown = false; el.style.cursor = 'default'; });
+    el.addEventListener('mouseleave', function() { isDown = false; el.style.cursor = 'grab'; });
+    el.addEventListener('mouseup', function() { isDown = false; el.style.cursor = 'grab'; });
     el.addEventListener('mousemove', function(e) {
         if (!isDown) return;
         e.preventDefault();
-        var y = e.pageY - el.offsetTop;
-        el.scrollTop = scrollTop - (y - startY);
+        var x = e.pageX - el.offsetLeft;
+        el.scrollLeft = scrollLeft - (x - startX);
     });
-    // 터치 지원
-    el.addEventListener('touchstart', function(e) { startY = e.touches[0].pageY; scrollTop = el.scrollTop; }, { passive:true });
+    el.addEventListener('touchstart', function(e) { startX = e.touches[0].pageX; scrollLeft = el.scrollLeft; }, { passive:true });
     el.addEventListener('touchmove', function(e) {
-        var y = e.touches[0].pageY;
-        el.scrollTop = scrollTop - (y - startY);
+        var x = e.touches[0].pageX;
+        el.scrollLeft = scrollLeft - (x - startX);
     }, { passive:true });
 }
 
