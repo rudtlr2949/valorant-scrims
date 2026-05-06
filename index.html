@@ -1735,7 +1735,6 @@ body {
             <button class="nav-btn active" data-tab="home">프로필</button>
             <button class="nav-btn" data-tab="scrimMain">스크림</button>
             <button class="nav-btn" data-tab="datacenter">나만의 데이터센터</button>
-            <button class="nav-btn" data-tab="searchTab">전적검색</button>
         </nav>
 
         <div class="app-layout">
@@ -2210,25 +2209,7 @@ body {
                     <div style="color:#888; font-size:0.85rem; margin-bottom:6px;">저장된 묶음이 없습니다</div>
                     <div style="color:#555; font-size:0.75rem;">곧 경기 선택 후 저장하는 기능이 추가됩니다</div>
                 </div>
-            </div>
-
-            <!-- 전적검색 탭 -->
-            <div class="tab-content" id="searchTab">
-                <div style="margin-bottom:14px;">
-                    <div style="font-size:0.95rem; font-weight:800; color:#fff; margin-bottom:4px;">🔍 전적검색</div>
-                    <div style="font-size:0.75rem; color:#666;">다른 플레이어의 전적을 검색해보세요</div>
-                </div>
-                <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); border-radius:10px; padding:16px;">
-                    <div style="display:flex; gap:8px; margin-bottom:8px;">
-                        <input id="searchName" type="text" placeholder="닉네임" style="flex:1; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); border-radius:8px; padding:10px 12px; color:#fff; font-size:0.85rem; outline:none;">
-                        <input id="searchTag" type="text" placeholder="#KR1" style="width:80px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); border-radius:8px; padding:10px 12px; color:#fff; font-size:0.85rem; outline:none;">
-                        <button onclick="searchPlayer()" style="padding:10px 16px; background:#ff4658; color:#fff; border:none; border-radius:8px; font-size:0.82rem; font-weight:700; cursor:pointer; flex-shrink:0;">검색</button>
-                    </div>
-                    <div id="searchResult" style="margin-top:12px;"></div>
-                </div>
-            </div>
-
-        </main>
+            </div></main>
         </div><!-- app-layout -->
 
         <div class="modal" id="teamModal">
