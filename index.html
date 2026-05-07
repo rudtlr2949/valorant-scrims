@@ -4106,8 +4106,22 @@ async function loadHomeStats() {
         if (result.account?.level) {
             document.getElementById('homeAccountLevel').textContent = `⭐ Level ${result.account.level}`;
         }
-        
-        // 핵심 지표
+
+        // 티어 아이콘 - MMR API에서 받은 URL 우선 사용
+        const tierIconEl = document.getElementById('homeTierIcon');
+        if (tierIconEl) {
+            const imgUrl = result.account?.tierImageUrl || getTierIcon(riotData.tier);
+            if (imgUrl) {
+                tierIconEl.src = imgUrl;
+                tierIconEl.style.display = 'block';
+                // localStorage에 저장
+                if (result.account?.tierImageUrl) {
+                    const rd = JSON.parse(localStorage.getItem('riotVerified') || '{}');
+                    rd.tierImageUrl = result.account.tierImageUrl;
+                    localStorage.setItem('riotVerified', JSON.stringify(rd));
+                }
+            }
+        }
         if (result.stats?.overall) {
             const o = result.stats.overall;
             
@@ -4138,15 +4152,6 @@ async function loadHomeStats() {
             kdaEl.style.color = kdVal >= 2.0 ? '#ff4658' : kdVal >= 1.5 ? '#4ade80' : kdVal >= 1.0 ? '#e2e8f0' : '#666';
             
             document.getElementById('homeBasedOn').textContent = `최근 ${result.matchCount}경기 기준`;
-        }
-        
-        // 티어 아이콘
-        if (riotData.tier) {
-            const tierIconEl = document.getElementById('homeTierIcon');
-            if (tierIconEl && riotData.tier) {
-                const iconUrl = getTierIcon(riotData.tier);
-                if (iconUrl) { tierIconEl.src = iconUrl; tierIconEl.style.display = 'block'; }
-            }
         }
         
         // 에이전트
@@ -4739,6 +4744,13 @@ const TIER_NUM = {
 
 function getTierIcon(tierStr) {
     if (!tierStr) return '';
+    // localStorage에 저장된 이미지 URL 우선 사용
+    const saved = localStorage.getItem('riotVerified');
+    if (saved) {
+        const data = JSON.parse(saved);
+        if (data.tierImageUrl) return data.tierImageUrl;
+    }
+    // fallback: 번호 기반 URL
     const parts = tierStr.trim().split(' ');
     const base = parts[0];
     const numMap = { '1':0, '2':1, '3':2, 'I':0, 'II':1, 'III':2 };
@@ -4865,6 +4877,7 @@ async function autoVerifyRiotFromDiscord(silent = false) {
             rr: rr,
             puuid: puuid,
             region: region.toLowerCase(),
+            tierImageUrl: data.tierImageUrl || '',
             verifiedAt: Date.now(),
             autoVerified: true
         };
