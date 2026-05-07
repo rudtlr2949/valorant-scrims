@@ -1766,35 +1766,15 @@ body {
                     
                     <!-- 라이엇 티어 인증 -->
                     <div class="riot-verify-section" id="riotVerifySection">
-                        <!-- 인증 완료: 티어 뱃지 표시 -->
+                        <!-- 인증 완료 -->
                         <div id="riotTierDisplay" style="display:none;">
-                            <div style="display:flex; align-items:center; gap:12px; padding:12px; background:rgba(0,255,0,0.05); border:1px solid rgba(0,255,0,0.2); border-radius:8px; margin-top:15px;">
-                                <img id="tierIcon" src="" alt="Tier" style="width:50px; height:50px;">
-                                <div style="flex:1;">
-                                    <div id="tierName" style="font-weight:600; font-size:0.95rem; color:#fff; margin-bottom:4px;"></div>
-                                    <div id="tierRR" style="font-size:0.85rem; color:#4ade80;"></div>
-                                </div>
-                                <button onclick="refreshTierData()" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:#fff;cursor:pointer;font-size:0.75rem;padding:6px 10px;border-radius:6px;margin-left:auto;" title="티어 업데이트">🔄</button>
-                                <span style="font-size:0.7rem; color:#4ade80;">✅</span>
+                            <div style="display:flex; align-items:center; gap:8px; padding:8px 12px; background:rgba(0,255,0,0.05); border:1px solid rgba(0,255,0,0.2); border-radius:8px; margin-top:15px;">
+                                <span style="font-size:0.7rem; color:#4ade80;">✅ 티어 인증 완료</span>
+                                <button onclick="refreshTierData()" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:#fff;cursor:pointer;font-size:0.7rem;padding:4px 8px;border-radius:6px;margin-left:auto;" title="티어 업데이트">🔄</button>
                                 <button onclick="resetRiotVerify()" style="background:none;border:none;color:#aaa;cursor:pointer;font-size:0.8rem;">✕</button>
                             </div>
-                            
-                            <!-- 게임 통계 완전판 -->
-                            <div id="gameStatsSection" style="margin-top:20px; display:none;">
-                                <!-- 플레이어 카드 배너 -->
-                                <div id="playerCardBanner" style="position:relative; height:130px; border-radius:12px; background-size:contain; background-position:center; background-repeat:no-repeat; margin-bottom:16px; overflow:hidden; background-color:#1a1d29;">
-                                    <div style="position:absolute; inset:0; background:linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.2) 60%, transparent 100%);"></div>
-                                    <div style="position:absolute; bottom:14px; left:16px; right:16px; display:flex; justify-content:space-between; align-items:flex-end;">
-                                        <span id="accountLevel" style="color:#fff; font-weight:700; font-size:1rem; text-shadow:0 2px 8px rgba(0,0,0,0.8);">⭐ Level --</span>
-                                        <span id="statsBasedOn" style="font-size:0.7rem; color:rgba(255,255,255,0.6); background:rgba(0,0,0,0.5); padding:3px 8px; border-radius:20px;"></span>
-                                    </div>
-                                </div>
-
-                                <!-- 로딩 -->
-                                <div id="statsLoading" style="text-align:center; padding:30px; color:#aaa; display:none;">
-                                    <div style="font-size:1.5rem; margin-bottom:10px; animation:spin 1s linear infinite; display:inline-block;">🔄</div>
-                                    <div style="font-size:0.85rem;">게임 통계 불러오는 중...</div>
-                                </div>
+                            <div id="gameStatsSection" style="display:none;">
+                                <div id="statsLoading" style="display:none;"></div>
                             </div>
                         </div>
                         
