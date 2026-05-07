@@ -1872,12 +1872,12 @@ body {
                         <!-- 요원 통계 -->
                         <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); border-radius:10px; padding:12px; margin-bottom:8px;">
                             <div style="font-size:0.72rem; font-weight:700; color:#fff; margin-bottom:10px;">🎮 요원 통계</div>
-                            <div id="homeAgentsList"></div>
+                            <div id="homeAgentsList" style="overflow-y:auto; max-height:210px; scrollbar-width:none; -ms-overflow-style:none; cursor:grab;"></div>
                         </div>
                         <!-- 맵 통계 -->
                         <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); border-radius:10px; padding:12px;">
                             <div style="font-size:0.72rem; font-weight:700; color:#fff; margin-bottom:10px;">🗺️ 맵 통계</div>
-                            <div id="homeMapList"></div>
+                            <div id="homeMapList" style="overflow-y:auto; max-height:210px; scrollbar-width:none; -ms-overflow-style:none; cursor:grab;"></div>
                         </div>
                     </div>
 
@@ -4373,6 +4373,7 @@ function renderHomeAgents(agents) {
             + '</div>'
             + '</div>';
     }).join('');
+    addDragScroll(el);
 }
 
 function renderHomeMaps(maps) {
@@ -4395,14 +4396,15 @@ function renderHomeMaps(maps) {
             + '</div>'
             + '</div>';
     }).join('');
+    addDragScroll(el);
 }
 
 function addDragScroll(el) {
-    var isDown = false, startX = 0, scrollLeft = 0;
+    var isDown = false, startY = 0, scrollTop = 0;
     el.addEventListener('mousedown', function(e) {
         isDown = true;
-        startX = e.pageX - el.offsetLeft;
-        scrollLeft = el.scrollLeft;
+        startY = e.pageY - el.offsetTop;
+        scrollTop = el.scrollTop;
         el.style.cursor = 'grabbing';
     });
     el.addEventListener('mouseleave', function() { isDown = false; el.style.cursor = 'grab'; });
@@ -4410,16 +4412,14 @@ function addDragScroll(el) {
     el.addEventListener('mousemove', function(e) {
         if (!isDown) return;
         e.preventDefault();
-        var x = e.pageX - el.offsetLeft;
-        el.scrollLeft = scrollLeft - (x - startX);
+        var y = e.pageY - el.offsetTop;
+        el.scrollTop = scrollTop - (y - startY);
     });
-    el.addEventListener('touchstart', function(e) { startX = e.touches[0].pageX; scrollLeft = el.scrollLeft; }, { passive:true });
+    el.addEventListener('touchstart', function(e) { startY = e.touches[0].pageY; scrollTop = el.scrollTop; }, { passive:true });
     el.addEventListener('touchmove', function(e) {
-        var x = e.touches[0].pageX;
-        el.scrollLeft = scrollLeft - (x - startX);
+        el.scrollTop = scrollTop - (e.touches[0].pageY - startY);
     }, { passive:true });
 }
-
 function statCell(value, label, color) {
     return '<div style="text-align:center;background:rgba(0,0,0,0.3);border-radius:4px;padding:3px 0;">'
         + '<div style="font-size:0.72rem;font-weight:700;color:' + color + ';">' + value + '</div>'
