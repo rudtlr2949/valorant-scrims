@@ -4726,26 +4726,26 @@ function saveMockData() {
 
 // ===== 티어 아이콘 =====
 const TIER_ICONS = {
-    'Iron':       [1, 2, 3],
-    'Bronze':     [4, 5, 6],
-    'Silver':     [7, 8, 9],
-    'Gold':       [10, 11, 12],
-    'Platinum':   [13, 14, 15],
-    'Diamond':    [16, 17, 18],
-    'Ascendant':  [19, 20, 21],
-    'Immortal':   [22, 23, 24],
-    'Radiant':    [25, 25, 25],
+    'Iron':       ['iron_1', 'iron_2', 'iron_3'],
+    'Bronze':     ['bronze_1', 'bronze_2', 'bronze_3'],
+    'Silver':     ['silver_1', 'silver_2', 'silver_3'],
+    'Gold':       ['gold_1', 'gold_2', 'gold_3'],
+    'Platinum':   ['platinum_1', 'platinum_2', 'platinum_3'],
+    'Diamond':    ['diamond_1', 'diamond_2', 'diamond_3'],
+    'Ascendant':  ['ascendant_1', 'ascendant_2', 'ascendant_3'],
+    'Immortal':   ['immortal_1', 'immortal_2', 'immortal_3'],
+    'Radiant':    ['radiant', 'radiant', 'radiant'],
 };
 
 function getTierIcon(tierStr) {
     if (!tierStr) return '';
     const parts = tierStr.trim().split(' ');
     const base = parts[0];
-    const nums = { '1': 0, '2': 1, '3': 2, 'I': 0, 'II': 1, 'III': 2 };
-    const idx = nums[parts[1]] !== undefined ? nums[parts[1]] : 2;
+    const numMap = { '1':0, '2':1, '3':2, 'I':0, 'II':1, 'III':2 };
+    const idx = numMap[parts[1]] !== undefined ? numMap[parts[1]] : 0;
     const arr = TIER_ICONS[base];
     if (!arr) return '';
-    return 'https://trackercdn.com/cdn/tracker.gg/valorant/icons/tiersv2/' + arr[idx] + '.png';
+    return 'https://media.valorant-api.com/competitivetiers/03621f55-4a9b-c3cc-cbdf-a3867bd6efba/' + arr[idx] + '/smallicon.png';
 }
 
 // ===== 자동 티어 인증 =====
