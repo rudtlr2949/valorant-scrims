@@ -4319,7 +4319,13 @@ function renderRecentMatches(matches) {
             + '<div style="display:flex;align-items:center;gap:5px;margin-bottom:2px;">'
             + '<span style="font-size:0.6rem;font-weight:700;color:' + modeInfo.color + ';background:rgba(0,0,0,0.3);padding:1px 5px;border-radius:4px;flex-shrink:0;">' + modeInfo.label + '</span>'
             + '</div>'
-            + '<div style="font-weight:700;color:#fff;font-size:0.82rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + (m.map||'--') + '</div>'
+            + '<div style="display:flex;align-items:center;gap:6px;">'
+            + '<span style="font-weight:700;color:#fff;font-size:0.82rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + (m.map||'--') + '</span>'
+            + (m.mode === 'Competitive' && m.rrChange !== null && m.rrChange !== undefined
+                ? '<span style="font-size:0.68rem;font-weight:700;color:' + (m.rrChange >= 0 ? '#4ade80' : '#f87171') + ';flex-shrink:0;">' + (m.rrChange >= 0 ? '+' : '') + m.rrChange + ' RR</span>'
+                : '')
+            + (m.totalRounds ? '<span style="font-size:0.62rem;color:#555;flex-shrink:0;">' + m.totalRounds + 'R</span>' : '')
+            + '</div>'
             + '</div>'
             + '<div style="text-align:center;flex-shrink:0;min-width:42px;">'
             + '<div style="font-size:0.8rem;font-weight:800;color:' + winColor + ';">' + winText + '</div>'
