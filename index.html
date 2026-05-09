@@ -3995,6 +3995,60 @@ function switchScrimSubTab(tab) {
     if (btn) { btn.style.background = '#ff4658'; btn.style.color = '#fff'; }
 }
 
+function renderTeamTable(label, players, color) {
+    if (!players || players.length === 0) return '';
+    const header = '<div style="display:grid;grid-template-columns:32px 1fr 44px 44px 44px 44px 44px;gap:3px;align-items:center;padding:5px 8px;background:rgba(0,0,0,0.3);">'
+        + '<div></div>'
+        + '<div style="font-size:0.65rem;font-weight:700;color:' + color + ';">' + label + '</div>'
+        + '<div style="font-size:0.58rem;color:#555;text-align:center;">ACS</div>'
+        + '<div style="font-size:0.58rem;color:#555;text-align:center;">K/D/A</div>'
+        + '<div style="font-size:0.58rem;color:#555;text-align:center;">ADR</div>'
+        + '<div style="font-size:0.58rem;color:#555;text-align:center;">HS%</div>'
+        + '<div style="font-size:0.58rem;color:#555;text-align:center;">+/-</div>'
+        + '</div>';
+    const rows = players.map(function(p) {
+        const isMe = p.isMe;
+        const bg = isMe ? 'rgba(255,70,85,0.08)' : 'rgba(255,255,255,0.02)';
+        const kdVal = parseFloat(p.kd);
+        const kdColor = kdVal >= 2.0 ? '#ff4658' : kdVal >= 1.5 ? '#4ade80' : kdVal >= 1.0 ? '#e2e8f0' : '#666';
+        const pm = p.kills - p.deaths;
+        const pmStr = pm > 0 ? '+' + pm : String(pm);
+        const pmColor = pm > 0 ? '#4ade80' : pm < 0 ? '#f87171' : '#888';
+        const iconHtml = p.iconUrl
+            ? '<img src="' + p.iconUrl + '" style="width:24px;height:24px;border-radius:50%;object-fit:cover;">'
+            : '<div style="width:24px;height:24px;border-radius:50%;background:rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:center;font-size:0.55rem;color:#888;">' + (p.agent?p.agent.slice(0,2):'?') + '</div>';
+        return '<div style="display:grid;grid-template-columns:32px 1fr 44px 44px 44px 44px 44px;gap:3px;align-items:center;padding:5px 8px;background:' + bg + ';border-top:1px solid rgba(255,255,255,0.03);">'
+            + '<div>' + iconHtml + '</div>'
+            + '<div style="min-width:0;">'
+            + '<div style="font-size:0.72rem;font-weight:' + (isMe?'800':'600') + ';color:' + (isMe?'#fff':'#ccc') + ';white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + p.name + '</div>'
+            + '<div style="font-size:0.58rem;color:#555;">' + p.agent + '</div>'
+            + '</div>'
+            + '<div style="text-align:center;font-size:0.72rem;font-weight:700;color:#a78bfa;">' + p.acs + '</div>'
+            + '<div style="text-align:center;font-size:0.65rem;color:' + kdColor + ';">' + p.kills + '/' + p.deaths + '/' + p.assists + '</div>'
+            + '<div style="text-align:center;font-size:0.72rem;color:#e2e8f0;">' + p.adr + '</div>'
+            + '<div style="text-align:center;font-size:0.72rem;color:#f59e0b;">' + p.hsRate + '%</div>'
+            + '<div style="text-align:center;font-size:0.72rem;font-weight:700;color:' + pmColor + ';">' + pmStr + '</div>'
+            + '</div>';
+    }).join('');
+    return '<div style="margin-bottom:4px;">' + header + rows + '</div>';
+}
+
+function toggleMatchDetail(btn) {
+    const detail = btn.parentElement.nextElementSibling;
+    if (!detail || !detail.classList.contains('match-detail')) return;
+    const isOpen = detail.style.display !== 'none';
+    detail.style.display = isOpen ? 'none' : 'block';
+    btn.textContent = isOpen ? '▼' : '▲';
+    btn.style.color = isOpen ? '#888' : '#ff4658';
+}
+
+function detailCell(label, value, color) {
+    return '<div style="background:rgba(255,255,255,0.04);border-radius:6px;padding:6px 4px;text-align:center;">'
+        + '<div style="font-size:0.58rem;color:#555;margin-bottom:2px;">' + label + '</div>'
+        + '<div style="font-size:0.78rem;font-weight:700;color:' + color + ';white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + value + '</div>'
+        + '</div>';
+}
+
 function switchSubTab(tab) {
     const tabs = ['scrims', 'create', 'history'];
     tabs.forEach(t => {
@@ -4292,6 +4346,12 @@ function renderRecentMatches(matches) {
             + '<div style="text-align:center;flex-shrink:0;min-width:28px;">'
             + '<div style="font-size:0.82rem;font-weight:800;color:' + pmColor + ';">' + pmText + '</div>'
             + '<div style="font-size:0.58rem;color:#555;margin-top:1px;">+/-</div>'
+            + '</div>'
+            + '<button onclick="toggleMatchDetail(this)" style="flex-shrink:0;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#888;border-radius:6px;padding:4px 7px;font-size:0.7rem;cursor:pointer;transition:all 0.2s;">▼</button>'
+            + '</div>'
+            + '<div class="match-detail" style="display:none;margin-top:6px;border-radius:8px;overflow:hidden;">'
+            + renderTeamTable('우리 팀', m.myTeam || [], winColor)
+            + renderTeamTable('상대 팀', m.enemyTeam || [], m.won ? '#f87171' : '#4ade80')
             + '</div>'
             + '</div>';
     };
