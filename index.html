@@ -4324,7 +4324,7 @@ function renderRecentMatches(matches) {
             + (m.mode === 'Competitive' && m.rrChange !== null && m.rrChange !== undefined
                 ? '<span style="font-size:0.68rem;font-weight:700;color:' + (m.rrChange >= 0 ? '#4ade80' : '#f87171') + ';flex-shrink:0;">' + (m.rrChange >= 0 ? '+' : '') + m.rrChange + ' RR</span>'
                 : '')
-            + (m.totalRounds ? '<span style="font-size:0.62rem;color:#555;flex-shrink:0;">' + m.totalRounds + 'R</span>' : '')
+            + (m.score ? '<span style="font-size:0.62rem;color:#555;flex-shrink:0;">' + m.score + '</span>' : '')
             + '</div>'
             + '</div>'
             + '<div style="text-align:center;flex-shrink:0;min-width:42px;">'
