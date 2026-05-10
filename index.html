@@ -1823,12 +1823,18 @@ body {
                             <span id="homeBasedOn" style="font-size:0.68rem; color:#555; background:rgba(255,255,255,0.05); padding:3px 8px; border-radius:20px;"></span>
                         </div>
 
-                        <!-- 티어 -->
-                        <div style="display:flex; align-items:center; gap:8px; padding:8px 10px; background:rgba(255,70,85,0.08); border:1px solid rgba(255,70,85,0.2); border-radius:8px; margin-bottom:12px;">
-                            <img id="homeTierIcon" src="" alt="" style="width:32px; height:32px; display:none;">
-                            <div>
-                                <div id="homeTier" style="color:#fff; font-weight:700; font-size:0.95rem;">--</div>
-                                <div id="homeRR" style="color:#ff4658; font-size:0.72rem;">-- RR</div>
+                        <!-- 티어 + RR 그래프 -->
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:12px;">
+                            <div style="display:flex; align-items:center; gap:8px; padding:8px 10px; background:rgba(255,70,85,0.08); border:1px solid rgba(255,70,85,0.2); border-radius:8px;">
+                                <img id="homeTierIcon" src="" alt="" style="width:32px; height:32px; display:none;">
+                                <div>
+                                    <div id="homeTier" style="color:#fff; font-weight:700; font-size:0.95rem;">--</div>
+                                    <div id="homeRR" style="color:#ff4658; font-size:0.72rem;">-- RR</div>
+                                </div>
+                            </div>
+                            <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); border-radius:8px; padding:8px 10px; min-width:0;">
+                                <div style="font-size:0.6rem; color:#666; margin-bottom:4px;">14일 RR 변화</div>
+                                <canvas id="rrGraphCanvas" height="40" style="width:100%; display:block;"></canvas>
                             </div>
                         </div>
 
@@ -4172,6 +4178,66 @@ function searchPlayer() {
     result.innerHTML = '<div style="color:#888;font-size:0.8rem;text-align:center;padding:20px;">🔍 검색 중...</div>';
 }
 
+function renderRRGraph(rrData) {
+    var canvas = document.getElementById('rrGraphCanvas');
+    if (!canvas || !rrData || rrData.length < 2) return;
+
+    var dpr = window.devicePixelRatio || 1;
+    var w = canvas.parentElement.clientWidth - 20;
+    var h = 40;
+    canvas.width  = w * dpr;
+    canvas.height = h * dpr;
+    canvas.style.width  = w + 'px';
+    canvas.style.height = h + 'px';
+
+    var ctx = canvas.getContext('2d');
+    ctx.scale(dpr, dpr);
+
+    var rrs = rrData.map(function(d) { return d.rr; });
+    var min = Math.min.apply(null, rrs);
+    var max = Math.max.apply(null, rrs);
+    var range = max - min || 1;
+    var pad = 4;
+
+    var pts = rrData.map(function(d, i) {
+        return {
+            x: pad + (i / (rrData.length - 1)) * (w - pad * 2),
+            y: h - pad - ((d.rr - min) / range) * (h - pad * 2)
+        };
+    });
+
+    // 그라디언트 배경
+    var grad = ctx.createLinearGradient(0, 0, 0, h);
+    grad.addColorStop(0, 'rgba(255,70,85,0.25)');
+    grad.addColorStop(1, 'rgba(255,70,85,0.0)');
+
+    ctx.beginPath();
+    ctx.moveTo(pts[0].x, h);
+    pts.forEach(function(p) { ctx.lineTo(p.x, p.y); });
+    ctx.lineTo(pts[pts.length-1].x, h);
+    ctx.closePath();
+    ctx.fillStyle = grad;
+    ctx.fill();
+
+    // 라인
+    ctx.beginPath();
+    ctx.moveTo(pts[0].x, pts[0].y);
+    for (var i = 1; i < pts.length; i++) {
+        var mx = (pts[i-1].x + pts[i].x) / 2;
+        ctx.bezierCurveTo(mx, pts[i-1].y, mx, pts[i].y, pts[i].x, pts[i].y);
+    }
+    ctx.strokeStyle = '#ff4658';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+
+    // 마지막 점
+    var last = pts[pts.length - 1];
+    ctx.beginPath();
+    ctx.arc(last.x, last.y, 3, 0, Math.PI * 2);
+    ctx.fillStyle = '#ff4658';
+    ctx.fill();
+}
+
 async function loadHomeStats() {
     // 비로그인 상태
     if (!state.currentUser) {
@@ -4288,6 +4354,9 @@ async function loadHomeStats() {
         // 에이전트
         if (result.stats?.agents) {
             renderHomeAgents(result.stats.agents);
+            if (result.rrGraph && result.rrGraph.length >= 2) {
+                setTimeout(function() { renderRRGraph(result.rrGraph); }, 100);
+            }
         }
         
         // 맵
