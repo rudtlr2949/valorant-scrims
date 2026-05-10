@@ -1888,7 +1888,7 @@ body {
                         <div style="display:flex; align-items:center; gap:8px; margin-bottom:12px; flex-wrap:wrap;">
                             <div style="font-size:0.75rem; font-weight:700; color:#fff; letter-spacing:0.05em; flex-shrink:0;">🕐 최근 경기</div>
                             <div style="display:flex; gap:4px; margin-left:auto; flex-wrap:wrap;">
-                                <select id="filterMode" onchange="applyMatchFilter()" style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); border-radius:6px; color:#ccc; font-size:0.7rem; padding:4px 6px; cursor:pointer; outline:none;">
+                                <select id="filterMode" onchange="applyMatchFilter()" style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); border-radius:6px; color:#ccc; font-size:0.7rem; padding:4px 6px; cursor:pointer; outline:none; font-family:Nunito,sans-serif;">
                                     <option value="">전체 모드</option>
                                     <option value="Competitive">경쟁전</option>
                                     <option value="Unrated">일반전</option>
@@ -1898,7 +1898,7 @@ body {
                                     <option value="Swiftplay">신속전</option>
                                     <option value="Premier">프리미어</option>
                                 </select>
-                                <select id="filterMap" onchange="applyMatchFilter()" style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); border-radius:6px; color:#ccc; font-size:0.7rem; padding:4px 6px; cursor:pointer; outline:none;">
+                                <select id="filterMap" onchange="applyMatchFilter()" style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); border-radius:6px; color:#ccc; font-size:0.7rem; padding:4px 6px; cursor:pointer; outline:none; font-family:Nunito,sans-serif;">
                                     <option value="">전체 맵</option>
                                     <option value="Ascent">Ascent</option>
                                     <option value="Bind">Bind</option>
@@ -4362,7 +4362,7 @@ function renderRecentMatches(matches) {
         };
         const modeInfo = modeMap[m.mode] || { label: m.mode || '기타', color: '#888' };
 
-        return '<div style="display:flex;align-items:center;gap:10px;padding:13px 14px;' + mapBg + 'border:1px solid ' + winBorder + ';border-radius:10px;margin-bottom:7px;border-left:3px solid ' + winColor + ';">'
+        return '<div style="display:flex;align-items:center;gap:10px;padding:13px 14px;' + mapBg + 'border:1px solid ' + winBorder + ';border-radius:10px;margin-bottom:8px;border-left:3px solid ' + winColor + ';">'
             + iconHtml
             + '<div style="flex:1.2;min-width:0;">'
             + '<div style="display:flex;align-items:center;gap:5px;margin-bottom:2px;">'
@@ -4424,8 +4424,8 @@ function renderRecentMatches(matches) {
     // 날짜 그룹 헤더 + 경기 카드 렌더링
     container.innerHTML = Object.values(groups).map(group => {
         const winRateColor = group.wins >= group.losses ? '#4ade80' : '#f87171';
-        return '<div style="margin-bottom:16px;">'
-            + '<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid rgba(255,255,255,0.07);">'
+        return '<div style="margin-bottom:20px;">'
+            + '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid rgba(255,255,255,0.07);">'
             + '<span style="font-size:0.8rem;font-weight:700;color:#ccc;">' + group.label + '</span>'
             + '<span style="font-size:0.72rem;color:' + winRateColor + ';font-weight:600;">' + group.wins + '승 ' + group.losses + '패</span>'
             + '<span style="font-size:0.68rem;color:#555;">' + group.matches.length + '경기</span>'
