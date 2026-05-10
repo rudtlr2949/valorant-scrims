@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VALORANT 스크림 매칭</title>
@@ -4344,23 +4346,23 @@ function renderRecentMatches(matches) {
             + '</div>'
             + '<div style="width:1px;height:28px;background:rgba(255,255,255,0.07);flex-shrink:0;"></div>'
             + '<div style="text-align:center;flex-shrink:0;">'
-            + '<div style="font-size:0.78rem;font-weight:700;color:' + kdColor + ';background:rgba(255,255,255,0.05);border-radius:20px;padding:2px 7px;">' + (m.kd||'--') + '</div>'
+            + '<div style="font-size:0.78rem;font-weight:700;color:' + kdColor + ';font-family:Nunito,sans-serif;">' + (m.kd||'--') + '</div>'
             + '<div style="font-size:0.55rem;color:#555;margin-top:2px;">K/D</div>'
             + '</div>'
             + '<div style="text-align:center;flex-shrink:0;">'
-            + '<div style="font-size:0.7rem;font-weight:700;color:' + kdaColor + ';background:rgba(255,255,255,0.05);border-radius:20px;padding:2px 7px;">' + m.kills + '/' + m.deaths + '/' + m.assists + '</div>'
+            + '<div style="font-size:0.7rem;font-weight:700;color:' + kdaColor + ';font-family:Nunito,sans-serif;">' + m.kills + '/' + m.deaths + '/' + m.assists + '</div>'
             + '<div style="font-size:0.55rem;color:#555;margin-top:2px;">KDA</div>'
             + '</div>'
             + '<div style="text-align:center;flex-shrink:0;">'
-            + '<div style="font-size:0.78rem;font-weight:700;color:' + acsColor + ';background:rgba(255,255,255,0.05);border-radius:20px;padding:2px 7px;">' + m.acs + '</div>'
+            + '<div style="font-size:0.78rem;font-weight:700;color:' + acsColor + ';font-family:Nunito,sans-serif;">' + m.acs + '</div>'
             + '<div style="font-size:0.55rem;color:#555;margin-top:2px;">ACS</div>'
             + '</div>'
             + '<div style="text-align:center;flex-shrink:0;">'
-            + '<div style="font-size:0.78rem;font-weight:700;color:' + hsColor + ';background:rgba(255,255,255,0.05);border-radius:20px;padding:2px 7px;">' + m.hsRate + '%</div>'
+            + '<div style="font-size:0.78rem;font-weight:700;color:' + hsColor + ';font-family:Nunito,sans-serif;">' + m.hsRate + '%</div>'
             + '<div style="font-size:0.55rem;color:#555;margin-top:2px;">HS</div>'
             + '</div>'
             + '<div style="text-align:center;flex-shrink:0;">'
-            + '<div style="font-size:0.78rem;font-weight:800;color:' + pmColor + ';background:rgba(255,255,255,0.05);border-radius:20px;padding:2px 7px;">' + pmText + '</div>'
+            + '<div style="font-size:0.78rem;font-weight:800;color:' + pmColor + ';font-family:Nunito,sans-serif;">' + pmText + '</div>'
             + '<div style="font-size:0.55rem;color:#555;margin-top:2px;">+/-</div>'
             + '</div>'
             + '<button onclick="toggleMatchDetail(this)" style="flex-shrink:0;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#888;border-radius:6px;padding:4px 7px;font-size:0.7rem;cursor:pointer;transition:all 0.2s;">▼</button>'
