@@ -4324,7 +4324,7 @@ function renderRecentMatches(matches) {
             + (m.mode === 'Competitive' && m.rrChange !== null && m.rrChange !== undefined
                 ? '<span style="font-size:0.68rem;font-weight:700;color:' + (m.rrChange >= 0 ? '#4ade80' : '#f87171') + ';flex-shrink:0;">' + (m.rrChange >= 0 ? '+' : '') + m.rrChange + ' RR</span>'
                 : '')
-            + (m.score ? '<span style="font-size:0.62rem;color:#555;flex-shrink:0;">' + m.score + '</span>' : '')
+            + ''
             + '</div>'
             + '</div>'
             + '<div style="text-align:center;flex-shrink:0;min-width:46px;">'
@@ -4333,10 +4333,12 @@ function renderRecentMatches(matches) {
                 var parts = (m.score||'--').split(':');
                 var my = parts[0] || '--';
                 var en = parts[1] || '--';
+                var myColor = m.won ? '#4ade80' : '#f87171';
+                var enColor = m.won ? '#f87171' : '#4ade80';
                 return '<div style="font-size:0.9rem;font-weight:800;margin-top:1px;line-height:1;">'
-                    + '<span style="color:#4ade80;">' + my + '</span>'
+                    + '<span style="color:' + myColor + ';">' + my + '</span>'
                     + '<span style="color:#888;font-size:0.75rem;font-weight:600;">:</span>'
-                    + '<span style="color:#f87171;">' + en + '</span>'
+                    + '<span style="color:' + enColor + ';">' + en + '</span>'
                     + '</div>';
               })()
             + '</div>'
