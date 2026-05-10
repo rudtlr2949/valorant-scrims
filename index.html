@@ -1885,7 +1885,36 @@ body {
 
                     <!-- 최근 경기 전적 -->
                     <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); border-radius:10px; padding:14px; margin-bottom:12px;">
-                        <div style="font-size:0.75rem; font-weight:700; color:#fff; margin-bottom:12px; letter-spacing:0.05em;">🕐 최근 경기</div>
+                        <div style="display:flex; align-items:center; gap:8px; margin-bottom:12px; flex-wrap:wrap;">
+                            <div style="font-size:0.75rem; font-weight:700; color:#fff; letter-spacing:0.05em; flex-shrink:0;">🕐 최근 경기</div>
+                            <div style="display:flex; gap:4px; margin-left:auto; flex-wrap:wrap;">
+                                <select id="filterMode" onchange="applyMatchFilter()" style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); border-radius:6px; color:#ccc; font-size:0.7rem; padding:4px 6px; cursor:pointer; outline:none;">
+                                    <option value="">전체 모드</option>
+                                    <option value="Competitive">경쟁전</option>
+                                    <option value="Unrated">일반전</option>
+                                    <option value="Deathmatch">데스매치</option>
+                                    <option value="Team Deathmatch">팀데스매치</option>
+                                    <option value="Spike Rush">스파이크러쉬</option>
+                                    <option value="Swiftplay">신속전</option>
+                                    <option value="Premier">프리미어</option>
+                                </select>
+                                <select id="filterMap" onchange="applyMatchFilter()" style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); border-radius:6px; color:#ccc; font-size:0.7rem; padding:4px 6px; cursor:pointer; outline:none;">
+                                    <option value="">전체 맵</option>
+                                    <option value="Ascent">Ascent</option>
+                                    <option value="Bind">Bind</option>
+                                    <option value="Haven">Haven</option>
+                                    <option value="Split">Split</option>
+                                    <option value="Icebox">Icebox</option>
+                                    <option value="Breeze">Breeze</option>
+                                    <option value="Fracture">Fracture</option>
+                                    <option value="Pearl">Pearl</option>
+                                    <option value="Lotus">Lotus</option>
+                                    <option value="Sunset">Sunset</option>
+                                    <option value="Abyss">Abyss</option>
+                                    <option value="Drift">Drift</option>
+                                </select>
+                            </div>
+                        </div>
                         <div id="homeRecentMatches"></div>
                     </div>
 
@@ -3997,6 +4026,24 @@ function switchScrimSubTab(tab) {
     if (btn) { btn.style.background = '#ff4658'; btn.style.color = '#fff'; }
 }
 
+var _cachedMatches = [];
+
+function applyMatchFilter() {
+    const mode = document.getElementById('filterMode')?.value || '';
+    const map  = document.getElementById('filterMap')?.value  || '';
+    const filtered = _cachedMatches.filter(function(m) {
+        if (mode && m.mode !== mode) return false;
+        if (map  && m.map  !== map)  return false;
+        return true;
+    });
+    renderRecentMatches(filtered, true);
+}
+
+function renderRecentMatchesWithCache(matches) {
+    _cachedMatches = matches || [];
+    renderRecentMatches(_cachedMatches, true);
+}
+
 function renderTeamTable(label, players, color) {
     if (!players || players.length === 0) return '';
     const header = '<div style="display:grid;grid-template-columns:32px 1fr 44px 44px 44px 44px 44px;gap:3px;align-items:center;padding:5px 8px;background:rgba(0,0,0,0.3);">'
@@ -4202,7 +4249,7 @@ async function loadHomeStats() {
 
         // 최근 경기
         if (result.recentMatches) {
-            renderRecentMatches(result.recentMatches);
+            renderRecentMatchesWithCache(result.recentMatches);
         }
         
     } catch (e) {
