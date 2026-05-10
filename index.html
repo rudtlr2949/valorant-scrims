@@ -4329,7 +4329,16 @@ function renderRecentMatches(matches) {
             + '</div>'
             + '<div style="text-align:center;flex-shrink:0;min-width:46px;">'
             + '<div style="font-size:0.6rem;font-weight:700;color:' + winColor + ';">' + winText + '</div>'
-            + '<div style="font-size:0.9rem;font-weight:800;color:' + winColor + ';margin-top:1px;line-height:1;">' + (m.score||'--') + '</div>'
+            + (function() {
+                var parts = (m.score||'--').split(':');
+                var my = parts[0] || '--';
+                var en = parts[1] || '--';
+                return '<div style="font-size:0.9rem;font-weight:800;margin-top:1px;line-height:1;">'
+                    + '<span style="color:#4ade80;">' + my + '</span>'
+                    + '<span style="color:#888;font-size:0.75rem;font-weight:600;">:</span>'
+                    + '<span style="color:#f87171;">' + en + '</span>'
+                    + '</div>';
+              })()
             + '</div>'
             + '<div style="width:1px;height:28px;background:rgba(255,255,255,0.07);flex-shrink:0;"></div>'
             + '<div style="text-align:center;flex-shrink:0;min-width:34px;">'
