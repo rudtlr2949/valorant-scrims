@@ -4362,7 +4362,8 @@ function renderRecentMatches(matches) {
         };
         const modeInfo = modeMap[m.mode] || { label: m.mode || '기타', color: '#888' };
 
-        return '<div style="display:flex;align-items:center;gap:10px;padding:13px 14px;' + mapBg + 'border:1px solid ' + winBorder + ';border-radius:10px;margin-bottom:8px;border-left:3px solid ' + winColor + ';">'
+        return '<div style="margin-bottom:8px;">'
+            + '<div style="display:flex;align-items:center;gap:10px;padding:13px 14px;' + mapBg + 'border:1px solid ' + winBorder + ';border-radius:10px;border-left:3px solid ' + winColor + ';">'
             + iconHtml
             + '<div style="flex:1.2;min-width:0;">'
             + '<div style="display:flex;align-items:center;gap:5px;margin-bottom:2px;">'
@@ -4373,7 +4374,6 @@ function renderRecentMatches(matches) {
             + (m.mode === 'Competitive' && m.rrChange !== null && m.rrChange !== undefined
                 ? '<span style="font-size:0.68rem;font-weight:700;color:' + (m.rrChange >= 0 ? '#4ade80' : '#f87171') + ';flex-shrink:0;">' + (m.rrChange >= 0 ? '+' : '') + m.rrChange + ' RR</span>'
                 : '')
-            + ''
             + '</div>'
             + '</div>'
             + '<div style="text-align:center;flex-shrink:0;min-width:46px;">'
