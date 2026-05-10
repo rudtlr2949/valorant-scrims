@@ -1887,32 +1887,35 @@ body {
                     <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); border-radius:10px; padding:14px; margin-bottom:12px;">
                         <div style="display:flex; align-items:center; gap:8px; margin-bottom:12px; flex-wrap:wrap;">
                             <div style="font-size:0.75rem; font-weight:700; color:#fff; letter-spacing:0.05em; flex-shrink:0;">🕐 최근 경기</div>
-                            <div style="display:flex; gap:4px; margin-left:auto; flex-wrap:wrap;">
-                                <select id="filterMode" onchange="applyMatchFilter()" style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); border-radius:6px; color:#ccc; font-size:0.7rem; padding:4px 6px; cursor:pointer; outline:none; font-family:Nunito,sans-serif;">
-                                    <option value="">전체 모드</option>
-                                    <option value="Competitive">경쟁전</option>
-                                    <option value="Unrated">일반전</option>
-                                    <option value="Deathmatch">데스매치</option>
-                                    <option value="Team Deathmatch">팀데스매치</option>
-                                    <option value="Spike Rush">스파이크러쉬</option>
-                                    <option value="Swiftplay">신속전</option>
-                                    <option value="Premier">프리미어</option>
-                                </select>
-                                <select id="filterMap" onchange="applyMatchFilter()" style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); border-radius:6px; color:#ccc; font-size:0.7rem; padding:4px 6px; cursor:pointer; outline:none; font-family:Nunito,sans-serif;">
-                                    <option value="">전체 맵</option>
-                                    <option value="Ascent">Ascent</option>
-                                    <option value="Bind">Bind</option>
-                                    <option value="Haven">Haven</option>
-                                    <option value="Split">Split</option>
-                                    <option value="Icebox">Icebox</option>
-                                    <option value="Breeze">Breeze</option>
-                                    <option value="Fracture">Fracture</option>
-                                    <option value="Pearl">Pearl</option>
-                                    <option value="Lotus">Lotus</option>
-                                    <option value="Sunset">Sunset</option>
-                                    <option value="Abyss">Abyss</option>
-                                    <option value="Drift">Drift</option>
-                                </select>
+                            <div style="display:flex; gap:4px; margin-left:auto; flex-wrap:wrap; position:relative;">
+                                <!-- 모드 드롭다운 -->
+                                <div style="position:relative;">
+                                    <button id="filterModeBtn" onclick="toggleDropdown('modeDropdown')" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:6px;color:#ccc;font-size:0.7rem;padding:4px 8px;cursor:pointer;display:flex;align-items:center;gap:4px;font-family:Nunito,sans-serif;white-space:nowrap;">
+                                        <span id="filterModeLabel">전체 모드</span><span style="font-size:0.6rem;color:#666;">▼</span>
+                                    </button>
+                                    <div id="modeDropdown" style="display:none;position:absolute;top:calc(100% + 4px);right:0;background:#1a1d29;border:1px solid rgba(255,255,255,0.12);border-radius:8px;z-index:999;min-width:110px;overflow:hidden;box-shadow:0 8px 24px rgba(0,0,0,0.5);">
+                                        <div onclick="selectMode('','전체 모드')" style="padding:7px 12px;font-size:0.75rem;color:#ccc;cursor:pointer;font-family:Nunito,sans-serif;transition:background 0.15s;" onmouseover="this.style.background='rgba(255,255,255,0.08)'" onmouseout="this.style.background='transparent'">전체 모드</div>
+                                        <div onclick="selectMode('Competitive','경쟁전')" style="padding:7px 12px;font-size:0.75rem;color:#ff4658;cursor:pointer;font-family:Nunito,sans-serif;transition:background 0.15s;" onmouseover="this.style.background='rgba(255,255,255,0.08)'" onmouseout="this.style.background='transparent'">경쟁전</div>
+                                        <div onclick="selectMode('Unrated','일반전')" style="padding:7px 12px;font-size:0.75rem;color:#ccc;cursor:pointer;font-family:Nunito,sans-serif;transition:background 0.15s;" onmouseover="this.style.background='rgba(255,255,255,0.08)'" onmouseout="this.style.background='transparent'">일반전</div>
+                                        <div onclick="selectMode('Deathmatch','데스매치')" style="padding:7px 12px;font-size:0.75rem;color:#f59e0b;cursor:pointer;font-family:Nunito,sans-serif;transition:background 0.15s;" onmouseover="this.style.background='rgba(255,255,255,0.08)'" onmouseout="this.style.background='transparent'">데스매치</div>
+                                        <div onclick="selectMode('Team Deathmatch','팀데스매치')" style="padding:7px 12px;font-size:0.75rem;color:#f59e0b;cursor:pointer;font-family:Nunito,sans-serif;transition:background 0.15s;" onmouseover="this.style.background='rgba(255,255,255,0.08)'" onmouseout="this.style.background='transparent'">팀데스매치</div>
+                                        <div onclick="selectMode('Spike Rush','스파이크러쉬')" style="padding:7px 12px;font-size:0.75rem;color:#a78bfa;cursor:pointer;font-family:Nunito,sans-serif;transition:background 0.15s;" onmouseover="this.style.background='rgba(255,255,255,0.08)'" onmouseout="this.style.background='transparent'">스파이크러쉬</div>
+                                        <div onclick="selectMode('Swiftplay','신속전')" style="padding:7px 12px;font-size:0.75rem;color:#4ade80;cursor:pointer;font-family:Nunito,sans-serif;transition:background 0.15s;" onmouseover="this.style.background='rgba(255,255,255,0.08)'" onmouseout="this.style.background='transparent'">신속전</div>
+                                        <div onclick="selectMode('Premier','프리미어')" style="padding:7px 12px;font-size:0.75rem;color:#ffd700;cursor:pointer;font-family:Nunito,sans-serif;transition:background 0.15s;" onmouseover="this.style.background='rgba(255,255,255,0.08)'" onmouseout="this.style.background='transparent'">프리미어</div>
+                                    </div>
+                                </div>
+                                <!-- 맵 드롭다운 -->
+                                <div style="position:relative;">
+                                    <button id="filterMapBtn" onclick="toggleDropdown('mapDropdown')" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:6px;color:#ccc;font-size:0.7rem;padding:4px 8px;cursor:pointer;display:flex;align-items:center;gap:4px;font-family:Nunito,sans-serif;white-space:nowrap;">
+                                        <span id="filterMapLabel">전체 맵</span><span style="font-size:0.6rem;color:#666;">▼</span>
+                                    </button>
+                                    <div id="mapDropdown" style="display:none;position:absolute;top:calc(100% + 4px);right:0;background:#1a1d29;border:1px solid rgba(255,255,255,0.12);border-radius:8px;z-index:999;min-width:100px;overflow:hidden;box-shadow:0 8px 24px rgba(0,0,0,0.5);">
+                                        <div onclick="selectMap('','전체 맵')" style="padding:7px 12px;font-size:0.75rem;color:#ccc;cursor:pointer;font-family:Nunito,sans-serif;transition:background 0.15s;" onmouseover="this.style.background='rgba(255,255,255,0.08)'" onmouseout="this.style.background='transparent'">전체 맵</div>
+                                        ${['Ascent','Bind','Haven','Split','Icebox','Breeze','Fracture','Pearl','Lotus','Sunset','Abyss','Drift'].map(map =>
+                                            `<div onclick="selectMap('${map}','${map}')" style="padding:7px 12px;font-size:0.75rem;color:#ccc;cursor:pointer;font-family:Nunito,sans-serif;transition:background 0.15s;" onmouseover="this.style.background='rgba(255,255,255,0.08)'" onmouseout="this.style.background='transparent'">${map}</div>`
+                                        ).join('')}
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <div id="homeRecentMatches"></div>
@@ -4026,14 +4029,50 @@ function switchScrimSubTab(tab) {
     if (btn) { btn.style.background = '#ff4658'; btn.style.color = '#fff'; }
 }
 
+var _filterMode = '';
+var _filterMap  = '';
+
+function toggleDropdown(id) {
+    var el = document.getElementById(id);
+    var other = id === 'modeDropdown' ? 'mapDropdown' : 'modeDropdown';
+    document.getElementById(other).style.display = 'none';
+    el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+
+function selectMode(value, label) {
+    _filterMode = value;
+    document.getElementById('filterModeLabel').textContent = label;
+    document.getElementById('modeDropdown').style.display = 'none';
+    document.getElementById('filterModeBtn').style.borderColor = value ? '#ff4658' : 'rgba(255,255,255,0.12)';
+    applyMatchFilter();
+}
+
+function selectMap(value, label) {
+    _filterMap = value;
+    document.getElementById('filterMapLabel').textContent = label;
+    document.getElementById('mapDropdown').style.display = 'none';
+    document.getElementById('filterMapBtn').style.borderColor = value ? '#ff4658' : 'rgba(255,255,255,0.12)';
+    applyMatchFilter();
+}
+
+// 드롭다운 외부 클릭 시 닫기
+document.addEventListener('click', function(e) {
+    if (!e.target.closest('#filterModeBtn') && !e.target.closest('#modeDropdown')) {
+        var el = document.getElementById('modeDropdown');
+        if (el) el.style.display = 'none';
+    }
+    if (!e.target.closest('#filterMapBtn') && !e.target.closest('#mapDropdown')) {
+        var el2 = document.getElementById('mapDropdown');
+        if (el2) el2.style.display = 'none';
+    }
+});
+
 var _cachedMatches = [];
 
 function applyMatchFilter() {
-    const mode = document.getElementById('filterMode')?.value || '';
-    const map  = document.getElementById('filterMap')?.value  || '';
     const filtered = _cachedMatches.filter(function(m) {
-        if (mode && m.mode !== mode) return false;
-        if (map  && m.map  !== map)  return false;
+        if (_filterMode && m.mode !== _filterMode) return false;
+        if (_filterMap  && m.map  !== _filterMap)  return false;
         return true;
     });
     renderRecentMatches(filtered, true);
