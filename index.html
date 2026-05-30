@@ -192,20 +192,20 @@
 <script>
 const M = 'https://media.valorant-api.com';
 
-// 목 전적 데이터
+// 목 전적 데이터 (이미지 URL 없음 — 전부 프록시에서 받아옴)
 const MOCK_MATCHES = [
-  {win:true, map:'Ascent', img:`${M}/maps/7eaecc1b-4337-bbf6-6ab9-04b8f06b3319/splash.png`, score:'13 : 7', kda:'21 / 12 / 6', acs:217},
-  {win:false,map:'Bind',   img:`${M}/maps/2c9d57ec-4431-9c5e-2939-8f9ef6dd5cba/splash.png`, score:'8 : 13', kda:'14 / 16 / 4', acs:146},
-  {win:true, map:'Haven',  img:`${M}/maps/2bee0dc9-4ffe-519b-1cbd-7fbe763a6047/splash.png`, score:'13 : 9', kda:'20 / 11 / 7', acs:201},
-  {win:false,map:'Split',  img:`${M}/maps/d960549e-485c-e861-8d71-aa9d1aed12a2/splash.png`, score:'6 : 13', kda:'9 / 15 / 3',  acs:98},
-  {win:true, map:'Lotus',  img:null, score:'13 : 5', kda:'23 / 7 / 5',  acs:256}, // proxy로 해결
+  {win:true, map:'Ascent', score:'13 : 7', kda:'21 / 12 / 6', acs:217},
+  {win:false,map:'Bind',   score:'8 : 13', kda:'14 / 16 / 4', acs:146},
+  {win:true, map:'Haven',  score:'13 : 9', kda:'20 / 11 / 7', acs:201},
+  {win:false,map:'Split',  score:'6 : 13', kda:'9 / 15 / 3',  acs:98},
+  {win:true, map:'Lotus',  score:'13 : 5', kda:'23 / 7 / 5',  acs:256},
 ];
 const MOCK_AGENTS = [
-  {kr:'제트',   en:'Jett',    img:`${M}/agents/add6443a-41bd-e414-f6ad-e58d267f4e95/displayiconsmall.png`, pct:30,win:50,kd:1.41,acs:182,games:6},
-  {kr:'레이나', en:'Reyna',   img:`${M}/agents/a3bfb853-43b2-7238-a4f1-ad90e9e46bcc/displayiconsmall.png`, pct:25,win:20,kd:1.02,acs:149,games:5},
-  {kr:'소바',   en:'Sova',    img:`${M}/agents/320b2a48-4d9b-a075-30f1-1f93a9b638fa/displayiconsmall.png`, pct:20,win:25,kd:1.10,acs:156,games:4},
-  {kr:'킬조이', en:'Killjoy', img:`${M}/agents/1e58de9c-4950-5125-93e9-a0aee9f98746/displayiconsmall.png`, pct:15,win:33,kd:1.18,acs:133,games:3},
-  {kr:'사이퍼', en:'Cypher',  img:`${M}/agents/117ed9e3-49f3-6512-3ccf-0cada7e3823b/displayiconsmall.png`, pct:10,win:0, kd:0.85,acs:98, games:2},
+  {kr:'제트',   en:'Jett',    pct:30,win:50,kd:1.41,acs:182,games:6},
+  {kr:'레이나', en:'Reyna',   pct:25,win:20,kd:1.02,acs:149,games:5},
+  {kr:'소바',   en:'Sova',    pct:20,win:25,kd:1.10,acs:156,games:4},
+  {kr:'킬조이', en:'Killjoy', pct:15,win:33,kd:1.18,acs:133,games:3},
+  {kr:'사이퍼', en:'Cypher',  pct:10,win:0, kd:0.85,acs:98, games:2},
 ];
 </script>
 
@@ -420,11 +420,11 @@ function setNav(el){
 }
 
 /* ── 맵 썸네일 렌더 ── */
-function renderMatches(lotusImg = null){
+function renderMatches(mapImgDict = {}){
   const ml = document.getElementById('matchList');
   ml.innerHTML = '';
   MOCK_MATCHES.forEach(m => {
-    const src = m.img || lotusImg;
+    const src = mapImgDict[m.map] || '';
     ml.innerHTML += `
       <div class="match-row">
         <div class="map-thumb">
@@ -443,17 +443,18 @@ function renderMatches(lotusImg = null){
       </div>`;
   });
 }
-renderMatches(); // 하드코딩 URL로 즉시 렌더
+renderMatches(); // 로딩 전: 텍스트 라벨로 먼저 렌더
 
 /* ── 에이전트 초상화 렌더 ── */
-(function(){
+function renderAgents(imgDict = {}){
   const al = document.getElementById('agentList');
+  al.innerHTML = '';
   MOCK_AGENTS.forEach(a => {
+    const src = imgDict[a.en.toLowerCase()] || '';
     al.innerHTML += `
       <div class="agent-row">
         <div class="agent-info">
-          <img class="agent-portrait" src="${a.img}" alt="${a.kr}"
-            onerror="this.style.visibility='hidden'"/>
+          ${src ? `<img class="agent-portrait" src="${src}" alt="${a.kr}" onerror="this.style.visibility='hidden'"/>` : ''}
           <div><div class="agent-name">${a.kr}</div><div class="agent-games">${a.games}경기</div></div>
         </div>
         <div class="bar-wrap">
@@ -465,28 +466,42 @@ renderMatches(); // 하드코딩 URL로 즉시 렌더
         <div class="agent-stat">${a.acs}</div>
       </div>`;
   });
-})();
+}
+renderAgents(); // 로딩 전: 사진 없이 먼저 렌더
 
-/* ── 프록시 배포 후: Lotus 맵 + 랭크 아이콘 자동 업데이트 ── */
+/* ── 프록시에서 맵 전체 + 에이전트 + 랭크 로드 ── */
 async function loadFromProxy(){
-  // Lotus 맵
+  // 맵 이미지 전체
   try {
     const res  = await fetch('/api/valo-assets?type=maps');
+    if(!res.ok) throw new Error(res.status);
     const json = await res.json();
-    const lotus = json.data.find(m => m.displayName === 'Lotus');
-    if(lotus?.splash) renderMatches(lotus.splash);
-  } catch(_){}
+    const dict = {};
+    json.data.forEach(m => { if(m.displayName && m.splash) dict[m.displayName] = m.splash; });
+    renderMatches(dict);
+  } catch(e){ console.warn('map proxy 실패', e); }
+
+  // 에이전트 초상화
+  try {
+    const res  = await fetch('/api/valo-assets?type=agents');
+    if(!res.ok) throw new Error(res.status);
+    const json = await res.json();
+    const dict = {};
+    json.data.forEach(a => { if(a.displayName && a.displayIconSmall) dict[a.displayName.toLowerCase()] = a.displayIconSmall; });
+    renderAgents(dict);
+  } catch(e){ console.warn('agent proxy 실패', e); }
 
   // 랭크 아이콘 (Diamond 2 = tier 19)
   try {
     const res  = await fetch('/api/valo-assets?type=tiers');
+    if(!res.ok) throw new Error(res.status);
     const json = await res.json();
     const latest = json.data[json.data.length - 1];
     const d2 = latest.tiers.find(t => t.tier === 19);
     if(d2?.largeIcon) document.getElementById('rankIcon').src = d2.largeIcon;
-  } catch(_){}
+  } catch(e){ console.warn('rank proxy 실패', e); }
 }
-loadFromProxy(); // api/valo-assets.js 배포 전엔 조용히 실패, 배포 후 자동 동작
+loadFromProxy();
 
 /* ── 스파크라인 ── */
 new Chart(document.getElementById('onlineChart'),{
