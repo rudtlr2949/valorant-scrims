@@ -414,7 +414,24 @@ const MOCK_AGENTS = [
 </div>
 
 <script>
-/* ── 이번시즌 랭크 통계 계산 ── */
+const M = 'https://media.valorant-api.com';
+
+const MOCK_MATCHES = [
+  {win:true, map:'Ascent', score:'13 : 7', kda:'21 / 12 / 6', acs:217},
+  {win:false,map:'Bind',   score:'8 : 13', kda:'14 / 16 / 4', acs:146},
+  {win:true, map:'Haven',  score:'13 : 9', kda:'20 / 11 / 7', acs:201},
+  {win:false,map:'Split',  score:'6 : 13', kda:'9 / 15 / 3',  acs:98},
+  {win:true, map:'Lotus',  score:'13 : 5', kda:'23 / 7 / 5',  acs:256},
+];
+const MOCK_AGENTS = [
+  {kr:'제트',   en:'Jett',    pct:30,win:50,kd:1.41,acs:182,games:6},
+  {kr:'레이나', en:'Reyna',   pct:25,win:20,kd:1.02,acs:149,games:5},
+  {kr:'소바',   en:'Sova',    pct:20,win:25,kd:1.10,acs:156,games:4},
+  {kr:'킬조이', en:'Killjoy', pct:15,win:33,kd:1.18,acs:133,games:3},
+  {kr:'사이퍼', en:'Cypher',  pct:10,win:0, kd:0.85,acs:98, games:2},
+];
+
+/* ── 이번시즌 랭크 통계 ── */
 function renderRankedStats(wins, losses){
   const total   = wins + losses;
   const winrate = total > 0 ? Math.round(wins / total * 100) : 0;
@@ -423,8 +440,10 @@ function renderRankedStats(wins, losses){
   document.getElementById('stat-losses').textContent  = losses;
   document.getElementById('stat-winrate').textContent = winrate + '%';
 }
-// 목 데이터: 실제 API 연동 시 wins/losses 값만 교체하면 됨
 renderRankedStats(4, 16);
+
+/* ── 네비게이션 ── */
+function setNav(el){
   document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
   el.classList.add('active');
 }
@@ -453,7 +472,7 @@ function renderMatches(mapImgDict = {}){
       </div>`;
   });
 }
-renderMatches(); // 로딩 전: 텍스트 라벨로 먼저 렌더
+renderMatches();
 
 /* ── 에이전트 초상화 렌더 ── */
 function renderAgents(imgDict = {}){
@@ -477,11 +496,10 @@ function renderAgents(imgDict = {}){
       </div>`;
   });
 }
-renderAgents(); // 로딩 전: 사진 없이 먼저 렌더
+renderAgents();
 
 /* ── 프록시에서 맵 전체 + 에이전트 + 랭크 로드 ── */
 async function loadFromProxy(){
-  // 맵 이미지 전체
   try {
     const res  = await fetch('/api/valo-assets?type=maps');
     if(!res.ok) throw new Error(res.status);
@@ -491,7 +509,6 @@ async function loadFromProxy(){
     renderMatches(dict);
   } catch(e){ console.warn('map proxy 실패', e); }
 
-  // 에이전트 초상화
   try {
     const res  = await fetch('/api/valo-assets?type=agents');
     if(!res.ok) throw new Error(res.status);
@@ -501,7 +518,6 @@ async function loadFromProxy(){
     renderAgents(dict);
   } catch(e){ console.warn('agent proxy 실패', e); }
 
-  // 랭크 아이콘 (Diamond 2 = tier 19)
   try {
     const res  = await fetch('/api/valo-assets?type=tiers');
     if(!res.ok) throw new Error(res.status);
