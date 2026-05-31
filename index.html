@@ -440,7 +440,7 @@ main::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:3px;
       <div class="content-grid">
         <div class="left-col">
           <div class="card">
-            <div class="card-header"><span class="card-title">최근 경기 전적</span><button class="card-link">전체 보기 <svg width="12" height="12"><use href="#ic-chevron-right"/></svg></button></div>
+            <div class="card-header"><span class="card-title">최근 경기 전적</span><button class="card-link" onclick="openAllMatches()">전체 보기 <svg width="12" height="12"><use href="#ic-chevron-right"/></svg></button></div>
             <div id="matchList"></div>
           </div>
           <div class="card">
@@ -1075,7 +1075,70 @@ function toggleQueue() {
   }
 }
 
-// ── 전적 검색 ─────────────────────────────────────────────
+// ── 전체 경기 데이터 ─────────────────────────────────────────
+var ALL_MATCHES = [
+  {win:true,  map:'Ascent', score:'13 : 7',  kda:'21 / 12 / 6',  acs:217, kd:1.75, mvp:'game', date:'오늘'},
+  {win:false, map:'Bind',   score:'8 : 13',  kda:'14 / 16 / 4',  acs:146, kd:0.88, mvp:null,   date:'오늘'},
+  {win:true,  map:'Haven',  score:'13 : 9',  kda:'20 / 11 / 7',  acs:201, kd:1.82, mvp:'team',  date:'어제'},
+  {win:false, map:'Split',  score:'6 : 13',  kda:'9 / 15 / 3',   acs:98,  kd:0.60, mvp:null,   date:'어제'},
+  {win:true,  map:'Lotus',  score:'13 : 5',  kda:'23 / 7 / 5',   acs:256, kd:3.29, mvp:'game', date:'05.29'},
+  {win:true,  map:'Haven',  score:'13 : 10', kda:'18 / 10 / 8',  acs:188, kd:1.80, mvp:'team',  date:'05.29'},
+  {win:false, map:'Ascent', score:'11 : 13', kda:'16 / 18 / 5',  acs:172, kd:0.89, mvp:null,   date:'05.28'},
+  {win:true,  map:'Bind',   score:'13 : 7',  kda:'22 / 8 / 4',   acs:231, kd:2.75, mvp:'game', date:'05.28'},
+  {win:false, map:'Lotus',  score:'9 : 13',  kda:'12 / 14 / 6',  acs:143, kd:0.86, mvp:null,   date:'05.27'},
+  {win:true,  map:'Split',  score:'13 : 11', kda:'19 / 13 / 9',  acs:196, kd:1.46, mvp:null,   date:'05.27'},
+  {win:false, map:'Haven',  score:'7 : 13',  kda:'10 / 15 / 3',  acs:121, kd:0.67, mvp:null,   date:'05.26'},
+  {win:true,  map:'Ascent', score:'13 : 4',  kda:'25 / 6 / 7',   acs:274, kd:4.17, mvp:'game', date:'05.26'},
+  {win:false, map:'Bind',   score:'10 : 13', kda:'13 / 16 / 5',  acs:158, kd:0.81, mvp:null,   date:'05.25'},
+  {win:true,  map:'Split',  score:'13 : 8',  kda:'17 / 11 / 6',  acs:193, kd:1.55, mvp:'team',  date:'05.25'},
+  {win:true,  map:'Lotus',  score:'13 : 6',  kda:'20 / 9 / 5',   acs:222, kd:2.22, mvp:'game', date:'05.24'},
+];
+
+function renderAllMatchList(list) {
+  var box = document.getElementById('allMatchesList');
+  if (!list.length) {
+    box.innerHTML = '<div style="text-align:center;padding:40px;color:var(--muted)">해당하는 경기가 없습니다.</div>';
+    return;
+  }
+  box.innerHTML = list.map(function(m) {
+    var kdColor = m.kd >= 1.5 ? '#f39c12' : m.kd >= 1.0 ? '#e0e0ea' : '#ff4655';
+    var mvpBadge = m.mvp === 'game'
+      ? '<span style="font-size:9px;font-weight:800;color:#f39c12;background:rgba(243,156,18,.12);border:1px solid rgba(243,156,18,.4);border-radius:4px;padding:1px 6px;margin-left:6px;">게임 MVP</span>'
+      : m.mvp === 'team'
+      ? '<span style="font-size:9px;font-weight:800;color:#8891f2;background:rgba(88,101,242,.12);border:1px solid rgba(88,101,242,.4);border-radius:4px;padding:1px 6px;margin-left:6px;">팀 MVP</span>'
+      : '';
+    return '<div style="display:flex;align-items:center;gap:12px;padding:10px 4px;border-bottom:1px solid rgba(255,255,255,.04);">' +
+      '<span style="font-size:10px;color:var(--dim);min-width:36px;text-align:right;">' + m.date + '</span>' +
+      '<span class="tag ' + (m.win ? 'tag-green' : 'tag-red') + '" style="min-width:34px;text-align:center;">' + (m.win ? '승리' : '패배') + '</span>' +
+      '<span style="font-size:12px;font-weight:600;min-width:52px;">' + m.map + '</span>' +
+      '<span style="font-size:12px;color:var(--muted);min-width:56px;">' + m.score + '</span>' +
+      '<span style="font-size:11px;color:var(--muted);flex:1;">K/D/A &nbsp;' + m.kda + '</span>' +
+      '<span style="font-size:12px;font-weight:700;min-width:36px;text-align:right;">ACS <b style="color:#fff">' + m.acs + '</b></span>' +
+      '<span style="font-size:14px;font-weight:800;min-width:36px;text-align:right;color:' + kdColor + ';">' + m.kd.toFixed(2) + '</span>' +
+      mvpBadge +
+    '</div>';
+  }).join('');
+}
+
+function openAllMatches() {
+  renderAllMatchList(ALL_MATCHES);
+  document.getElementById('allMatchesModal').classList.add('open');
+  // 필터 버튼 초기화
+  document.querySelectorAll('#allMatchesModal .filter-btn').forEach(function(b){ b.classList.remove('on'); });
+  document.querySelector('#allMatchesModal .filter-btn').classList.add('on');
+}
+
+function filterMatches(type, btn) {
+  document.querySelectorAll('#allMatchesModal .filter-btn').forEach(function(b){ b.classList.remove('on'); });
+  btn.classList.add('on');
+  var filtered = ALL_MATCHES.filter(function(m) {
+    if (type === 'win')  return m.win;
+    if (type === 'loss') return !m.win;
+    if (type === 'mvp')  return m.mvp;
+    return true;
+  });
+  renderAllMatchList(filtered);
+}
 function searchFor(name) {
   document.getElementById('searchInput').value = name;
   doSearch();
@@ -1171,5 +1234,24 @@ new Chart(document.getElementById('roleChart'), {
   options: { plugins:{legend:{display:true,position:'bottom',labels:{color:'#8888a0',font:{size:10},padding:8}}}, animation:false }
 });
 </script>
+<!-- 전체 경기 전적 모달 -->
+<div class="modal-overlay" id="allMatchesModal" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="modal" style="width:640px;max-width:95vw;max-height:80vh;display:flex;flex-direction:column;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;">
+      <div class="modal-title" style="margin:0">전체 경기 전적</div>
+      <button onclick="document.getElementById('allMatchesModal').classList.remove('open')" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:18px;">✕</button>
+    </div>
+    <!-- 필터 -->
+    <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;">
+      <button class="filter-btn on" onclick="filterMatches('all',this)">전체</button>
+      <button class="filter-btn" onclick="filterMatches('win',this)">승리만</button>
+      <button class="filter-btn" onclick="filterMatches('loss',this)">패배만</button>
+      <button class="filter-btn" onclick="filterMatches('mvp',this)">MVP만</button>
+    </div>
+    <!-- 목록 -->
+    <div id="allMatchesList" style="overflow-y:auto;flex:1;"></div>
+  </div>
+</div>
+
 </body>
 </html>
