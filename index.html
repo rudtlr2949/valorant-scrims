@@ -21,19 +21,19 @@ aside{width:200px;flex-shrink:0;background:var(--sidebar);border-right:1px solid
 .logo-text-top{font-size:13px;font-weight:800;color:#fff;letter-spacing:.06em;line-height:1;}
 .logo-text-bot{font-size:11px;font-weight:700;color:var(--red);letter-spacing:.08em;}
 .logo-sub{font-size:10px;color:var(--dim);margin-top:6px;}
-nav{padding:12px 8px;}
+nav{padding:12px 8px;overflow-y:auto;flex:1;}
 .nav-label{font-size:10px;color:var(--dim);letter-spacing:.1em;font-weight:700;padding:8px 6px 6px;text-transform:uppercase;}
 .nav-item{display:flex;align-items:center;gap:10px;width:100%;padding:9px 14px;margin-bottom:1px;border:none;border-radius:6px;cursor:pointer;background:transparent;color:var(--muted);font-size:13px;font-family:inherit;text-align:left;}
 .nav-item:hover{background:rgba(255,255,255,0.04);color:var(--txt);}
 .nav-item.active{background:var(--red);color:#fff;font-weight:600;}
 .nav-item svg{width:15px;height:15px;flex-shrink:0;opacity:.85;}
-.sidebar-footer{padding:14px 16px;border-top:1px solid var(--border);margin-top:auto;}
+.sidebar-footer{padding:14px 16px;border-top:1px solid var(--border);}
 .online-label{font-size:11px;color:var(--muted);margin-bottom:4px;}
 .online-count{font-size:22px;font-weight:800;color:var(--red);}
 .sparkline-wrap{width:100%;height:28px;margin-top:4px;}
 .discord-btn{width:100%;margin-top:10px;padding:8px 0;background:rgba(88,101,242,.2);border:1px solid rgba(88,101,242,.4);border-radius:6px;color:#8891f2;font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;font-family:inherit;}
 
-/* TOPBAR */
+/* MAIN */
 .main-wrap{flex:1;display:flex;flex-direction:column;overflow:hidden;}
 header{height:54px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;background:var(--bg);border-bottom:1px solid var(--border);flex-shrink:0;}
 .search-box{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:6px;padding:6px 12px;width:240px;}
@@ -44,13 +44,35 @@ header{height:54px;display:flex;align-items:center;justify-content:space-between
 .notif-badge{position:absolute;top:-6px;right:-6px;background:var(--red);color:#fff;border-radius:50%;width:16px;height:16px;font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;}
 .user-chip{display:flex;align-items:center;gap:8px;cursor:pointer;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:6px;padding:5px 12px;}
 .avatar-sm{width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,#3a1a1a,#2a0a0a);display:flex;align-items:center;justify-content:center;font-size:14px;}
-
-/* MAIN */
 main{flex:1;overflow-y:auto;padding:20px 22px;}
 main::-webkit-scrollbar{width:6px;}
 main::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:3px;}
 
-/* HERO */
+/* PAGE SYSTEM */
+.page{display:none;}
+.page.active{display:block;}
+
+/* SHARED COMPONENTS */
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;}
+.card-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border);}
+.card-title{font-size:14px;font-weight:700;}
+.card-link{background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer;font-family:inherit;}
+.page-title{font-size:18px;font-weight:800;margin-bottom:16px;color:#fff;}
+.page-subtitle{font-size:12px;color:var(--muted);margin-bottom:20px;}
+.btn-red{background:var(--red);border:none;color:#fff;font-size:13px;font-weight:700;padding:10px 20px;border-radius:8px;cursor:pointer;font-family:inherit;}
+.btn-outline{background:transparent;border:1px solid var(--border);color:var(--txt);font-size:13px;padding:10px 20px;border-radius:8px;cursor:pointer;font-family:inherit;}
+.btn-outline:hover{background:rgba(255,255,255,.04);}
+.tag{font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px;}
+.tag-green{color:var(--green);background:rgba(63,165,113,.12);}
+.tag-red{color:var(--red);background:rgba(255,70,85,.12);}
+.tag-blue{color:#8891f2;background:rgba(88,101,242,.15);}
+.tag-gray{color:var(--muted);background:rgba(255,255,255,.06);}
+.empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;color:var(--muted);gap:12px;}
+.empty-state svg{width:48px;height:48px;opacity:.3;}
+.empty-state p{font-size:14px;}
+.empty-state span{font-size:12px;color:var(--dim);}
+
+/* PROFILE PAGE */
 .hero{background:linear-gradient(135deg,#18111a 0%,#1a0d0d 60%,#111118 100%);border:1px solid var(--border);border-radius:12px;margin-bottom:18px;overflow:hidden;position:relative;}
 .hero-deco{position:absolute;inset:0;pointer-events:none;overflow:hidden;}
 .hero-deco-line{position:absolute;left:40%;width:4px;height:200%;background:rgba(255,70,85,.07);transform:rotate(20deg);transform-origin:top center;}
@@ -79,16 +101,8 @@ main::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:3px;
 .exp-fill{width:72%;height:100%;background:var(--red);border-radius:2px;}
 .exp-txt{font-size:9px;color:var(--dim);margin-top:3px;}
 .stat-unit{text-align:center;}
-
-/* GRID */
 .content-grid{display:grid;grid-template-columns:1fr 320px;gap:18px;}
 .left-col,.right-col{display:flex;flex-direction:column;gap:18px;}
-.card{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;}
-.card-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border);}
-.card-title{font-size:14px;font-weight:700;}
-.card-link{background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:4px;}
-
-/* MATCHES */
 .match-row{display:flex;align-items:center;gap:14px;padding:10px 20px;border-bottom:1px solid rgba(255,255,255,.04);}
 .match-row:last-child{border-bottom:none;}
 .map-thumb{width:64px;height:40px;border-radius:6px;flex-shrink:0;border:1px solid rgba(255,255,255,.08);overflow:hidden;background:#1a1a2a;display:flex;align-items:center;justify-content:center;}
@@ -96,14 +110,9 @@ main::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:3px;
 .map-thumb-fb{font-size:9px;color:var(--dim);}
 .match-main{flex:1;}
 .match-top{display:flex;align-items:center;gap:10px;margin-bottom:3px;}
-.result-tag{font-size:12px;font-weight:700;padding:2px 6px;border-radius:4px;}
-.result-tag.win{color:var(--green);background:rgba(63,165,113,.12);}
-.result-tag.loss{color:var(--red);background:rgba(255,70,85,.12);}
 .match-map{font-size:12px;font-weight:600;color:#fff;}
 .match-score{font-size:12px;color:var(--muted);}
 .match-sub{font-size:11px;color:var(--muted);}
-
-/* AGENTS */
 .agent-header{display:grid;grid-template-columns:140px 1fr 60px 52px 52px;padding:8px 20px;border-bottom:1px solid rgba(255,255,255,.04);}
 .agent-header span{font-size:10px;color:var(--dim);font-weight:600;text-align:center;}
 .agent-header span:first-child{text-align:left;}
@@ -119,8 +128,6 @@ main::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:3px;
 .bar-fill{height:100%;background:var(--red);border-radius:3px;}
 .bar-pct{font-size:10px;color:var(--muted);min-width:30px;text-align:right;}
 .agent-stat{text-align:center;font-size:12px;font-weight:600;color:#fff;}
-
-/* SUMMARY */
 .summary-pad{padding:18px 18px 14px;}
 .summary-title{font-size:14px;font-weight:700;margin-bottom:14px;}
 .donut-row{display:flex;gap:14px;align-items:center;margin-bottom:14px;}
@@ -134,8 +141,6 @@ main::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:3px;
 .mini-stat-val{font-size:18px;font-weight:800;color:#fff;}
 .mini-stat-val.red{color:var(--red);}
 .mini-stat-note{font-size:9px;color:var(--dim);margin-top:4px;}
-
-/* CHARTS */
 .chart-card-pad{padding:18px 18px 12px;}
 .chart-title-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
 .chart-title{font-size:13px;font-weight:700;}
@@ -144,15 +149,13 @@ main::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:3px;
 .kd-latest-val{font-size:18px;font-weight:800;color:var(--red);}
 .kd-latest-label{font-size:9px;color:var(--dim);}
 .chart-x-labels{display:flex;justify-content:space-around;font-size:9px;color:var(--dim);padding-left:22px;margin-top:2px;}
-
-/* DUO */
 .duo-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
 .duo-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px 14px;}
 .duo-title{font-size:13px;font-weight:700;margin-bottom:12px;}
 .team-info-row{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
 .team-icon{width:34px;height:34px;border-radius:8px;background:rgba(255,255,255,.06);display:flex;align-items:center;justify-content:center;}
 .team-icon svg{width:18px;height:18px;color:var(--muted);}
-.team-name{font-size:12px;font-weight:600;}
+.team-name-txt{font-size:12px;font-weight:600;}
 .team-sub{font-size:10px;color:var(--muted);}
 .find-team-btn{width:100%;padding:8px 0;background:rgba(255,70,85,.15);border:1px solid rgba(255,70,85,.35);border-radius:6px;color:var(--red);font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;}
 .quick-item{display:flex;align-items:center;gap:8px;padding:7px 10px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:7px;cursor:pointer;margin-bottom:7px;width:100%;color:inherit;font-family:inherit;text-align:left;}
@@ -160,18 +163,134 @@ main::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:3px;
 .quick-item svg{width:15px;height:15px;color:var(--muted);flex-shrink:0;}
 .quick-label{font-size:11px;font-weight:600;}
 .quick-sub{font-size:9px;color:var(--muted);}
-
-/* FOOTER */
 .footer{margin-top:20px;padding:10px 0;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
 .footer-brand{font-size:11px;font-weight:700;color:var(--red);}
 .footer-copy{font-size:9px;color:var(--dim);margin-top:2px;}
 .footer-icons{display:flex;gap:14px;}
 .footer-icons svg{width:14px;height:14px;color:var(--dim);cursor:pointer;}
+
+/* SCRIM PAGE */
+.scrim-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px;}
+.scrim-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px;}
+.scrim-card-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.scrim-teams{display:flex;align-items:center;gap:12px;margin-bottom:10px;}
+.scrim-team{display:flex;flex-direction:column;align-items:center;gap:4px;flex:1;}
+.scrim-team-name{font-size:13px;font-weight:700;}
+.scrim-team-tier{font-size:10px;color:var(--muted);}
+.scrim-vs{font-size:14px;font-weight:800;color:var(--dim);}
+.scrim-meta{display:flex;gap:8px;flex-wrap:wrap;}
+.scrim-meta span{font-size:10px;color:var(--muted);}
+.scrim-action{width:100%;margin-top:12px;padding:8px;background:rgba(255,70,85,.1);border:1px solid rgba(255,70,85,.3);border-radius:6px;color:var(--red);font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;}
+.scrim-action:hover{background:rgba(255,70,85,.2);}
+.create-scrim-box{background:var(--card);border:1px dashed rgba(255,70,85,.3);border-radius:12px;padding:28px;display:flex;flex-direction:column;align-items:center;gap:10px;cursor:pointer;}
+.create-scrim-box:hover{background:rgba(255,70,85,.05);}
+.create-scrim-box svg{width:32px;height:32px;color:var(--red);opacity:.7;}
+.create-scrim-box p{font-size:14px;font-weight:700;color:var(--red);}
+.create-scrim-box span{font-size:11px;color:var(--dim);}
+.filter-row{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;}
+.filter-btn{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:20px;color:var(--muted);font-size:11px;padding:5px 14px;cursor:pointer;font-family:inherit;}
+.filter-btn.on{background:rgba(255,70,85,.15);border-color:rgba(255,70,85,.4);color:var(--red);}
+
+/* TEAM PAGE */
+.team-no-team{display:flex;flex-direction:column;align-items:center;padding:40px;gap:16px;background:var(--card);border:1px solid var(--border);border-radius:12px;margin-bottom:20px;}
+.team-no-team svg{width:56px;height:56px;color:var(--dim);opacity:.4;}
+.team-no-team h2{font-size:16px;font-weight:700;}
+.team-no-team p{font-size:12px;color:var(--muted);text-align:center;max-width:280px;}
+.team-btn-row{display:flex;gap:10px;}
+.team-list-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
+.team-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;cursor:pointer;}
+.team-card:hover{border-color:rgba(255,70,85,.3);}
+.team-card-top{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.team-avatar{width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,#1a2035,#0d1520);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+.team-card-name{font-size:13px;font-weight:700;}
+.team-card-tier{font-size:10px;color:var(--muted);}
+.team-card-stats{display:flex;gap:12px;font-size:11px;color:var(--muted);}
+.team-card-stats b{color:var(--txt);font-weight:600;}
+.team-card-tags{display:flex;gap:5px;margin-top:8px;flex-wrap:wrap;}
+
+/* MATCHING PAGE */
+.match-queue-box{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:28px;display:flex;flex-direction:column;align-items:center;gap:14px;margin-bottom:20px;}
+.match-queue-ring{width:100px;height:100px;border-radius:50%;border:3px solid rgba(255,70,85,.2);display:flex;align-items:center;justify-content:center;position:relative;}
+.match-queue-ring.searching{border-color:var(--red);animation:spin 2s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.match-queue-ring-inner{position:absolute;width:80px;height:80px;border-radius:50%;background:rgba(255,70,85,.08);display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--red);font-weight:700;text-align:center;line-height:1.4;}
+.match-settings{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;width:100%;max-width:500px;}
+.match-setting-item{background:rgba(255,255,255,.03);border-radius:8px;padding:12px;text-align:center;}
+.match-setting-label{font-size:10px;color:var(--muted);margin-bottom:6px;}
+.match-setting-val{font-size:14px;font-weight:700;}
+.match-history-row{display:grid;grid-template-columns:80px 1fr 80px 80px 80px;align-items:center;padding:12px 20px;border-bottom:1px solid rgba(255,255,255,.04);gap:10px;}
+.match-history-row:last-child{border-bottom:none;}
+
+/* DATA CENTER PAGE */
+.data-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;}
+.data-stat-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;}
+.data-stat-num{font-size:28px;font-weight:800;color:#fff;margin:6px 0 2px;}
+.data-stat-label{font-size:11px;color:var(--muted);}
+.data-stat-change{font-size:11px;margin-top:4px;}
+.data-stat-change.up{color:var(--green);}
+.data-stat-change.down{color:var(--red);}
+.data-chart-full{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:16px;}
+
+/* SEARCH PAGE */
+.search-bar-big{display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px 18px;margin-bottom:20px;}
+.search-bar-big input{flex:1;background:none;border:none;outline:none;color:var(--txt);font-size:15px;font-family:inherit;}
+.search-bar-big input::placeholder{color:var(--dim);}
+.search-bar-big svg{width:18px;height:18px;color:var(--muted);}
+.search-bar-big button{background:var(--red);border:none;color:#fff;font-size:12px;font-weight:700;padding:7px 16px;border-radius:6px;cursor:pointer;font-family:inherit;}
+.search-result-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px 20px;display:flex;align-items:center;gap:16px;margin-bottom:10px;cursor:pointer;}
+.search-result-card:hover{border-color:rgba(255,70,85,.3);}
+.search-avatar{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#3a1a1a,#1a0a0a);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
+.search-result-name{font-size:14px;font-weight:700;}
+.search-result-tag{font-size:11px;color:var(--muted);}
+.search-result-rank{margin-left:auto;text-align:right;}
+.search-result-rank-name{font-size:13px;font-weight:700;color:#a78bfa;}
+.search-result-rr{font-size:11px;color:var(--muted);}
+.search-recent{margin-bottom:20px;}
+.search-recent-title{font-size:11px;color:var(--muted);margin-bottom:10px;font-weight:600;letter-spacing:.05em;}
+.search-recent-chips{display:flex;gap:8px;flex-wrap:wrap;}
+.search-chip{background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:20px;padding:5px 12px;font-size:11px;color:var(--txt);cursor:pointer;}
+.search-chip:hover{background:rgba(255,255,255,.08);}
+
+/* BOARD PAGE */
+.board-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+.board-row{display:grid;grid-template-columns:50px 1fr 80px 80px 60px;align-items:center;padding:12px 16px;border-bottom:1px solid rgba(255,255,255,.04);cursor:pointer;gap:10px;}
+.board-row:hover{background:rgba(255,255,255,.02);}
+.board-row:last-child{border-bottom:none;}
+.board-num{font-size:11px;color:var(--dim);text-align:center;}
+.board-title-txt{font-size:13px;color:var(--txt);}
+.board-title-txt:hover{color:var(--red);}
+.board-author{font-size:11px;color:var(--muted);}
+.board-date{font-size:11px;color:var(--dim);}
+.board-views{font-size:11px;color:var(--dim);text-align:center;}
+.board-header-row{display:grid;grid-template-columns:50px 1fr 80px 80px 60px;padding:8px 16px;border-bottom:1px solid var(--border);gap:10px;}
+.board-header-row span{font-size:10px;color:var(--dim);font-weight:600;}
+.board-header-row span:last-child{text-align:center;}
+
+/* NOTICE PAGE */
+.notice-item{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px 20px;margin-bottom:10px;cursor:pointer;}
+.notice-item:hover{border-color:rgba(255,70,85,.2);}
+.notice-item.pinned{border-color:rgba(255,70,85,.3);}
+.notice-top{display:flex;align-items:center;gap:10px;margin-bottom:6px;}
+.notice-title{font-size:14px;font-weight:600;}
+.notice-meta{font-size:11px;color:var(--muted);display:flex;gap:12px;}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;z-index:100;display:none;}
+.modal-overlay.open{display:flex;}
+.modal{background:#161620;border:1px solid var(--border);border-radius:14px;padding:28px;width:460px;max-width:90vw;}
+.modal-title{font-size:16px;font-weight:800;margin-bottom:20px;}
+.modal-input-group{margin-bottom:14px;}
+.modal-input-group label{font-size:11px;color:var(--muted);display:block;margin-bottom:5px;font-weight:600;}
+.modal-input-group input,
+.modal-input-group select{width:100%;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:8px;color:var(--txt);font-size:13px;padding:9px 12px;font-family:inherit;outline:none;}
+.modal-input-group input:focus,
+.modal-input-group select:focus{border-color:rgba(255,70,85,.5);}
+.modal-input-group select option{background:#161620;}
+.modal-btn-row{display:flex;gap:10px;justify-content:flex-end;margin-top:20px;}
 </style>
 </head>
 <body>
 
-<!-- SVG 아이콘 스프라이트 -->
 <svg xmlns="http://www.w3.org/2000/svg" style="display:none">
   <symbol id="ic-user" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></symbol>
   <symbol id="ic-shield" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L4 5v6c0 5.5 3.4 10.7 8 12 4.6-1.3 8-6.5 8-12V5l-8-3z"/></symbol>
@@ -196,6 +315,11 @@ main::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:3px;
   <symbol id="ic-discord" viewBox="0 0 24 24" fill="currentColor"><path d="M20.3 4.4a19.8 19.8 0 0 0-4.9-1.5.07.07 0 0 0-.1 0c-.2.4-.4.9-.6 1.3a18.3 18.3 0 0 0-5.5 0 12.6 12.6 0 0 0-.6-1.3.08.08 0 0 0-.1 0 19.7 19.7 0 0 0-4.9 1.5.07.07 0 0 0 0 0C.5 9-.3 13.6.1 18c0 .02.01.04.03.05a19.9 19.9 0 0 0 6 3 .08.08 0 0 0 .08-.03c.46-.63.87-1.3 1.23-2a.08.08 0 0 0-.04-.1 13.1 13.1 0 0 1-1.87-.9.08.08 0 0 1 0-.13c.13-.1.25-.2.37-.3a.07.07 0 0 1 .08-.01c3.93 1.8 8.18 1.8 12.06 0a.07.07 0 0 1 .08.01c.12.1.24.2.37.3a.08.08 0 0 1-.01.13 12.3 12.3 0 0 1-1.87.89.08.08 0 0 0-.04.11c.36.7.77 1.36 1.23 1.99a.08.08 0 0 0 .08.03 19.8 19.8 0 0 0 6-3 .08.08 0 0 0 .03-.05c.5-5.18-.84-9.67-3.55-13.66a.06.06 0 0 0-.03-.02z"/></symbol>
   <symbol id="ic-twitter" viewBox="0 0 24 24" fill="currentColor"><path d="M18.2 2h3.4L14 10.3 23 22h-6.7l-5.2-6.8L4.7 22H1.3l8.2-9L1 2h6.9l4.7 6.2L18.2 2zm-1.2 18h1.9L7 3.9H5L17 20z"/></symbol>
   <symbol id="ic-youtube" viewBox="0 0 24 24" fill="currentColor"><path d="M21.6 7.2s-.2-1.5-.9-2.1c-.8-.9-1.7-.9-2.1-1C16.8 4 12 4 12 4s-4.8 0-6.6.1c-.4 0-1.3.1-2.1 1-.7.6-.9 2.1-.9 2.1S2.2 8.9 2.2 10.6v1.6c0 1.7.2 3.4.2 3.4s.2 1.5.9 2.1c.8.9 1.9.8 2.4.9 1.7.2 7.3.2 7.3.2s4.8 0 6.6-.1c.4 0 1.3-.1 2.1-1 .7-.6.9-2.1.9-2.1s.2-1.7.2-3.4v-1.6c0-1.7-.2-3.4-.2-3.4zm-12.4 7V9.8l5.7 2.2-5.7 2.2z"/></symbol>
+  <symbol id="ic-plus" viewBox="0 0 24 24" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></symbol>
+  <symbol id="ic-edit" viewBox="0 0 24 24" fill="currentColor"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></symbol>
+  <symbol id="ic-pin" viewBox="0 0 24 24" fill="currentColor"><path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z"/></symbol>
+  <symbol id="ic-clock" viewBox="0 0 24 24" fill="currentColor"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67V7z"/></symbol>
+  <symbol id="ic-map" viewBox="0 0 24 24" fill="currentColor"><path d="M20.5 3l-.16.03L15 5.1 9 3 3.36 4.9c-.21.07-.36.25-.36.48V20.5c0 .28.22.5.5.5l.16-.03L9 18.9l6 2.1 5.64-1.9c.21-.07.36-.25.36-.48V3.5c0-.28-.22-.5-.5-.5zM15 19l-6-2.11V5l6 2.11V19z"/></symbol>
 </svg>
 
 <!-- SIDEBAR -->
@@ -214,16 +338,16 @@ main::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:3px;
     <div class="logo-sub">팀 스크림 매칭 플랫폼</div>
   </div>
   <nav>
-    <button class="nav-item active" onclick="setNav(this)"><svg><use href="#ic-user"/></svg>프로필</button>
-    <button class="nav-item" onclick="setNav(this)"><svg><use href="#ic-shield"/></svg>스크림</button>
-    <button class="nav-item" onclick="setNav(this)"><svg><use href="#ic-users"/></svg>나의 팀</button>
-    <button class="nav-item" onclick="setNav(this)"><svg><use href="#ic-arrows"/></svg>매칭</button>
-    <button class="nav-item" onclick="setNav(this)"><svg><use href="#ic-chart"/></svg>데이터 센터</button>
-    <button class="nav-item" onclick="setNav(this)"><svg><use href="#ic-search"/></svg>전적 검색</button>
+    <button class="nav-item active" onclick="goPage('profile',this)"><svg><use href="#ic-user"/></svg>프로필</button>
+    <button class="nav-item" onclick="goPage('scrim',this)"><svg><use href="#ic-shield"/></svg>스크림</button>
+    <button class="nav-item" onclick="goPage('myteam',this)"><svg><use href="#ic-users"/></svg>나의 팀</button>
+    <button class="nav-item" onclick="goPage('match',this)"><svg><use href="#ic-arrows"/></svg>매칭</button>
+    <button class="nav-item" onclick="goPage('data',this)"><svg><use href="#ic-chart"/></svg>데이터 센터</button>
+    <button class="nav-item" onclick="goPage('search',this)"><svg><use href="#ic-search"/></svg>전적 검색</button>
     <div class="nav-label">Community</div>
-    <button class="nav-item" onclick="setNav(this)"><svg><use href="#ic-handshake"/></svg>팀 찾기</button>
-    <button class="nav-item" onclick="setNav(this)"><svg><use href="#ic-comment"/></svg>자유 게시판</button>
-    <button class="nav-item" onclick="setNav(this)"><svg><use href="#ic-bullhorn"/></svg>공지사항</button>
+    <button class="nav-item" onclick="goPage('findteam',this)"><svg><use href="#ic-handshake"/></svg>팀 찾기</button>
+    <button class="nav-item" onclick="goPage('board',this)"><svg><use href="#ic-comment"/></svg>자유 게시판</button>
+    <button class="nav-item" onclick="goPage('notice',this)"><svg><use href="#ic-bullhorn"/></svg>공지사항</button>
   </nav>
   <div class="sidebar-footer">
     <div class="online-label">현재 로그인</div>
@@ -236,7 +360,7 @@ main::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:3px;
 <!-- MAIN -->
 <div class="main-wrap">
   <header>
-    <div class="search-box">
+    <div class="search-box" onclick="goPage('search', document.querySelector('[onclick*=search]'))">
       <svg width="12" height="12" style="color:var(--dim);flex-shrink:0"><use href="#ic-search"/></svg>
       <span>플레이어 검색</span>
       <span class="kbd">Ctrl K</span>
@@ -254,177 +378,548 @@ main::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:3px;
     </div>
   </header>
 
-  <main>
-    <!-- HERO -->
-    <div class="hero">
-      <div class="hero-deco">
-        <div class="hero-deco-line" style="top:-60px"></div>
-        <div class="hero-deco-line" style="top:-20px"></div>
-        <div class="hero-deco-line" style="top:20px"></div>
-        <div class="hero-deco-line" style="top:60px"></div>
-        <div class="hero-deco-line" style="top:100px"></div>
-      </div>
-      <div class="hero-top">
-        <div class="player-info">
-          <div class="avatar-lg">🐹<div class="online-dot"></div></div>
-          <div>
-            <div style="display:flex;align-items:center;gap:10px;margin-bottom:5px;">
-              <span class="player-name">igyeongsig_</span>
-              <span class="valorant-badge">VALORANT Player</span>
-            </div>
-            <div class="player-discord">
-              Discord 연동
-              <svg width="14" height="14" style="color:#2ecc71"><use href="#ic-check-circle"/></svg>
-            </div>
-          </div>
-        </div>
-        <div class="rank-box">
-          <img id="rankIcon" class="rank-icon-img" src="" alt="Diamond 2"/>
-          <div>
-            <div class="rank-name">Diamond 2</div>
-            <div class="rank-rr">26 RR</div>
-          </div>
-          <div class="rank-refresh">
-            최근 갱신<br>14분 전
-            <svg width="11" height="11" style="vertical-align:middle"><use href="#ic-refresh"/></svg>
-          </div>
-        </div>
-      </div>
-      <div class="stats-bar">
-        <div class="stat-cell">
-          <div class="stat-label"><svg><use href="#ic-star"/></svg> 레벨</div>
-          <div class="stat-val">89</div>
-          <div class="exp-bar"><div class="exp-fill"></div></div>
-          <div class="exp-txt">EXP 32,450 / 45,000</div>
-        </div>
-        <div class="stat-cell">
-          <div class="stat-label"><svg><use href="#ic-gamepad"/></svg> 이번시즌 판수(랭크전)</div>
-          <div class="stat-val" id="stat-total">—</div>
-        </div>
-        <div class="stat-cell">
-          <div class="stat-label"><svg><use href="#ic-trophy"/></svg> 승리</div>
-          <div class="stat-val green" id="stat-wins">—</div>
-        </div>
-        <div class="stat-cell">
-          <div class="stat-label"><svg><use href="#ic-skull"/></svg> 패배</div>
-          <div class="stat-val red" id="stat-losses">—</div>
-        </div>
-        <div class="stat-cell">
-          <div class="stat-label"><svg><use href="#ic-percent"/></svg> 승률</div>
-          <div class="stat-val" id="stat-winrate">—</div>
-        </div>
-        <div class="stat-cell right-group">
-          <div class="stat-unit">
-            <div class="stat-label">헤드샷률</div>
-            <div class="stat-val" style="font-size:20px">17%</div>
-          </div>
-          <div class="stat-unit">
-            <div class="stat-label">ACS</div>
-            <div class="stat-val" style="font-size:20px">158</div>
-          </div>
-          <div class="stat-unit">
-            <div class="stat-label">K/D/A</div>
-            <div class="stat-val kda">17.1 / 13.9 / 4.9</div>
-          </div>
-        </div>
-      </div>
-    </div>
+  <main id="mainContent">
 
-    <!-- GRID -->
-    <div class="content-grid">
-      <div class="left-col">
-        <div class="card">
-          <div class="card-header">
-            <span class="card-title">최근 경기 전적</span>
-            <button class="card-link">전체 보기 <svg width="12" height="12"><use href="#ic-chevron-right"/></svg></button>
-          </div>
-          <div id="matchList"></div>
+    <!-- ══════════ PAGE: 프로필 ══════════ -->
+    <div class="page active" id="page-profile">
+      <div class="hero">
+        <div class="hero-deco">
+          <div class="hero-deco-line" style="top:-60px"></div>
+          <div class="hero-deco-line" style="top:-20px"></div>
+          <div class="hero-deco-line" style="top:20px"></div>
+          <div class="hero-deco-line" style="top:60px"></div>
+          <div class="hero-deco-line" style="top:100px"></div>
         </div>
-        <div class="card">
-          <div class="card-header">
-            <span class="card-title">요원 플레이</span>
-            <button class="card-link">전체 보기 <svg width="12" height="12"><use href="#ic-chevron-right"/></svg></button>
+        <div class="hero-top">
+          <div class="player-info">
+            <div class="avatar-lg">🐹<div class="online-dot"></div></div>
+            <div>
+              <div style="display:flex;align-items:center;gap:10px;margin-bottom:5px;">
+                <span class="player-name">igyeongsig_</span>
+                <span class="valorant-badge">VALORANT Player</span>
+              </div>
+              <div class="player-discord">Discord 연동 <svg width="14" height="14" style="color:#2ecc71"><use href="#ic-check-circle"/></svg></div>
+            </div>
           </div>
-          <div class="agent-header">
-            <span>요원</span><span>플레이 비율</span><span>승률</span><span>K/D</span><span>ACS</span>
+          <div class="rank-box">
+            <img id="rankIcon" class="rank-icon-img" src="" alt="Diamond 2"/>
+            <div><div class="rank-name">Diamond 2</div><div class="rank-rr">26 RR</div></div>
+            <div class="rank-refresh">최근 갱신<br>14분 전 <svg width="11" height="11" style="vertical-align:middle"><use href="#ic-refresh"/></svg></div>
           </div>
-          <div id="agentList"></div>
+        </div>
+        <div class="stats-bar">
+          <div class="stat-cell">
+            <div class="stat-label"><svg><use href="#ic-star"/></svg> 레벨</div>
+            <div class="stat-val">89</div>
+            <div class="exp-bar"><div class="exp-fill"></div></div>
+            <div class="exp-txt">EXP 32,450 / 45,000</div>
+          </div>
+          <div class="stat-cell">
+            <div class="stat-label"><svg><use href="#ic-gamepad"/></svg> 이번시즌 판수(랭크전)</div>
+            <div class="stat-val" id="stat-total">—</div>
+          </div>
+          <div class="stat-cell">
+            <div class="stat-label"><svg><use href="#ic-trophy"/></svg> 승리</div>
+            <div class="stat-val green" id="stat-wins">—</div>
+          </div>
+          <div class="stat-cell">
+            <div class="stat-label"><svg><use href="#ic-skull"/></svg> 패배</div>
+            <div class="stat-val red" id="stat-losses">—</div>
+          </div>
+          <div class="stat-cell">
+            <div class="stat-label"><svg><use href="#ic-percent"/></svg> 승률</div>
+            <div class="stat-val" id="stat-winrate">—</div>
+          </div>
+          <div class="stat-cell right-group">
+            <div class="stat-unit"><div class="stat-label">헤드샷률</div><div class="stat-val" style="font-size:20px">17%</div></div>
+            <div class="stat-unit"><div class="stat-label">ACS</div><div class="stat-val" style="font-size:20px">158</div></div>
+            <div class="stat-unit"><div class="stat-label">K/D/A</div><div class="stat-val kda">17.1 / 13.9 / 4.9</div></div>
+          </div>
         </div>
       </div>
-      <div class="right-col">
-        <div class="card">
-          <div class="summary-pad">
-            <div class="summary-title">통계 요약</div>
-            <div class="donut-row">
-              <canvas id="donutChart" width="100" height="100"></canvas>
-              <div class="donut-stats">
-                <div class="donut-stat-row"><span>총 스크림</span><span>20</span></div>
-                <div class="donut-stat-row"><span>승리</span><span>4</span></div>
-                <div class="donut-stat-row"><span>패배</span><span>16</span></div>
-                <div class="donut-stat-row"><span>승률</span><span>20%</span></div>
+      <div class="content-grid">
+        <div class="left-col">
+          <div class="card">
+            <div class="card-header"><span class="card-title">최근 경기 전적</span><button class="card-link">전체 보기 <svg width="12" height="12"><use href="#ic-chevron-right"/></svg></button></div>
+            <div id="matchList"></div>
+          </div>
+          <div class="card">
+            <div class="card-header"><span class="card-title">요원 플레이</span><button class="card-link">전체 보기 <svg width="12" height="12"><use href="#ic-chevron-right"/></svg></button></div>
+            <div class="agent-header"><span>요원</span><span>플레이 비율</span><span>승률</span><span>K/D</span><span>ACS</span></div>
+            <div id="agentList"></div>
+          </div>
+        </div>
+        <div class="right-col">
+          <div class="card">
+            <div class="summary-pad">
+              <div class="summary-title">통계 요약</div>
+              <div class="donut-row">
+                <canvas id="donutChart" width="100" height="100"></canvas>
+                <div class="donut-stats">
+                  <div class="donut-stat-row"><span>총 스크림</span><span>20</span></div>
+                  <div class="donut-stat-row"><span>승리</span><span>4</span></div>
+                  <div class="donut-stat-row"><span>패배</span><span>16</span></div>
+                  <div class="donut-stat-row"><span>승률</span><span>20%</span></div>
+                </div>
+              </div>
+              <div class="mini-stats">
+                <div class="mini-stat"><div class="mini-stat-label">K/D</div><div class="mini-stat-val red">1.23</div><div class="mini-stat-note">최근 20경기 기준</div></div>
+                <div class="mini-stat"><div class="mini-stat-label">헤드샷률</div><div class="mini-stat-val">17%</div><div class="mini-stat-note">최근 20경기 기준</div></div>
+                <div class="mini-stat"><div class="mini-stat-label">ACS</div><div class="mini-stat-val">158</div><div class="mini-stat-note">최근 20경기 기준</div></div>
               </div>
             </div>
-            <div class="mini-stats">
-              <div class="mini-stat"><div class="mini-stat-label">K/D</div><div class="mini-stat-val red">1.23</div><div class="mini-stat-note">최근 20경기 기준</div></div>
-              <div class="mini-stat"><div class="mini-stat-label">헤드샷률</div><div class="mini-stat-val">17%</div><div class="mini-stat-note">최근 20경기 기준</div></div>
-              <div class="mini-stat"><div class="mini-stat-label">ACS</div><div class="mini-stat-val">158</div><div class="mini-stat-note">최근 20경기 기준</div></div>
+          </div>
+          <div class="card chart-card-pad">
+            <div class="chart-title-row"><span class="chart-title">최근 20경기 K/D 추이</span><select class="chart-select"><option>K/D</option><option>ACS</option><option>HS%</option></select></div>
+            <div style="display:flex;align-items:flex-start">
+              <div style="flex:1"><canvas id="kdChart" height="110"></canvas></div>
+              <div class="kd-latest"><div class="kd-latest-val">1.23</div><div class="kd-latest-label">최근 K/D</div></div>
             </div>
+            <div class="chart-x-labels"><span>1</span><span>5</span><span>10</span><span>15</span><span>20</span></div>
           </div>
-        </div>
-        <div class="card chart-card-pad">
-          <div class="chart-title-row">
-            <span class="chart-title">최근 20경기 K/D 추이</span>
-            <select class="chart-select"><option>K/D</option><option>ACS</option><option>HS%</option></select>
+          <div class="card chart-card-pad">
+            <div class="chart-title-row"><span class="chart-title">요일별 통계</span><select class="chart-select"><option>ACS</option></select></div>
+            <canvas id="dayChart" height="110"></canvas>
           </div>
-          <div style="display:flex;align-items:flex-start">
-            <div style="flex:1"><canvas id="kdChart" height="110"></canvas></div>
-            <div class="kd-latest"><div class="kd-latest-val">1.23</div><div class="kd-latest-label">최근 K/D</div></div>
-          </div>
-          <div class="chart-x-labels"><span>1</span><span>5</span><span>10</span><span>15</span><span>20</span></div>
-        </div>
-        <div class="card chart-card-pad">
-          <div class="chart-title-row">
-            <span class="chart-title">요일별 통계</span>
-            <select class="chart-select"><option>ACS</option></select>
-          </div>
-          <canvas id="dayChart" height="110"></canvas>
-        </div>
-        <div class="duo-grid">
-          <div class="duo-card">
-            <div class="duo-title">팀 정보</div>
-            <div class="team-info-row">
-              <div class="team-icon"><svg><use href="#ic-shield"/></svg></div>
-              <div><div class="team-name">Team: 없음</div><div class="team-sub">현재 소속된 팀이 없습니다.</div></div>
+          <div class="duo-grid">
+            <div class="duo-card">
+              <div class="duo-title">팀 정보</div>
+              <div class="team-info-row">
+                <div class="team-icon"><svg><use href="#ic-shield"/></svg></div>
+                <div><div class="team-name-txt">Team: 없음</div><div class="team-sub">현재 소속된 팀이 없습니다.</div></div>
+              </div>
+              <button class="find-team-btn" onclick="goPage('findteam', document.querySelector('[onclick*=findteam]'))">팀 찾기</button>
             </div>
-            <button class="find-team-btn">팀 찾기</button>
-          </div>
-          <div class="duo-card">
-            <div class="duo-title">빠른 실행</div>
-            <button class="quick-item"><svg><use href="#ic-crosshairs"/></svg><div><div class="quick-label">스크림 찾기</div><div class="quick-sub">스크림 매칭 찾기</div></div></button>
-            <button class="quick-item"><svg><use href="#ic-users"/></svg><div><div class="quick-label">팀 찾기</div><div class="quick-sub">팀을 찾고 합류하기</div></div></button>
-            <button class="quick-item"><svg><use href="#ic-search"/></svg><div><div class="quick-label">전적 검색</div><div class="quick-sub">다른 플레이어 검색</div></div></button>
+            <div class="duo-card">
+              <div class="duo-title">빠른 실행</div>
+              <button class="quick-item" onclick="goPage('scrim', document.querySelector('[onclick*=scrim]'))"><svg><use href="#ic-crosshairs"/></svg><div><div class="quick-label">스크림 찾기</div><div class="quick-sub">스크림 매칭 찾기</div></div></button>
+              <button class="quick-item" onclick="goPage('findteam', document.querySelector('[onclick*=findteam]'))"><svg><use href="#ic-users"/></svg><div><div class="quick-label">팀 찾기</div><div class="quick-sub">팀을 찾고 합류하기</div></div></button>
+              <button class="quick-item" onclick="goPage('search', document.querySelector('[onclick*=search]'))"><svg><use href="#ic-search"/></svg><div><div class="quick-label">전적 검색</div><div class="quick-sub">다른 플레이어 검색</div></div></button>
+            </div>
           </div>
         </div>
       </div>
     </div>
 
-    <div class="footer">
-      <div>
-        <div class="footer-brand">VALORANT SCRIMS</div>
-        <div class="footer-copy">© 2024 Scrims Platform</div>
-        <div class="footer-copy">All rights reserved.</div>
+    <!-- ══════════ PAGE: 스크림 ══════════ -->
+    <div class="page" id="page-scrim">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+        <div><div class="page-title" style="margin:0">스크림</div><div style="font-size:12px;color:var(--muted);margin-top:4px">팀 스크림 매칭을 찾거나 직접 만들어보세요</div></div>
+        <button class="btn-red" onclick="document.getElementById('createScrimModal').classList.add('open')"><svg width="14" height="14" style="vertical-align:middle;margin-right:4px"><use href="#ic-plus"/></svg>스크림 만들기</button>
       </div>
-      <div class="footer-icons">
-        <svg><use href="#ic-discord"/></svg>
-        <svg><use href="#ic-twitter"/></svg>
-        <svg><use href="#ic-youtube"/></svg>
+      <div class="filter-row">
+        <button class="filter-btn on">전체</button>
+        <button class="filter-btn">내 티어</button>
+        <button class="filter-btn">5v5</button>
+        <button class="filter-btn">빠른 스크림</button>
+        <button class="filter-btn">팀 있음</button>
+      </div>
+      <div class="scrim-grid">
+        <div class="scrim-card">
+          <div class="scrim-card-top">
+            <span class="tag tag-green">모집 중</span>
+            <span style="font-size:10px;color:var(--dim)">10분 전</span>
+          </div>
+          <div class="scrim-teams">
+            <div class="scrim-team"><div style="font-size:22px">🌀</div><div class="scrim-team-name">Team Alpha</div><div class="scrim-team-tier">다이아 평균</div></div>
+            <div class="scrim-vs">VS</div>
+            <div class="scrim-team"><div style="font-size:22px;opacity:.3">?</div><div class="scrim-team-name" style="color:var(--dim)">상대 팀</div><div class="scrim-team-tier">구인 중</div></div>
+          </div>
+          <div class="scrim-meta">
+            <span>🗺 Ascent / Haven</span>
+            <span>⏰ 오늘 21:00</span>
+            <span>👥 5v5</span>
+          </div>
+          <button class="scrim-action">참가 신청</button>
+        </div>
+        <div class="scrim-card">
+          <div class="scrim-card-top">
+            <span class="tag tag-blue">예정</span>
+            <span style="font-size:10px;color:var(--dim)">30분 전</span>
+          </div>
+          <div class="scrim-teams">
+            <div class="scrim-team"><div style="font-size:22px">⚡</div><div class="scrim-team-name">Thunder5</div><div class="scrim-team-tier">플래티넘 평균</div></div>
+            <div class="scrim-vs">VS</div>
+            <div class="scrim-team"><div style="font-size:22px">🔥</div><div class="scrim-team-name">Phoenix FC</div><div class="scrim-team-tier">플래티넘 평균</div></div>
+          </div>
+          <div class="scrim-meta">
+            <span>🗺 Split / Bind</span>
+            <span>⏰ 오늘 22:00</span>
+            <span>👥 5v5</span>
+          </div>
+          <button class="scrim-action" style="background:rgba(88,101,242,.1);border-color:rgba(88,101,242,.3);color:#8891f2">관전 신청</button>
+        </div>
+        <div class="scrim-card">
+          <div class="scrim-card-top">
+            <span class="tag tag-green">모집 중</span>
+            <span style="font-size:10px;color:var(--dim)">1시간 전</span>
+          </div>
+          <div class="scrim-teams">
+            <div class="scrim-team"><div style="font-size:22px">🛡</div><div class="scrim-team-name">Iron Wall</div><div class="scrim-team-tier">이모탈 평균</div></div>
+            <div class="scrim-vs">VS</div>
+            <div class="scrim-team"><div style="font-size:22px;opacity:.3">?</div><div class="scrim-team-name" style="color:var(--dim)">상대 팀</div><div class="scrim-team-tier">구인 중</div></div>
+          </div>
+          <div class="scrim-meta">
+            <span>🗺 랜덤 맵</span>
+            <span>⏰ 내일 20:00</span>
+            <span>👥 5v5</span>
+          </div>
+          <button class="scrim-action">참가 신청</button>
+        </div>
+        <div class="create-scrim-box" onclick="document.getElementById('createScrimModal').classList.add('open')">
+          <svg><use href="#ic-plus"/></svg>
+          <p>새 스크림 만들기</p>
+          <span>우리 팀의 스크림 상대를 구해보세요</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-title">내 스크림 이력</span></div>
+        <div class="match-history-row" style="border-bottom:1px solid var(--border)">
+          <span style="font-size:10px;color:var(--dim);font-weight:600">결과</span>
+          <span style="font-size:10px;color:var(--dim);font-weight:600">상대 팀</span>
+          <span style="font-size:10px;color:var(--dim);font-weight:600;text-align:center">맵</span>
+          <span style="font-size:10px;color:var(--dim);font-weight:600;text-align:center">스코어</span>
+          <span style="font-size:10px;color:var(--dim);font-weight:600;text-align:center">날짜</span>
+        </div>
+        <div class="match-history-row"><span class="tag tag-green">승리</span><span>Team Beta</span><span style="text-align:center;font-size:12px">Ascent</span><span style="text-align:center;font-size:12px">13 : 8</span><span style="text-align:center;font-size:11px;color:var(--dim)">05.28</span></div>
+        <div class="match-history-row"><span class="tag tag-red">패배</span><span>NightOwls</span><span style="text-align:center;font-size:12px">Split</span><span style="text-align:center;font-size:12px">7 : 13</span><span style="text-align:center;font-size:11px;color:var(--dim)">05.25</span></div>
+        <div class="match-history-row"><span class="tag tag-green">승리</span><span>DustDevils</span><span style="text-align:center;font-size:12px">Haven</span><span style="text-align:center;font-size:12px">13 : 11</span><span style="text-align:center;font-size:11px;color:var(--dim)">05.22</span></div>
       </div>
     </div>
+
+    <!-- ══════════ PAGE: 나의 팀 ══════════ -->
+    <div class="page" id="page-myteam">
+      <div class="page-title">나의 팀</div>
+      <div class="team-no-team">
+        <svg><use href="#ic-users"/></svg>
+        <h2>소속된 팀이 없습니다</h2>
+        <p>팀을 만들거나 기존 팀에 합류하여 스크림 매칭을 시작해보세요</p>
+        <div class="team-btn-row">
+          <button class="btn-red" onclick="document.getElementById('createTeamModal').classList.add('open')">팀 만들기</button>
+          <button class="btn-outline" onclick="goPage('findteam', document.querySelector('[onclick*=findteam]'))">팀 찾기</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-title">팀 관리 기능</span></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;padding:16px;">
+          <div class="mini-stat" style="cursor:pointer" onclick="document.getElementById('createTeamModal').classList.add('open')">
+            <div style="font-size:28px;margin-bottom:8px">🛡</div>
+            <div style="font-size:13px;font-weight:700;margin-bottom:4px">팀 생성</div>
+            <div style="font-size:11px;color:var(--muted)">새 팀을 만들고 멤버를 모집하세요</div>
+          </div>
+          <div class="mini-stat" style="cursor:pointer" onclick="goPage('findteam', document.querySelector('[onclick*=findteam]'))">
+            <div style="font-size:28px;margin-bottom:8px">🔍</div>
+            <div style="font-size:13px;font-weight:700;margin-bottom:4px">팀 합류</div>
+            <div style="font-size:11px;color:var(--muted)">팀 목록에서 마음에 드는 팀에 지원하세요</div>
+          </div>
+          <div class="mini-stat">
+            <div style="font-size:28px;margin-bottom:8px">📋</div>
+            <div style="font-size:13px;font-weight:700;margin-bottom:4px">초대 수락</div>
+            <div style="font-size:11px;color:var(--muted)">받은 팀 초대를 확인하고 수락하세요</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════ PAGE: 매칭 ══════════ -->
+    <div class="page" id="page-match">
+      <div class="page-title">매칭</div>
+      <div class="match-queue-box">
+        <div class="match-queue-ring" id="queueRing">
+          <div class="match-queue-ring-inner" id="queueStatus">매칭 대기 중</div>
+        </div>
+        <div style="font-size:14px;font-weight:700" id="queueText">스크림 상대를 찾을 준비가 됐나요?</div>
+        <div style="font-size:12px;color:var(--muted)">현재 대기 중인 팀: <b style="color:#fff">12팀</b></div>
+        <div class="match-settings">
+          <div class="match-setting-item"><div class="match-setting-label">모드</div><div class="match-setting-val">5v5</div></div>
+          <div class="match-setting-item"><div class="match-setting-label">티어 범위</div><div class="match-setting-val">±1</div></div>
+          <div class="match-setting-item"><div class="match-setting-label">맵 선택</div><div class="match-setting-val">랜덤</div></div>
+        </div>
+        <button class="btn-red" id="queueBtn" onclick="toggleQueue()" style="padding:12px 40px;font-size:14px">매칭 시작</button>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-title">최근 매칭 이력</span></div>
+        <div class="match-history-row" style="border-bottom:1px solid var(--border)">
+          <span style="font-size:10px;color:var(--dim);font-weight:600">결과</span>
+          <span style="font-size:10px;color:var(--dim);font-weight:600">상대 팀</span>
+          <span style="font-size:10px;color:var(--dim);font-weight:600;text-align:center">맵</span>
+          <span style="font-size:10px;color:var(--dim);font-weight:600;text-align:center">스코어</span>
+          <span style="font-size:10px;color:var(--dim);font-weight:600;text-align:center">날짜</span>
+        </div>
+        <div class="match-history-row"><span class="tag tag-green">승리</span><span>WolfPack KR</span><span style="text-align:center;font-size:12px">Lotus</span><span style="text-align:center;font-size:12px">13 : 9</span><span style="text-align:center;font-size:11px;color:var(--dim)">오늘</span></div>
+        <div class="match-history-row"><span class="tag tag-red">패배</span><span>Storm5</span><span style="text-align:center;font-size:12px">Bind</span><span style="text-align:center;font-size:12px">10 : 13</span><span style="text-align:center;font-size:11px;color:var(--dim)">어제</span></div>
+        <div class="match-history-row"><span class="tag tag-green">승리</span><span>Crimson Edge</span><span style="text-align:center;font-size:12px">Ascent</span><span style="text-align:center;font-size:12px">13 : 6</span><span style="text-align:center;font-size:11px;color:var(--dim)">05.29</span></div>
+        <div class="match-history-row"><span class="tag tag-red">패배</span><span>Shadow Ops</span><span style="text-align:center;font-size:12px">Haven</span><span style="text-align:center;font-size:12px">11 : 13</span><span style="text-align:center;font-size:11px;color:var(--dim)">05.28</span></div>
+      </div>
+    </div>
+
+    <!-- ══════════ PAGE: 데이터 센터 ══════════ -->
+    <div class="page" id="page-data">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+        <div class="page-title" style="margin:0">데이터 센터</div>
+        <div style="display:flex;gap:8px">
+          <button class="filter-btn on">이번 시즌</button>
+          <button class="filter-btn">전체</button>
+          <button class="filter-btn">최근 30일</button>
+        </div>
+      </div>
+      <div class="data-grid">
+        <div class="data-stat-card">
+          <div class="data-stat-label">평균 ACS</div>
+          <div class="data-stat-num">214</div>
+          <div class="data-stat-change up">▲ 12.3% 지난 시즌 대비</div>
+        </div>
+        <div class="data-stat-card">
+          <div class="data-stat-label">평균 K/D</div>
+          <div class="data-stat-num">1.42</div>
+          <div class="data-stat-change up">▲ 0.18 지난 시즌 대비</div>
+        </div>
+        <div class="data-stat-card">
+          <div class="data-stat-label">헤드샷률</div>
+          <div class="data-stat-num">24%</div>
+          <div class="data-stat-change down">▼ 2% 지난 시즌 대비</div>
+        </div>
+        <div class="data-stat-card">
+          <div class="data-stat-label">클러치 성공률</div>
+          <div class="data-stat-num">31%</div>
+          <div class="data-stat-change up">▲ 5% 지난 시즌 대비</div>
+        </div>
+      </div>
+      <div class="data-chart-full">
+        <div class="chart-title-row"><span class="chart-title">시즌 K/D 트렌드</span><select class="chart-select"><option>K/D</option><option>ACS</option><option>HS%</option><option>클러치</option></select></div>
+        <canvas id="dataChart" height="140"></canvas>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+        <div class="card" style="padding:16px">
+          <div class="card-title" style="margin-bottom:14px">맵별 승률</div>
+          <div id="mapStatsTable"></div>
+        </div>
+        <div class="card" style="padding:16px">
+          <div class="card-title" style="margin-bottom:14px">역할 분포</div>
+          <canvas id="roleChart" height="160"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════ PAGE: 전적 검색 ══════════ -->
+    <div class="page" id="page-search">
+      <div class="page-title">전적 검색</div>
+      <div class="search-bar-big">
+        <svg><use href="#ic-search"/></svg>
+        <input type="text" id="searchInput" placeholder="닉네임#태그 입력 (예: igyeongsig_#KR1)" onkeydown="if(event.key==='Enter')doSearch()"/>
+        <button onclick="doSearch()">검색</button>
+      </div>
+      <div class="search-recent">
+        <div class="search-recent-title">최근 검색</div>
+        <div class="search-recent-chips">
+          <span class="search-chip" onclick="searchFor('Faker#KR1')">Faker#KR1</span>
+          <span class="search-chip" onclick="searchFor('tenz#TenZ')">tenz#TenZ</span>
+          <span class="search-chip" onclick="searchFor('yay#yay')">yay#yay</span>
+        </div>
+      </div>
+      <div id="searchResults"></div>
+    </div>
+
+    <!-- ══════════ PAGE: 팀 찾기 ══════════ -->
+    <div class="page" id="page-findteam">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+        <div><div class="page-title" style="margin:0">팀 찾기</div><div style="font-size:12px;color:var(--muted);margin-top:4px">마음에 맞는 팀을 찾아 합류하세요</div></div>
+        <button class="btn-red" onclick="document.getElementById('createTeamModal').classList.add('open')"><svg width="14" height="14" style="vertical-align:middle;margin-right:4px"><use href="#ic-plus"/></svg>팀 만들기</button>
+      </div>
+      <div class="filter-row">
+        <button class="filter-btn on">전체 티어</button>
+        <button class="filter-btn">아이언~실버</button>
+        <button class="filter-btn">골드~플래티넘</button>
+        <button class="filter-btn">다이아+</button>
+        <button class="filter-btn">멤버 모집 중</button>
+      </div>
+      <div class="team-list-grid">
+        <div class="team-card">
+          <div class="team-card-top">
+            <div class="team-avatar">🌀</div>
+            <div><div class="team-card-name">Team Alpha</div><div class="team-card-tier">다이아 ~ 이모탈</div></div>
+          </div>
+          <div class="team-card-stats"><span>멤버 <b>4/5</b></span><span>스크림 <b>32</b>회</span><span>승률 <b>62%</b></span></div>
+          <div class="team-card-tags"><span class="tag tag-green">모집 중</span><span class="tag tag-gray">듀얼리스트</span></div>
+        </div>
+        <div class="team-card">
+          <div class="team-card-top">
+            <div class="team-avatar">⚡</div>
+            <div><div class="team-card-name">Thunder5</div><div class="team-card-tier">플래티넘 ~ 다이아</div></div>
+          </div>
+          <div class="team-card-stats"><span>멤버 <b>3/5</b></span><span>스크림 <b>18</b>회</span><span>승률 <b>55%</b></span></div>
+          <div class="team-card-tags"><span class="tag tag-green">모집 중</span><span class="tag tag-gray">센티넬</span><span class="tag tag-gray">이니시에이터</span></div>
+        </div>
+        <div class="team-card">
+          <div class="team-card-top">
+            <div class="team-avatar">🔥</div>
+            <div><div class="team-card-name">Phoenix FC</div><div class="team-card-tier">골드 ~ 플래티넘</div></div>
+          </div>
+          <div class="team-card-stats"><span>멤버 <b>5/5</b></span><span>스크림 <b>45</b>회</span><span>승률 <b>48%</b></span></div>
+          <div class="team-card-tags"><span class="tag tag-red">모집 마감</span></div>
+        </div>
+        <div class="team-card">
+          <div class="team-card-top">
+            <div class="team-avatar">🛡</div>
+            <div><div class="team-card-name">Iron Wall</div><div class="team-card-tier">이모탈 ~ 레디언트</div></div>
+          </div>
+          <div class="team-card-stats"><span>멤버 <b>4/5</b></span><span>스크림 <b>71</b>회</span><span>승률 <b>70%</b></span></div>
+          <div class="team-card-tags"><span class="tag tag-green">모집 중</span><span class="tag tag-gray">컨트롤러</span></div>
+        </div>
+        <div class="team-card">
+          <div class="team-card-top">
+            <div class="team-avatar">🎯</div>
+            <div><div class="team-card-name">Headhunters</div><div class="team-card-tier">실버 ~ 골드</div></div>
+          </div>
+          <div class="team-card-stats"><span>멤버 <b>2/5</b></span><span>스크림 <b>7</b>회</span><span>승률 <b>42%</b></span></div>
+          <div class="team-card-tags"><span class="tag tag-green">모집 중</span><span class="tag tag-gray">전 포지션</span></div>
+        </div>
+        <div class="create-scrim-box" onclick="document.getElementById('createTeamModal').classList.add('open')" style="min-height:120px">
+          <svg><use href="#ic-plus"/></svg>
+          <p>팀 만들기</p>
+          <span>직접 팀을 만들어 멤버를 모집하세요</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════ PAGE: 자유 게시판 ══════════ -->
+    <div class="page" id="page-board">
+      <div class="board-top">
+        <div class="page-title" style="margin:0">자유 게시판</div>
+        <button class="btn-red" onclick="document.getElementById('createPostModal').classList.add('open')"><svg width="14" height="14" style="vertical-align:middle;margin-right:4px"><use href="#ic-edit"/></svg>글쓰기</button>
+      </div>
+      <div class="filter-row">
+        <button class="filter-btn on">전체</button>
+        <button class="filter-btn">공략</button>
+        <button class="filter-btn">팀원 구함</button>
+        <button class="filter-btn">질문</button>
+        <button class="filter-btn">잡담</button>
+      </div>
+      <div class="card">
+        <div class="board-header-row">
+          <span style="text-align:center">번호</span>
+          <span>제목</span>
+          <span>작성자</span>
+          <span>날짜</span>
+          <span>조회</span>
+        </div>
+        <div class="board-row"><span class="board-num">공지</span><span class="board-title-txt"><span class="tag tag-red" style="margin-right:6px">공지</span>스크림 플랫폼 이용 규칙 안내</span><span class="board-author">운영진</span><span class="board-date">05.01</span><span class="board-views">2,341</span></div>
+        <div class="board-row"><span class="board-num">42</span><span class="board-title-txt"><span class="tag tag-blue" style="margin-right:6px">공략</span>다이아 듀오 소환사 구함 (평균 1.4 KD)</span><span class="board-author">igyeongsig_</span><span class="board-date">오늘</span><span class="board-views">128</span></div>
+        <div class="board-row"><span class="board-num">41</span><span class="board-title-txt">Haven 맵 A사이트 공략 정리</span><span class="board-author">ProPlayer99</span><span class="board-date">어제</span><span class="board-views">312</span></div>
+        <div class="board-row"><span class="board-num">40</span><span class="board-title-txt"><span class="tag tag-gray" style="margin-right:6px">질문</span>킬조이 세팅 추천해주세요</span><span class="board-author">newbie123</span><span class="board-date">05.29</span><span class="board-views">95</span></div>
+        <div class="board-row"><span class="board-num">39</span><span class="board-title-txt">이번 패치 소바 너프 어떻게 생각하시나요?</span><span class="board-author">SovaMain</span><span class="board-date">05.28</span><span class="board-views">447</span></div>
+        <div class="board-row"><span class="board-num">38</span><span class="board-title-txt"><span class="tag tag-blue" style="margin-right:6px">팀원</span>[플레~다이아] 5명 풀파티 구합니다</span><span class="board-author">TeamCaptain</span><span class="board-date">05.27</span><span class="board-views">201</span></div>
+        <div class="board-row"><span class="board-num">37</span><span class="board-title-txt">스크림 후기 — Team Alpha vs NightOwls</span><span class="board-author">Alpha_Leader</span><span class="board-date">05.26</span><span class="board-views">334</span></div>
+        <div class="board-row"><span class="board-num">36</span><span class="board-title-txt">Split 리워크 맵 분석글</span><span class="board-author">MapWatcher</span><span class="board-date">05.25</span><span class="board-views">518</span></div>
+      </div>
+    </div>
+
+    <!-- ══════════ PAGE: 공지사항 ══════════ -->
+    <div class="page" id="page-notice">
+      <div class="page-title">공지사항</div>
+      <div class="notice-item pinned">
+        <div class="notice-top">
+          <span class="tag tag-red">필독</span>
+          <svg width="12" height="12" style="color:var(--red)"><use href="#ic-pin"/></svg>
+          <span class="notice-title">VALORANT SCRIMS 플랫폼 이용 규칙</span>
+        </div>
+        <div class="notice-meta"><span>운영팀</span><span>2024.05.01</span><span>조회 4,521</span></div>
+      </div>
+      <div class="notice-item pinned">
+        <div class="notice-top">
+          <span class="tag tag-blue">업데이트</span>
+          <svg width="12" height="12" style="color:var(--red)"><use href="#ic-pin"/></svg>
+          <span class="notice-title">v1.3.0 업데이트 — 에이전트 통계 및 맵 픽/밴 기능 추가</span>
+        </div>
+        <div class="notice-meta"><span>개발팀</span><span>2024.05.20</span><span>조회 2,108</span></div>
+      </div>
+      <div class="notice-item">
+        <div class="notice-top">
+          <span class="tag tag-green">이벤트</span>
+          <span class="notice-title">5월 스크림 토너먼트 참가자 모집</span>
+        </div>
+        <div class="notice-meta"><span>운영팀</span><span>2024.05.15</span><span>조회 1,342</span></div>
+      </div>
+      <div class="notice-item">
+        <div class="notice-top">
+          <span class="tag tag-gray">안내</span>
+          <span class="notice-title">Discord OAuth 연동 방식 변경 안내</span>
+        </div>
+        <div class="notice-meta"><span>개발팀</span><span>2024.05.10</span><span>조회 876</span></div>
+      </div>
+      <div class="notice-item">
+        <div class="notice-top">
+          <span class="tag tag-gray">안내</span>
+          <span class="notice-title">서버 점검 안내 (05.08 새벽 2시~4시)</span>
+        </div>
+        <div class="notice-meta"><span>운영팀</span><span>2024.05.07</span><span>조회 654</span></div>
+      </div>
+      <div class="notice-item">
+        <div class="notice-top">
+          <span class="tag tag-blue">업데이트</span>
+          <span class="notice-title">v1.2.0 업데이트 — KR 지역 티어 인증 버그 수정</span>
+        </div>
+        <div class="notice-meta"><span>개발팀</span><span>2024.05.03</span><span>조회 1,021</span></div>
+      </div>
+    </div>
+
   </main>
 </div>
 
+<!-- MODALS -->
+<div class="modal-overlay" id="createScrimModal" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="modal">
+    <div class="modal-title">🎮 스크림 만들기</div>
+    <div class="modal-input-group"><label>스크림 제목</label><input type="text" placeholder="예: 다이아 팀 스크림 상대 구합니다"></div>
+    <div class="modal-input-group"><label>맵 선택</label>
+      <select><option>랜덤</option><option>Ascent</option><option>Bind</option><option>Haven</option><option>Split</option><option>Lotus</option><option>Sunset</option><option>Icebox</option></select>
+    </div>
+    <div class="modal-input-group"><label>진행 시간</label><input type="datetime-local"></div>
+    <div class="modal-input-group"><label>요구 티어</label>
+      <select><option>제한 없음</option><option>아이언~브론즈</option><option>실버~골드</option><option>플래티넘~다이아</option><option>이모탈~레디언트</option></select>
+    </div>
+    <div class="modal-btn-row">
+      <button class="btn-outline" onclick="document.getElementById('createScrimModal').classList.remove('open')">취소</button>
+      <button class="btn-red" onclick="document.getElementById('createScrimModal').classList.remove('open')">만들기</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="createTeamModal" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="modal">
+    <div class="modal-title">🛡 팀 만들기</div>
+    <div class="modal-input-group"><label>팀 이름</label><input type="text" placeholder="팀 이름을 입력하세요"></div>
+    <div class="modal-input-group"><label>활동 티어</label>
+      <select><option>아이언~브론즈</option><option>실버~골드</option><option>플래티넘~다이아</option><option>이모탈~레디언트</option></select>
+    </div>
+    <div class="modal-input-group"><label>모집 포지션</label>
+      <select><option>전 포지션</option><option>듀얼리스트</option><option>이니시에이터</option><option>컨트롤러</option><option>센티넬</option></select>
+    </div>
+    <div class="modal-input-group"><label>팀 소개</label><input type="text" placeholder="간단한 팀 소개를 입력하세요"></div>
+    <div class="modal-btn-row">
+      <button class="btn-outline" onclick="document.getElementById('createTeamModal').classList.remove('open')">취소</button>
+      <button class="btn-red" onclick="document.getElementById('createTeamModal').classList.remove('open')">만들기</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="createPostModal" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="modal">
+    <div class="modal-title">✏️ 글쓰기</div>
+    <div class="modal-input-group"><label>카테고리</label>
+      <select><option>잡담</option><option>공략</option><option>팀원 구함</option><option>질문</option><option>스크림 후기</option></select>
+    </div>
+    <div class="modal-input-group"><label>제목</label><input type="text" placeholder="제목을 입력하세요"></div>
+    <div class="modal-input-group"><label>내용</label><input type="text" placeholder="내용을 입력하세요" style="height:80px"></div>
+    <div class="modal-btn-row">
+      <button class="btn-outline" onclick="document.getElementById('createPostModal').classList.remove('open')">취소</button>
+      <button class="btn-red" onclick="document.getElementById('createPostModal').classList.remove('open')">등록</button>
+    </div>
+  </div>
+</div>
+
 <script>
-// ── 데이터 ──────────────────────────────────────────────────
+// ── 데이터 ──────────────────────────────────────────────
 var MOCK_MATCHES = [
   {win:true,  map:'Ascent', score:'13 : 7', kda:'21 / 12 / 6', acs:217},
   {win:false, map:'Bind',   score:'8 : 13', kda:'14 / 16 / 4', acs:146},
@@ -440,39 +935,38 @@ var MOCK_AGENTS = [
   {kr:'사이퍼', en:'Cypher',  pct:10, win:0,  kd:0.85, acs:98,  games:2}
 ];
 
-// ── 네비게이션 ───────────────────────────────────────────────
-function setNav(el) {
+// ── 페이지 전환 ─────────────────────────────────────────
+function goPage(id, btn) {
+  document.querySelectorAll('.page').forEach(function(p){ p.classList.remove('active'); });
+  document.getElementById('page-' + id).classList.add('active');
   document.querySelectorAll('.nav-item').forEach(function(b){ b.classList.remove('active'); });
-  el.classList.add('active');
+  if (btn) btn.classList.add('active');
+  document.getElementById('mainContent').scrollTop = 0;
 }
 
-// ── 랭크 통계 ────────────────────────────────────────────────
-var wins = 4, losses = 16;
-var total = wins + losses;
-var winrate = total > 0 ? Math.round(wins / total * 100) : 0;
+// ── 랭크 통계 ────────────────────────────────────────────
+var wins = 4, losses = 16, total = wins + losses;
 document.getElementById('stat-total').textContent   = total;
 document.getElementById('stat-wins').textContent    = wins;
 document.getElementById('stat-losses').textContent  = losses;
-document.getElementById('stat-winrate').textContent = winrate + '%';
+document.getElementById('stat-winrate').textContent = Math.round(wins / total * 100) + '%';
 
-// ── 맵 렌더 ──────────────────────────────────────────────────
+// ── 맵 렌더 ──────────────────────────────────────────────
 function renderMatches(imgDict) {
   imgDict = imgDict || {};
   var ml = document.getElementById('matchList');
   ml.innerHTML = '';
   MOCK_MATCHES.forEach(function(m) {
     var src = imgDict[m.map] || '';
-    var thumbHtml = src
-      ? '<img src="' + src + '" alt="' + m.map + '" style="width:100%;height:100%;object-fit:cover;display:block;" onerror="this.parentElement.innerHTML=\'<span style=font-size:9px;color:#4a4a60>' + m.map + '</span>\'">'
+    var thumb = src
+      ? '<img src="' + src + '" alt="' + m.map + '" style="width:100%;height:100%;object-fit:cover;display:block;" onerror="this.parentElement.innerHTML=\'<span style=\\\"font-size:9px;color:#4a4a60\\\">' + m.map + '</span>\'">'
       : '<span style="font-size:9px;color:#4a4a60">' + m.map + '</span>';
-    var tagClass = m.win ? 'win' : 'loss';
-    var tagText  = m.win ? '승리' : '패배';
     ml.innerHTML +=
       '<div class="match-row">' +
-        '<div class="map-thumb">' + thumbHtml + '</div>' +
+        '<div class="map-thumb">' + thumb + '</div>' +
         '<div class="match-main">' +
           '<div class="match-top">' +
-            '<span class="result-tag ' + tagClass + '">' + tagText + '</span>' +
+            '<span class="tag ' + (m.win ? 'tag-green' : 'tag-red') + '">' + (m.win ? '승리' : '패배') + '</span>' +
             '<span class="match-map">' + m.map + '</span>' +
             '<span class="match-score">' + m.score + '</span>' +
           '</div>' +
@@ -483,26 +977,20 @@ function renderMatches(imgDict) {
 }
 renderMatches();
 
-// ── 에이전트 렌더 ─────────────────────────────────────────────
+// ── 에이전트 렌더 ─────────────────────────────────────────
 function renderAgents(imgDict) {
   imgDict = imgDict || {};
   var al = document.getElementById('agentList');
   al.innerHTML = '';
   MOCK_AGENTS.forEach(function(a) {
     var src = imgDict[a.en.toLowerCase()] || '';
-    var imgHtml = src
-      ? '<img class="agent-portrait" src="' + src + '" alt="' + a.kr + '" onerror="this.style.visibility=\'hidden\'">'
-      : '';
     al.innerHTML +=
       '<div class="agent-row">' +
         '<div class="agent-info">' +
-          imgHtml +
+          (src ? '<img class="agent-portrait" src="' + src + '" alt="' + a.kr + '" onerror="this.style.visibility=\'hidden\'">' : '') +
           '<div><div class="agent-name">' + a.kr + '</div><div class="agent-games">' + a.games + '경기</div></div>' +
         '</div>' +
-        '<div class="bar-wrap">' +
-          '<div class="bar-track"><div class="bar-fill" style="width:' + (a.pct * 3) + '%"></div></div>' +
-          '<span class="bar-pct">' + a.pct + '%</span>' +
-        '</div>' +
+        '<div class="bar-wrap"><div class="bar-track"><div class="bar-fill" style="width:' + (a.pct*3) + '%"></div></div><span class="bar-pct">' + a.pct + '%</span></div>' +
         '<div class="agent-stat">' + a.win + '%</div>' +
         '<div class="agent-stat">' + a.kd + '</div>' +
         '<div class="agent-stat">' + a.acs + '</div>' +
@@ -511,133 +999,165 @@ function renderAgents(imgDict) {
 }
 renderAgents();
 
-// ── 프록시에서 에셋 로드 ──────────────────────────────────────
+// ── 프록시 로드 ───────────────────────────────────────────
 async function loadFromProxy() {
-  // 맵 이미지
   try {
     var r1 = await fetch('/api/valo-assets?type=maps');
-    if (!r1.ok) throw new Error(r1.status);
+    if (!r1.ok) throw 0;
     var j1 = await r1.json();
-    var mapDict = {};
-    j1.data.forEach(function(m) {
-      if (m.displayName && m.splash) mapDict[m.displayName] = m.splash;
-    });
-    renderMatches(mapDict);
-  } catch(e) { console.warn('map 실패', e); }
-
-  // 에이전트 초상화
+    var d = {};
+    j1.data.forEach(function(m){ if(m.displayName && m.splash) d[m.displayName] = m.splash; });
+    renderMatches(d);
+  } catch(e){}
   try {
     var r2 = await fetch('/api/valo-assets?type=agents');
-    if (!r2.ok) throw new Error(r2.status);
+    if (!r2.ok) throw 0;
     var j2 = await r2.json();
-    var agentDict = {};
-    j2.data.forEach(function(a) {
-      if (a.displayName && a.displayIconSmall) agentDict[a.displayName.toLowerCase()] = a.displayIconSmall;
-    });
-    renderAgents(agentDict);
-  } catch(e) { console.warn('agent 실패', e); }
-
-  // 랭크 아이콘
+    var d2 = {};
+    j2.data.forEach(function(a){ if(a.displayName && a.displayIconSmall) d2[a.displayName.toLowerCase()] = a.displayIconSmall; });
+    renderAgents(d2);
+  } catch(e){}
   try {
     var r3 = await fetch('/api/valo-assets?type=tiers');
-    if (!r3.ok) throw new Error(r3.status);
+    if (!r3.ok) throw 0;
     var j3 = await r3.json();
     var latest = j3.data[j3.data.length - 1];
-    var d2 = latest.tiers.find(function(t) { return t.tier === 19; });
-    if (d2 && d2.largeIcon) document.getElementById('rankIcon').src = d2.largeIcon;
-  } catch(e) { console.warn('rank 실패', e); }
+    var d2t = latest.tiers.find(function(t){ return t.tier === 19; });
+    if (d2t && d2t.largeIcon) document.getElementById('rankIcon').src = d2t.largeIcon;
+  } catch(e){}
 }
 loadFromProxy();
 
-// ── 스파크라인 ────────────────────────────────────────────────
+// ── 매칭 토글 ────────────────────────────────────────────
+var inQueue = false;
+var queueTimer = null;
+var queueSec = 0;
+function toggleQueue() {
+  inQueue = !inQueue;
+  var btn = document.getElementById('queueBtn');
+  var ring = document.getElementById('queueRing');
+  var status = document.getElementById('queueStatus');
+  var text = document.getElementById('queueText');
+  if (inQueue) {
+    btn.textContent = '매칭 취소';
+    btn.style.background = 'rgba(255,70,85,.15)';
+    btn.style.border = '1px solid rgba(255,70,85,.35)';
+    btn.style.color = 'var(--red)';
+    ring.classList.add('searching');
+    queueSec = 0;
+    queueTimer = setInterval(function(){
+      queueSec++;
+      var m = String(Math.floor(queueSec/60)).padStart(2,'0');
+      var s = String(queueSec%60).padStart(2,'0');
+      status.innerHTML = '대기 중<br>' + m + ':' + s;
+      text.textContent = '상대 팀을 탐색 중입니다...';
+    }, 1000);
+  } else {
+    btn.textContent = '매칭 시작';
+    btn.style.background = '';
+    btn.style.border = '';
+    btn.style.color = '';
+    ring.classList.remove('searching');
+    status.textContent = '매칭 대기 중';
+    text.textContent = '스크림 상대를 찾을 준비가 됐나요?';
+    clearInterval(queueTimer);
+  }
+}
+
+// ── 전적 검색 ─────────────────────────────────────────────
+function searchFor(name) {
+  document.getElementById('searchInput').value = name;
+  doSearch();
+}
+function doSearch() {
+  var q = document.getElementById('searchInput').value.trim();
+  var box = document.getElementById('searchResults');
+  if (!q) { box.innerHTML = ''; return; }
+  var results = [
+    {name: q, acs: 214, kd: 1.42, rank: 'Diamond 2', rr: '26 RR'},
+    {name: q.split('#')[0] + '_alt', acs: 178, kd: 1.11, rank: 'Platinum 3', rr: '88 RR'},
+  ];
+  box.innerHTML = results.map(function(r){
+    return '<div class="search-result-card">' +
+      '<div class="search-avatar">🐹</div>' +
+      '<div>' +
+        '<div class="search-result-name">' + r.name + '</div>' +
+        '<div class="search-result-tag">ACS ' + r.acs + ' · K/D ' + r.kd + '</div>' +
+      '</div>' +
+      '<div class="search-result-rank">' +
+        '<div class="search-result-rank-name">' + r.rank + '</div>' +
+        '<div class="search-result-rr">' + r.rr + '</div>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+document.addEventListener('keydown', function(e){
+  if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+    e.preventDefault();
+    goPage('search', document.querySelector('[onclick*="search"]'));
+    setTimeout(function(){ document.getElementById('searchInput').focus(); }, 100);
+  }
+});
+
+// ── 데이터 센터 맵 통계 ───────────────────────────────────
+var mapStats = [
+  {map:'Ascent', win:68, played:22, kd:1.54},
+  {map:'Haven',  win:61, played:18, kd:1.38},
+  {map:'Lotus',  win:55, played:11, kd:1.21},
+  {map:'Split',  win:42, played:14, kd:1.05},
+  {map:'Bind',   win:38, played:13, kd:0.92},
+];
+var mst = document.getElementById('mapStatsTable');
+if (mst) {
+  mst.innerHTML = mapStats.map(function(m){
+    var color = m.win >= 55 ? '#3fa571' : m.win < 45 ? '#ff4655' : '#e0e0ea';
+    return '<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.04)">' +
+      '<span style="font-size:12px;font-weight:600">' + m.map + '</span>' +
+      '<span style="font-size:11px;color:var(--muted)">' + m.played + '판</span>' +
+      '<div style="flex:1;margin:0 12px;height:4px;background:rgba(255,255,255,.08);border-radius:2px">' +
+        '<div style="width:' + m.win + '%;height:100%;background:' + color + ';border-radius:2px"></div>' +
+      '</div>' +
+      '<span style="font-size:12px;font-weight:700;color:' + color + '">' + m.win + '%</span>' +
+    '</div>';
+  }).join('');
+}
+
+// ── CHARTS ────────────────────────────────────────────────
 new Chart(document.getElementById('onlineChart'), {
   type: 'line',
-  data: {
-    labels: [0,1,2,3,4,5,6,7,8,9],
-    datasets: [{
-      data: [820,900,860,1050,980,1120,1050,1200,1180,1248],
-      borderColor: '#ff4655', borderWidth: 1.5,
-      pointRadius: 0, fill: true,
-      backgroundColor: 'rgba(255,70,85,0.12)', tension: 0.4
-    }]
-  },
-  options: {
-    plugins: { legend: { display: false }, tooltip: { enabled: false } },
-    scales: { x: { display: false }, y: { display: false } },
-    animation: false, responsive: false, maintainAspectRatio: false
-  }
+  data: { labels:[0,1,2,3,4,5,6,7,8,9], datasets:[{ data:[820,900,860,1050,980,1120,1050,1200,1180,1248], borderColor:'#ff4655', borderWidth:1.5, pointRadius:0, fill:true, backgroundColor:'rgba(255,70,85,0.12)', tension:0.4 }] },
+  options: { plugins:{legend:{display:false},tooltip:{enabled:false}}, scales:{x:{display:false},y:{display:false}}, animation:false, responsive:false, maintainAspectRatio:false }
 });
 
-// ── 도넛 ──────────────────────────────────────────────────────
 new Chart(document.getElementById('donutChart'), {
   type: 'doughnut',
-  data: {
-    datasets: [{
-      data: [20, 80],
-      backgroundColor: ['#ff4655', 'rgba(255,255,255,0.07)'],
-      borderWidth: 0, cutout: '72%'
-    }]
-  },
-  options: { plugins: { legend: { display: false }, tooltip: { enabled: false } }, animation: false },
-  plugins: [{
-    id: 'lbl',
-    afterDraw: function(c) {
-      var ctx = c.ctx;
-      var ca = c.chartArea;
-      var cx = ca.left + ca.width / 2;
-      var cy = ca.top + ca.height / 2;
-      ctx.save();
-      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-      ctx.font = 'bold 16px "Noto Sans KR",sans-serif';
-      ctx.fillStyle = '#fff'; ctx.fillText('20%', cx, cy - 7);
-      ctx.font = '10px "Noto Sans KR",sans-serif';
-      ctx.fillStyle = '#8888a0'; ctx.fillText('승률', cx, cy + 10);
-      ctx.restore();
-    }
-  }]
+  data: { datasets:[{ data:[20,80], backgroundColor:['#ff4655','rgba(255,255,255,0.07)'], borderWidth:0, cutout:'72%' }] },
+  options: { plugins:{legend:{display:false},tooltip:{enabled:false}}, animation:false },
+  plugins: [{ id:'lbl', afterDraw:function(c){ var ctx=c.ctx,ca=c.chartArea,cx=ca.left+ca.width/2,cy=ca.top+ca.height/2; ctx.save(); ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.font='bold 16px "Noto Sans KR",sans-serif'; ctx.fillStyle='#fff'; ctx.fillText('20%',cx,cy-7); ctx.font='10px "Noto Sans KR",sans-serif'; ctx.fillStyle='#8888a0'; ctx.fillText('승률',cx,cy+10); ctx.restore(); } }]
 });
 
-// ── K/D 라인 ─────────────────────────────────────────────────
 new Chart(document.getElementById('kdChart'), {
   type: 'line',
-  data: {
-    labels: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20],
-    datasets: [{
-      data: [1.1,0.9,1.4,1.2,0.8,1.6,1.3,1.0,1.5,1.2,0.9,1.4,1.1,1.3,0.7,1.5,1.2,1.0,1.3,1.23],
-      borderColor: '#ff4655', borderWidth: 2,
-      pointRadius: 2, pointBackgroundColor: '#ff4655',
-      fill: false, tension: 0.3
-    }]
-  },
-  options: {
-    plugins: { legend: { display: false }, tooltip: { callbacks: { label: function(c){ return 'K/D: ' + c.parsed.y; } } } },
-    scales: {
-      x: { display: false },
-      y: { min: 0, max: 2.5, ticks: { color: '#4a4a60', font: { size: 8 } }, grid: { color: 'rgba(255,255,255,0.05)' }, border: { display: false } }
-    },
-    animation: false, responsive: true, maintainAspectRatio: false
-  }
+  data: { labels:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20], datasets:[{ data:[1.1,0.9,1.4,1.2,0.8,1.6,1.3,1.0,1.5,1.2,0.9,1.4,1.1,1.3,0.7,1.5,1.2,1.0,1.3,1.23], borderColor:'#ff4655', borderWidth:2, pointRadius:2, pointBackgroundColor:'#ff4655', fill:false, tension:0.3 }] },
+  options: { plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return 'K/D: '+c.parsed.y;}}}}, scales:{x:{display:false},y:{min:0,max:2.5,ticks:{color:'#4a4a60',font:{size:8}},grid:{color:'rgba(255,255,255,0.05)'},border:{display:false}}}, animation:false, responsive:true, maintainAspectRatio:false }
 });
 
-// ── 요일 바 ──────────────────────────────────────────────────
 new Chart(document.getElementById('dayChart'), {
   type: 'bar',
-  data: {
-    labels: ['월','화','수','목','금','토','일'],
-    datasets: [{
-      data: [142,156,171,165,148,172,161],
-      backgroundColor: ['rgba(255,70,85,0.35)','rgba(255,70,85,0.35)','rgba(255,70,85,0.35)','rgba(255,70,85,0.35)','rgba(255,70,85,0.35)','#ff4655','rgba(255,70,85,0.35)'],
-      borderRadius: 3, borderSkipped: false
-    }]
-  },
-  options: {
-    plugins: { legend: { display: false }, tooltip: { callbacks: { label: function(c){ return 'ACS: ' + c.parsed.y; } } } },
-    scales: {
-      x: { ticks: { color: '#8888a0', font: { size: 10 } }, grid: { display: false }, border: { display: false } },
-      y: { display: false, min: 100, max: 200 }
-    },
-    animation: false, responsive: true, maintainAspectRatio: false
-  }
+  data: { labels:['월','화','수','목','금','토','일'], datasets:[{ data:[142,156,171,165,148,172,161], backgroundColor:['rgba(255,70,85,0.35)','rgba(255,70,85,0.35)','rgba(255,70,85,0.35)','rgba(255,70,85,0.35)','rgba(255,70,85,0.35)','#ff4655','rgba(255,70,85,0.35)'], borderRadius:3, borderSkipped:false }] },
+  options: { plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return 'ACS: '+c.parsed.y;}}}}, scales:{x:{ticks:{color:'#8888a0',font:{size:10}},grid:{display:false},border:{display:false}},y:{display:false,min:100,max:200}}, animation:false, responsive:true, maintainAspectRatio:false }
+});
+
+new Chart(document.getElementById('dataChart'), {
+  type: 'line',
+  data: { labels:['1월','2월','3월','4월','5월'], datasets:[ { label:'K/D', data:[1.1,1.2,1.3,1.38,1.42], borderColor:'#ff4655', borderWidth:2, pointRadius:3, pointBackgroundColor:'#ff4655', fill:false, tension:0.3 }, { label:'ACS', data:[185,192,198,207,214], borderColor:'#8891f2', borderWidth:2, pointRadius:3, pointBackgroundColor:'#8891f2', fill:false, tension:0.3, yAxisID:'y2' } ] },
+  options: { plugins:{legend:{display:true,labels:{color:'#8888a0',font:{size:11}}}}, scales:{ x:{ticks:{color:'#8888a0'},grid:{color:'rgba(255,255,255,0.05)'},border:{display:false}}, y:{ticks:{color:'#4a4a60',font:{size:8}},grid:{color:'rgba(255,255,255,0.05)'},border:{display:false},min:0,max:2}, y2:{position:'right',ticks:{color:'#4a4a60',font:{size:8}},grid:{display:false},border:{display:false},min:150,max:250} }, animation:false, responsive:true, maintainAspectRatio:false }
+});
+
+new Chart(document.getElementById('roleChart'), {
+  type: 'doughnut',
+  data: { labels:['듀얼리스트','센티넬','이니시에이터','컨트롤러'], datasets:[{ data:[55,10,20,15], backgroundColor:['#ff4655','#8891f2','#3fa571','#f39c12'], borderWidth:0, cutout:'60%' }] },
+  options: { plugins:{legend:{display:true,position:'bottom',labels:{color:'#8888a0',font:{size:10},padding:8}}}, animation:false }
 });
 </script>
 </body>
