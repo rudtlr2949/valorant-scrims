@@ -963,9 +963,9 @@ function renderMatches(imgDict) {
       : '';
     var kdColor = m.kd >= 1.5 ? '#f39c12' : m.kd >= 1.0 ? '#e0e0ea' : '#ff4655';
     var mvpBadge = m.mvp === 'game'
-      ? '<span style="font-size:10px;font-weight:800;color:#f39c12;background:rgba(243,156,18,.12);border:1px solid rgba(243,156,18,.4);border-radius:4px;padding:1px 7px;margin-left:6px;">🏆 게임 MVP</span>'
+      ? '<span style="font-size:10px;font-weight:800;color:#f39c12;background:rgba(243,156,18,.12);border:1px solid rgba(243,156,18,.4);border-radius:4px;padding:1px 7px;margin-left:6px;">게임 MVP</span>'
       : m.mvp === 'team'
-      ? '<span style="font-size:10px;font-weight:800;color:#8891f2;background:rgba(88,101,242,.12);border:1px solid rgba(88,101,242,.4);border-radius:4px;padding:1px 7px;margin-left:6px;">⭐ 팀 MVP</span>'
+      ? '<span style="font-size:10px;font-weight:800;color:#8891f2;background:rgba(88,101,242,.12);border:1px solid rgba(88,101,242,.4);border-radius:4px;padding:1px 7px;margin-left:6px;">팀 MVP</span>'
       : '';
     ml.innerHTML +=
       '<div class="match-row">' +
