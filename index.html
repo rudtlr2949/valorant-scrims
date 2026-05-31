@@ -298,20 +298,20 @@ const MOCK_AGENTS = [
           <div class="exp-txt">EXP 32,450 / 45,000</div>
         </div>
         <div class="stat-cell">
-          <div class="stat-label"><svg><use href="#ic-gamepad"/></svg> 총 스크림</div>
-          <div class="stat-val">20</div>
+          <div class="stat-label"><svg><use href="#ic-gamepad"/></svg> 이번시즌 판수(랭크전)</div>
+          <div class="stat-val" id="stat-total">—</div>
         </div>
         <div class="stat-cell">
-          <div class="stat-label"><svg><use href="#ic-trophy"/></svg> 스크림 승리</div>
-          <div class="stat-val green">4</div>
+          <div class="stat-label"><svg><use href="#ic-trophy"/></svg> 승리</div>
+          <div class="stat-val green" id="stat-wins">—</div>
         </div>
         <div class="stat-cell">
-          <div class="stat-label"><svg><use href="#ic-skull"/></svg> 스크림 패배</div>
-          <div class="stat-val red">16</div>
+          <div class="stat-label"><svg><use href="#ic-skull"/></svg> 패배</div>
+          <div class="stat-val red" id="stat-losses">—</div>
         </div>
         <div class="stat-cell">
           <div class="stat-label"><svg><use href="#ic-percent"/></svg> 승률</div>
-          <div class="stat-val">20%</div>
+          <div class="stat-val" id="stat-winrate">—</div>
         </div>
         <div class="stat-cell right-group">
           <div class="stat-unit"><div class="stat-label">헤드샷률</div><div class="stat-val" style="font-size:20px">17%</div></div>
@@ -414,7 +414,17 @@ const MOCK_AGENTS = [
 </div>
 
 <script>
-function setNav(el){
+/* ── 이번시즌 랭크 통계 계산 ── */
+function renderRankedStats(wins, losses){
+  const total   = wins + losses;
+  const winrate = total > 0 ? Math.round(wins / total * 100) : 0;
+  document.getElementById('stat-total').textContent   = total;
+  document.getElementById('stat-wins').textContent    = wins;
+  document.getElementById('stat-losses').textContent  = losses;
+  document.getElementById('stat-winrate').textContent = winrate + '%';
+}
+// 목 데이터: 실제 API 연동 시 wins/losses 값만 교체하면 됨
+renderRankedStats(4, 16);
   document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
   el.classList.add('active');
 }
