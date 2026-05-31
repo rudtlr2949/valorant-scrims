@@ -921,11 +921,11 @@ main::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:3px;
 <script>
 // ── 데이터 ──────────────────────────────────────────────
 var MOCK_MATCHES = [
-  {win:true,  map:'Ascent', score:'13 : 7', kda:'21 / 12 / 6', acs:217},
-  {win:false, map:'Bind',   score:'8 : 13', kda:'14 / 16 / 4', acs:146},
-  {win:true,  map:'Haven',  score:'13 : 9', kda:'20 / 11 / 7', acs:201},
-  {win:false, map:'Split',  score:'6 : 13', kda:'9 / 15 / 3',  acs:98},
-  {win:true,  map:'Lotus',  score:'13 : 5', kda:'23 / 7 / 5',  acs:256}
+  {win:true,  map:'Ascent', score:'13 : 7', kda:'21 / 12 / 6', acs:217, kd:1.75, mvp:true},
+  {win:false, map:'Bind',   score:'8 : 13', kda:'14 / 16 / 4', acs:146, kd:0.88, mvp:false},
+  {win:true,  map:'Haven',  score:'13 : 9', kda:'20 / 11 / 7', acs:201, kd:1.82, mvp:true},
+  {win:false, map:'Split',  score:'6 : 13', kda:'9 / 15 / 3',  acs:98,  kd:0.60, mvp:false},
+  {win:true,  map:'Lotus',  score:'13 : 5', kda:'23 / 7 / 5',  acs:256, kd:3.29, mvp:true}
 ];
 var MOCK_AGENTS = [
   {kr:'제트',   en:'Jett',    pct:30, win:50, kd:1.41, acs:182, games:6},
@@ -961,6 +961,10 @@ function renderMatches(imgDict) {
     var thumb = src
       ? '<img src="' + src + '" alt="" style="width:100%;height:100%;object-fit:cover;display:block;" onerror="this.style.display=\'none\'">'
       : '';
+    var kdColor = m.kd >= 1.5 ? '#f39c12' : m.kd >= 1.0 ? '#e0e0ea' : '#ff4655';
+    var mvpBadge = m.mvp
+      ? '<span style="font-size:10px;font-weight:800;color:#f39c12;background:rgba(243,156,18,.12);border:1px solid rgba(243,156,18,.35);border-radius:4px;padding:1px 6px;margin-left:6px;">MVP</span>'
+      : '';
     ml.innerHTML +=
       '<div class="match-row">' +
         '<div class="map-thumb">' + thumb + '</div>' +
@@ -969,8 +973,13 @@ function renderMatches(imgDict) {
             '<span class="tag ' + (m.win ? 'tag-green' : 'tag-red') + '">' + (m.win ? '승리' : '패배') + '</span>' +
             '<span class="match-map">' + m.map + '</span>' +
             '<span class="match-score">' + m.score + '</span>' +
+            mvpBadge +
           '</div>' +
           '<div class="match-sub">K/D/A &nbsp;' + m.kda + '&nbsp;&nbsp; ACS &nbsp;<b style="color:#fff">' + m.acs + '</b></div>' +
+        '</div>' +
+        '<div style="text-align:right;flex-shrink:0;padding-left:16px;">' +
+          '<div style="font-size:10px;color:var(--muted);margin-bottom:3px;">맵 K/D</div>' +
+          '<div style="font-size:16px;font-weight:800;color:' + kdColor + '">' + m.kd.toFixed(2) + '</div>' +
         '</div>' +
       '</div>';
   });
