@@ -353,7 +353,7 @@ main::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:3px;
     <div class="online-label">현재 로그인</div>
     <div class="online-count">1,248명</div>
     <div class="sparkline-wrap"><canvas id="onlineChart" width="160" height="28"></canvas></div>
-    <button class="discord-btn"><svg width="16" height="16"><use href="#ic-discord"/></svg>Discord 연동</button>
+    <button class="discord-btn" onclick="discordLogin()"><svg width="16" height="16"><use href="#ic-discord"/></svg>Discord 연동</button>
   </div>
 </aside>
 
@@ -1140,6 +1140,18 @@ function filterMatches(type, btn) {
   });
   renderAllMatchList(filtered);
 }
+// ── Discord 로그인 ────────────────────────────────────────────
+function discordLogin() {
+  var w = 500, h = 700;
+  var left = (screen.width - w) / 2;
+  var top  = (screen.height - h) / 2;
+  window.open(
+    '/api/auth-login',
+    'discord-login',
+    'width=' + w + ',height=' + h + ',left=' + left + ',top=' + top
+  );
+}
+
 // ── 유저 정보 로드 ────────────────────────────────────────────
 function applyUserUI(name, avatarHtml) {
   var avatarSm = document.querySelector('.user-chip .avatar-sm');
