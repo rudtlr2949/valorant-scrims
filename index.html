@@ -942,6 +942,7 @@ function goPage(id, btn) {
   document.querySelectorAll('.nav-item').forEach(function(b){ b.classList.remove('active'); });
   if (btn) btn.classList.add('active');
   document.getElementById('mainContent').scrollTop = 0;
+  if (id === 'data') initDataCharts();
 }
 
 // ── 랭크 통계 ────────────────────────────────────────────
@@ -1243,17 +1244,25 @@ new Chart(document.getElementById('dayChart'), {
   options: { plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return 'ACS: '+c.parsed.y;}}}}, scales:{x:{ticks:{color:'#8888a0',font:{size:10}},grid:{display:false},border:{display:false}},y:{display:false,min:100,max:200}}, animation:false, responsive:true, maintainAspectRatio:false }
 });
 
-new Chart(document.getElementById('dataChart'), {
-  type: 'line',
-  data: { labels:['1월','2월','3월','4월','5월'], datasets:[ { label:'K/D', data:[1.1,1.2,1.3,1.38,1.42], borderColor:'#ff4655', borderWidth:2, pointRadius:3, pointBackgroundColor:'#ff4655', fill:false, tension:0.3 }, { label:'ACS', data:[185,192,198,207,214], borderColor:'#8891f2', borderWidth:2, pointRadius:3, pointBackgroundColor:'#8891f2', fill:false, tension:0.3, yAxisID:'y2' } ] },
-  options: { plugins:{legend:{display:true,labels:{color:'#8888a0',font:{size:11}}}}, scales:{ x:{ticks:{color:'#8888a0'},grid:{color:'rgba(255,255,255,0.05)'},border:{display:false}}, y:{ticks:{color:'#4a4a60',font:{size:8}},grid:{color:'rgba(255,255,255,0.05)'},border:{display:false},min:0,max:2}, y2:{position:'right',ticks:{color:'#4a4a60',font:{size:8}},grid:{display:false},border:{display:false},min:150,max:250} }, animation:false, responsive:true, maintainAspectRatio:false }
-});
+// ── 데이터 센터 차트: 해당 페이지 진입 시에만 생성 (lazy) ──
+var dataChartInited = false;
+function initDataCharts() {
+  if (dataChartInited) return;
+  dataChartInited = true;
+  new Chart(document.getElementById('dataChart'), {
+    type: 'line',
+    data: { labels:['1월','2월','3월','4월','5월'], datasets:[ { label:'K/D', data:[1.1,1.2,1.3,1.38,1.42], borderColor:'#ff4655', borderWidth:2, pointRadius:3, pointBackgroundColor:'#ff4655', fill:false, tension:0.3 }, { label:'ACS', data:[185,192,198,207,214], borderColor:'#8891f2', borderWidth:2, pointRadius:3, pointBackgroundColor:'#8891f2', fill:false, tension:0.3, yAxisID:'y2' } ] },
+    options: { plugins:{legend:{display:true,labels:{color:'#8888a0',font:{size:11}}}}, scales:{ x:{ticks:{color:'#8888a0'},grid:{color:'rgba(255,255,255,0.05)'},border:{display:false}}, y:{ticks:{color:'#4a4a60',font:{size:8}},grid:{color:'rgba(255,255,255,0.05)'},border:{display:false},min:0,max:2}, y2:{position:'right',ticks:{color:'#4a4a60',font:{size:8}},grid:{display:false},border:{display:false},min:150,max:250} }, animation:false, responsive:true, maintainAspectRatio:false }
+  });
+  new Chart(document.getElementById('roleChart'), {
+    type: 'doughnut',
+    data: { labels:['듀얼리스트','센티넬','이니시에이터','컨트롤러'], datasets:[{ data:[55,10,20,15], backgroundColor:['#ff4655','#8891f2','#3fa571','#f39c12'], borderWidth:0, cutout:'60%' }] },
+    options: { plugins:{legend:{display:true,position:'bottom',labels:{color:'#8888a0',font:{size:10},padding:8}}}, animation:false }
+  });
+}
 
-new Chart(document.getElementById('roleChart'), {
-  type: 'doughnut',
-  data: { labels:['듀얼리스트','센티넬','이니시에이터','컨트롤러'], datasets:[{ data:[55,10,20,15], backgroundColor:['#ff4655','#8891f2','#3fa571','#f39c12'], borderWidth:0, cutout:'60%' }] },
-  options: { plugins:{legend:{display:true,position:'bottom',labels:{color:'#8888a0',font:{size:10},padding:8}}}, animation:false }
-});
+// ── 프록시 로드: 페이지 인터랙티브 후 순차 실행 ─────────────
+setTimeout(loadFromProxy, 300);
 </script>
 <!-- 전체 경기 전적 모달 -->
 <div class="modal-overlay" id="allMatchesModal" onclick="if(event.target===this)this.classList.remove('open')">
