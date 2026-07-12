@@ -1140,6 +1140,34 @@ function filterMatches(type, btn) {
   });
   renderAllMatchList(filtered);
 }
+// ── Discord 유저 정보 로드 ────────────────────────────────────
+async function loadMe() {
+  try {
+    var r = await fetch('/api/me');
+    if (!r.ok) return;
+    var user = await r.json();
+    var name   = user.username || 'igyeongsig_';
+    var avatar = user.avatar   || '';
+
+    // 헤더 유저칩
+    var avatarSm = document.querySelector('.user-chip .avatar-sm');
+    if (avatarSm) avatarSm.innerHTML = avatar
+      ? '<img src="' + avatar + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">'
+      : '🐹';
+    var chipName = document.querySelector('.user-chip span');
+    if (chipName) chipName.textContent = name;
+
+    // 히어로 아바타 + 닉네임
+    var heroAvatar = document.querySelector('.avatar-lg');
+    if (heroAvatar) heroAvatar.innerHTML = (avatar
+      ? '<img src="' + avatar + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">'
+      : '🐹') + '<div class="online-dot"></div>';
+    var playerName = document.querySelector('.player-name');
+    if (playerName) playerName.textContent = name;
+  } catch(e) {}
+}
+loadMe();
+
 function searchFor(name) {
   document.getElementById('searchInput').value = name;
   doSearch();
