@@ -1141,13 +1141,14 @@ function filterMatches(type, btn) {
   renderAllMatchList(filtered);
 }
 // ── Discord 유저 정보 로드 ────────────────────────────────────
-async function loadMe() {
+function loadMe() {
   try {
-    var r = await fetch('/api/me');
-    if (!r.ok) return;
-    var user = await r.json();
-    var name   = user.username || 'igyeongsig_';
-    var avatar = user.avatar   || '';
+    var stored = localStorage.getItem('currentUser');
+    if (!stored) return;
+    var user = JSON.parse(stored);
+
+    var name   = user.name   || user.username || 'igyeongsig_';
+    var avatar = user.avatar || '';
 
     // 헤더 유저칩
     var avatarSm = document.querySelector('.user-chip .avatar-sm');
@@ -1164,9 +1165,18 @@ async function loadMe() {
       : '🐹') + '<div class="online-dot"></div>';
     var playerName = document.querySelector('.player-name');
     if (playerName) playerName.textContent = name;
+
   } catch(e) {}
 }
 loadMe();
+
+// Discord 팝업 로그인 완료 시 자동 업데이트
+window.addEventListener('message', function(e) {
+  if (e.data && e.data.type === 'DISCORD_LOGIN_SUCCESS') {
+    localStorage.setItem('currentUser', JSON.stringify(e.data.user));
+    loadMe();
+  }
+});
 
 function searchFor(name) {
   document.getElementById('searchInput').value = name;
