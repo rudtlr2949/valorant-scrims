@@ -371,8 +371,8 @@ main::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:3px;
         <div class="notif-badge">3</div>
       </div>
       <div class="user-chip">
-        <div class="avatar-sm">🐹</div>
-        <span>igyeongsig_</span>
+        <div class="avatar-sm"></div>
+        <span>로딩 중...</span>
         <svg width="12" height="12" style="color:var(--dim)"><use href="#ic-chevron-down"/></svg>
       </div>
     </div>
@@ -392,10 +392,10 @@ main::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:3px;
         </div>
         <div class="hero-top">
           <div class="player-info">
-            <div class="avatar-lg">🐹<div class="online-dot"></div></div>
+            <div class="avatar-lg"><div class="online-dot"></div></div>
             <div>
               <div style="display:flex;align-items:center;gap:10px;margin-bottom:5px;">
-                <span class="player-name">igyeongsig_</span>
+                <span class="player-name"></span>
                 <span class="valorant-badge">VALORANT Player</span>
               </div>
               <div class="player-discord">Discord 연동 <svg width="14" height="14" style="color:#2ecc71"><use href="#ic-check-circle"/></svg></div>
@@ -1155,38 +1155,45 @@ function applyUserUI(name, avatarHtml) {
 async function loadMe() {
   try {
     var token = localStorage.getItem('discordToken');
-    if (!token) return;
 
-    var r = await fetch('/api/me?token=' + encodeURIComponent(token));
-    if (!r.ok) return;
-    var me = await r.json();
+    if (token) {
+      var r = await fetch('/api/me?token=' + encodeURIComponent(token));
+      if (r.ok) {
+        var me = await r.json();
 
-    // Riot 연동 완료 → 발로란트 닉네임 + 플레이어 카드
-    if (me.riotName) {
-      var name = me.riotName + ' #' + me.riotTag;
-      var avatarHtml = me.riotCard
-        ? '<img src="' + me.riotCard + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">'
-        : '🐹';
-      applyUserUI(name, avatarHtml);
+        // Riot 연동 완료 → 발로란트 닉네임 + 플레이어 카드
+        if (me.riotName) {
+          var name = me.riotName + ' #' + me.riotTag;
+          var avatarHtml = me.riotCard
+            ? '<img src="' + me.riotCard + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">'
+            : '<span style="font-size:20px">🎮</span>';
+          applyUserUI(name, avatarHtml);
+          if (me.riotTier) { var rn = document.querySelector('.rank-name'); if (rn) rn.textContent = me.riotTier; }
+          if (me.riotRR !== null) { var rr = document.querySelector('.rank-rr'); if (rr) rr.textContent = me.riotRR + ' RR'; }
+          return;
+        }
 
-      // 랭크 정보도 업데이트
-      if (me.riotTier) {
-        var rankName = document.querySelector('.rank-name');
-        if (rankName) rankName.textContent = me.riotTier;
+        // Riot 미연동 → Discord 닉네임 + 아이콘
+        var name2 = me.discordName || 'Player';
+        var avatarHtml2 = me.discordAvatar
+          ? '<img src="' + me.discordAvatar + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">'
+          : '<span style="font-size:20px">👤</span>';
+        applyUserUI(name2, avatarHtml2);
+        return;
       }
-      if (me.riotRR !== null) {
-        var rankRr = document.querySelector('.rank-rr');
-        if (rankRr) rankRr.textContent = me.riotRR + ' RR';
-      }
-      return;
     }
 
-    // Riot 미연동 → Discord 닉네임 + 아이콘
-    var name2 = me.discordName || 'Player';
-    var avatarHtml2 = me.discordAvatar
-      ? '<img src="' + me.discordAvatar + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">'
-      : '🐹';
-    applyUserUI(name2, avatarHtml2);
+    // 토큰 없을 때 — localStorage currentUser 로 fallback
+    var stored = localStorage.getItem('currentUser');
+    if (stored) {
+      var user = JSON.parse(stored);
+      var name3 = user.name || user.username || 'Player';
+      var avatar3 = user.avatar || '';
+      var avatarHtml3 = avatar3
+        ? '<img src="' + avatar3 + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">'
+        : '<span style="font-size:20px">👤</span>';
+      applyUserUI(name3, avatarHtml3);
+    }
 
   } catch(e) {}
 }
