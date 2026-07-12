@@ -1140,15 +1140,12 @@ function filterMatches(type, btn) {
   });
   renderAllMatchList(filtered);
 }
-// ── Discord/Riot 유저 정보 로드 ───────────────────────────────
+// ── 유저 정보 로드 ────────────────────────────────────────────
 function applyUserUI(name, avatarHtml) {
-  // 헤더 유저칩
   var avatarSm = document.querySelector('.user-chip .avatar-sm');
   if (avatarSm) avatarSm.innerHTML = avatarHtml;
   var chipName = document.querySelector('.user-chip span');
   if (chipName) chipName.textContent = name;
-
-  // 히어로 아바타 + 닉네임
   var heroAvatar = document.querySelector('.avatar-lg');
   if (heroAvatar) heroAvatar.innerHTML = avatarHtml + '<div class="online-dot"></div>';
   var playerName = document.querySelector('.player-name');
@@ -1157,49 +1154,39 @@ function applyUserUI(name, avatarHtml) {
 
 async function loadMe() {
   try {
-    // 1) Riot 데이터 우선 (pendingRiotData or currentUser에 포함)
-    var riotRaw = localStorage.getItem('pendingRiotData');
-    var riotData = riotRaw ? JSON.parse(riotRaw) : null;
+    var token = localStorage.getItem('discordToken');
+    if (!token) return;
 
-    // currentUser에 riotData가 포함된 경우도 체크
-    if (!riotData) {
-      var userRaw = localStorage.getItem('currentUser');
-      if (userRaw) {
-        var u = JSON.parse(userRaw);
-        if (u.riotName) riotData = { name: u.riotName, tag: u.riotTag };
+    var r = await fetch('/api/me?token=' + encodeURIComponent(token));
+    if (!r.ok) return;
+    var me = await r.json();
+
+    // Riot 연동 완료 → 발로란트 닉네임 + 플레이어 카드
+    if (me.riotName) {
+      var name = me.riotName + ' #' + me.riotTag;
+      var avatarHtml = me.riotCard
+        ? '<img src="' + me.riotCard + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">'
+        : '🐹';
+      applyUserUI(name, avatarHtml);
+
+      // 랭크 정보도 업데이트
+      if (me.riotTier) {
+        var rankName = document.querySelector('.rank-name');
+        if (rankName) rankName.textContent = me.riotTier;
       }
-    }
-
-    if (riotData && riotData.name && riotData.tag) {
-      // 2) Henrik API 프록시로 플레이어 카드 조회
-      try {
-        var r = await fetch('/api/riot-profile?name=' + encodeURIComponent(riotData.name) + '&tag=' + encodeURIComponent(riotData.tag));
-        if (r.ok) {
-          var profile = await r.json();
-          var card = profile.cardSmall || '';
-          var avatarHtml = card
-            ? '<img src="' + card + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">'
-            : '🐹';
-          applyUserUI(profile.name + ' #' + profile.tag, avatarHtml);
-          return;
-        }
-      } catch(e) {}
-
-      // Henrik 실패 시 이름만 적용
-      applyUserUI(riotData.name + ' #' + riotData.tag, '🐹');
+      if (me.riotRR !== null) {
+        var rankRr = document.querySelector('.rank-rr');
+        if (rankRr) rankRr.textContent = me.riotRR + ' RR';
+      }
       return;
     }
 
-    // 3) Riot 없으면 Discord 정보 fallback
-    var stored = localStorage.getItem('currentUser');
-    if (!stored) return;
-    var user = JSON.parse(stored);
-    var name   = user.name || user.username || 'igyeongsig_';
-    var avatar = user.avatar || '';
-    var avatarHtml = avatar
-      ? '<img src="' + avatar + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">'
+    // Riot 미연동 → Discord 닉네임 + 아이콘
+    var name2 = me.discordName || 'Player';
+    var avatarHtml2 = me.discordAvatar
+      ? '<img src="' + me.discordAvatar + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">'
       : '🐹';
-    applyUserUI(name, avatarHtml);
+    applyUserUI(name2, avatarHtml2);
 
   } catch(e) {}
 }
@@ -1209,6 +1196,7 @@ loadMe();
 window.addEventListener('message', function(e) {
   if (e.data && e.data.type === 'DISCORD_LOGIN_SUCCESS') {
     localStorage.setItem('currentUser', JSON.stringify(e.data.user));
+    localStorage.setItem('discordToken', e.data.token);
     if (e.data.riotData) localStorage.setItem('pendingRiotData', JSON.stringify(e.data.riotData));
     loadMe();
   }
