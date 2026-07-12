@@ -1153,49 +1153,47 @@ function applyUserUI(name, avatarHtml) {
 }
 
 async function loadMe() {
-  try {
-    var token = localStorage.getItem('discordToken');
+  // STEP 1: localStorage에서 직접 읽기 (API 불필요)
+  var riotRaw  = localStorage.getItem('pendingRiotData');
+  var userRaw  = localStorage.getItem('currentUser');
 
-    if (token) {
-      var r = await fetch('/api/me?token=' + encodeURIComponent(token));
+  var riotData = null;
+  var userData = null;
+  try { if (riotRaw) riotData = JSON.parse(riotRaw); } catch(e) {}
+  try { if (userRaw) userData = JSON.parse(userRaw); } catch(e) {}
+
+  // STEP 2: 표시할 이름 결정
+  //   Riot 연동 → "닉네임#태그"
+  //   Discord만  → Discord 닉네임
+  var displayName = '';
+  if (riotData && riotData.name) {
+    displayName = riotData.name + ' #' + (riotData.tag || '');
+  } else if (userData) {
+    displayName = userData.name || userData.username || '';
+  }
+
+  // STEP 3: 아바타 — Discord CDN 이미지 바로 사용
+  var avatarUrl = (userData && userData.avatar) ? userData.avatar : '';
+  var avatarHtml = avatarUrl
+    ? '<img src="' + avatarUrl + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" onerror="this.parentElement.innerHTML=\'<span style=font-size:20px>👤</span>\'">'
+    : '<span style="font-size:20px">👤</span>';
+
+  // 이름·아바타 먼저 적용 (플레이어 카드 로딩 전 빠르게 보여주기)
+  if (displayName) applyUserUI(displayName, avatarHtml);
+
+  // STEP 4: Riot 연동 시 플레이어 카드 이미지 추가 로드
+  if (riotData && riotData.name && riotData.tag) {
+    try {
+      var r = await fetch('/api/riot-profile?name=' + encodeURIComponent(riotData.name) + '&tag=' + encodeURIComponent(riotData.tag));
       if (r.ok) {
-        var me = await r.json();
-
-        // Riot 연동 완료 → 발로란트 닉네임 + 플레이어 카드
-        if (me.riotName) {
-          var name = me.riotName + ' #' + me.riotTag;
-          var avatarHtml = me.riotCard
-            ? '<img src="' + me.riotCard + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">'
-            : '<span style="font-size:20px">🎮</span>';
-          applyUserUI(name, avatarHtml);
-          if (me.riotTier) { var rn = document.querySelector('.rank-name'); if (rn) rn.textContent = me.riotTier; }
-          if (me.riotRR !== null) { var rr = document.querySelector('.rank-rr'); if (rr) rr.textContent = me.riotRR + ' RR'; }
-          return;
+        var profile = await r.json();
+        if (profile.cardSmall) {
+          var cardHtml = '<img src="' + profile.cardSmall + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" onerror="this.parentElement.innerHTML=\'<span style=font-size:20px>👤</span>\'">';
+          applyUserUI(displayName, cardHtml);
         }
-
-        // Riot 미연동 → Discord 닉네임 + 아이콘
-        var name2 = me.discordName || 'Player';
-        var avatarHtml2 = me.discordAvatar
-          ? '<img src="' + me.discordAvatar + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">'
-          : '<span style="font-size:20px">👤</span>';
-        applyUserUI(name2, avatarHtml2);
-        return;
       }
-    }
-
-    // 토큰 없을 때 — localStorage currentUser 로 fallback
-    var stored = localStorage.getItem('currentUser');
-    if (stored) {
-      var user = JSON.parse(stored);
-      var name3 = user.name || user.username || 'Player';
-      var avatar3 = user.avatar || '';
-      var avatarHtml3 = avatar3
-        ? '<img src="' + avatar3 + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">'
-        : '<span style="font-size:20px">👤</span>';
-      applyUserUI(name3, avatarHtml3);
-    }
-
-  } catch(e) {}
+    } catch(e) {}
+  }
 }
 loadMe();
 
