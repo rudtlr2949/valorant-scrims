@@ -169,6 +169,34 @@ main::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:3px;
 .footer-icons{display:flex;gap:14px;}
 .footer-icons svg{width:14px;height:14px;color:var(--dim);cursor:pointer;}
 
+/* MAP STATS TABLE */
+.map-row td{padding:10px 8px;border-bottom:1px solid rgba(255,255,255,.04);vertical-align:middle;text-align:center;}
+.map-row td:first-child{text-align:left;padding-left:14px;}
+.map-row td:last-child{text-align:left;padding-right:14px;}
+.map-row:last-child td{border-bottom:none;}
+.map-row:hover td{background:rgba(255,255,255,.02);}
+.map-thumb-sm{width:52px;height:32px;border-radius:4px;object-fit:cover;vertical-align:middle;margin-right:8px;border:1px solid rgba(255,255,255,.08);}
+.map-name-cell{display:flex;align-items:center;gap:8px;white-space:nowrap;}
+.expand-btn{background:none;border:1px solid var(--border);color:var(--muted);cursor:pointer;font-size:10px;padding:2px 8px;border-radius:4px;}
+.expand-btn:hover{background:rgba(255,255,255,.06);}
+.atk-bg{background:rgba(255,70,85,.04);}
+.def-bg{background:rgba(63,165,113,.04);}
+.win-num{color:#4fc3f7;font-weight:700;}
+.loss-num{color:#ff7043;font-weight:700;}
+.pct-good{color:#3fa571;font-weight:700;}
+.pct-mid{color:#f39c12;font-weight:700;}
+.pct-bad{color:#ff4655;font-weight:700;}
+.pct-none{color:var(--dim);}
+.agent-comp{display:flex;align-items:center;gap:3px;margin-bottom:4px;}
+.agent-comp:last-child{margin-bottom:0;}
+.agent-comp img{width:22px;height:22px;border-radius:50%;border:1px solid rgba(255,255,255,.15);object-fit:cover;background:rgba(255,255,255,.05);}
+.comp-label{font-size:10px;color:var(--dim);min-width:22px;}
+.expand-row td{padding:0!important;border-bottom:1px solid rgba(255,255,255,.04);}
+.expand-inner{max-height:0;overflow:hidden;transition:max-height .25s ease;}
+.expand-inner.open{max-height:300px;}
+.expand-detail{padding:14px 16px;background:rgba(255,255,255,.02);}
+.expand-comp-title{font-size:10px;color:var(--muted);font-weight:600;margin-bottom:8px;letter-spacing:.05em;}
+
 /* SCRIM PAGE */
 .scrim-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px;}
 .scrim-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px;}
@@ -658,46 +686,41 @@ main::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:3px;
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
         <div class="page-title" style="margin:0">데이터 센터</div>
         <div style="display:flex;gap:8px">
-          <button class="filter-btn on">이번 시즌</button>
-          <button class="filter-btn">전체</button>
-          <button class="filter-btn">최근 30일</button>
+          <button class="filter-btn on" onclick="filterDataSeason('this',this)">이번 시즌</button>
+          <button class="filter-btn" onclick="filterDataSeason('all',this)">전체</button>
         </div>
       </div>
-      <div class="data-grid">
-        <div class="data-stat-card">
-          <div class="data-stat-label">평균 ACS</div>
-          <div class="data-stat-num">214</div>
-          <div class="data-stat-change up">▲ 12.3% 지난 시즌 대비</div>
-        </div>
-        <div class="data-stat-card">
-          <div class="data-stat-label">평균 K/D</div>
-          <div class="data-stat-num">1.42</div>
-          <div class="data-stat-change up">▲ 0.18 지난 시즌 대비</div>
-        </div>
-        <div class="data-stat-card">
-          <div class="data-stat-label">헤드샷률</div>
-          <div class="data-stat-num">24%</div>
-          <div class="data-stat-change down">▼ 2% 지난 시즌 대비</div>
-        </div>
-        <div class="data-stat-card">
-          <div class="data-stat-label">클러치 성공률</div>
-          <div class="data-stat-num">31%</div>
-          <div class="data-stat-change up">▲ 5% 지난 시즌 대비</div>
-        </div>
+
+      <!-- 요약 스탯 -->
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px;">
+        <div class="data-stat-card"><div class="data-stat-label">평균 ACS</div><div class="data-stat-num">214</div><div class="data-stat-change up">▲ 12.3%</div></div>
+        <div class="data-stat-card"><div class="data-stat-label">평균 K/D</div><div class="data-stat-num">1.42</div><div class="data-stat-change up">▲ 0.18</div></div>
+        <div class="data-stat-card"><div class="data-stat-label">헤드샷률</div><div class="data-stat-num">24%</div><div class="data-stat-change down">▼ 2%</div></div>
+        <div class="data-stat-card"><div class="data-stat-label">클러치</div><div class="data-stat-num">31%</div><div class="data-stat-change up">▲ 5%</div></div>
       </div>
-      <div class="data-chart-full">
-        <div class="chart-title-row"><span class="chart-title">시즌 K/D 트렌드</span><select class="chart-select"><option>K/D</option><option>ACS</option><option>HS%</option><option>클러치</option></select></div>
-        <canvas id="dataChart" height="140"></canvas>
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
-        <div class="card" style="padding:16px">
-          <div class="card-title" style="margin-bottom:14px">맵별 승률</div>
-          <div id="mapStatsTable"></div>
-        </div>
-        <div class="card" style="padding:16px">
-          <div class="card-title" style="margin-bottom:14px">역할 분포</div>
-          <canvas id="roleChart" height="160"></canvas>
-        </div>
+
+      <!-- 맵 통계 테이블 -->
+      <div class="card" style="overflow:auto;">
+        <table id="mapStatsTable" style="width:100%;border-collapse:collapse;font-size:12px;">
+          <thead>
+            <tr style="border-bottom:1px solid var(--border);">
+              <th style="padding:10px 14px;text-align:left;color:var(--muted);font-weight:600;white-space:nowrap;min-width:160px;">MAP (#)</th>
+              <th style="padding:10px 8px;color:var(--muted);font-weight:600;text-align:center;">WIN%</th>
+              <th style="padding:10px 8px;color:#4fc3f7;font-weight:600;text-align:center;">W</th>
+              <th style="padding:10px 8px;color:#ff7043;font-weight:600;text-align:center;">L</th>
+              <th style="padding:10px 8px;color:var(--muted);font-weight:600;text-align:center;">ATK 1ST</th>
+              <th style="padding:10px 8px;color:var(--muted);font-weight:600;text-align:center;">DEF 1ST</th>
+              <th style="padding:10px 8px;background:rgba(255,70,85,.12);color:var(--red);font-weight:700;text-align:center;white-space:nowrap;">ATK RWIN%</th>
+              <th style="padding:10px 8px;background:rgba(255,70,85,.08);color:#ff8a80;font-weight:600;text-align:center;">RW</th>
+              <th style="padding:10px 8px;background:rgba(255,70,85,.08);color:#ff8a80;font-weight:600;text-align:center;">RL</th>
+              <th style="padding:10px 8px;background:rgba(63,165,113,.12);color:#3fa571;font-weight:700;text-align:center;white-space:nowrap;">DEF RWIN%</th>
+              <th style="padding:10px 8px;background:rgba(63,165,113,.08);color:#69c79a;font-weight:600;text-align:center;">RW</th>
+              <th style="padding:10px 8px;background:rgba(63,165,113,.08);color:#69c79a;font-weight:600;text-align:center;">RL</th>
+              <th style="padding:10px 14px;color:var(--muted);font-weight:600;text-align:left;min-width:200px;">AGENT COMPOSITIONS</th>
+            </tr>
+          </thead>
+          <tbody id="mapTableBody"></tbody>
+        </table>
       </div>
     </div>
 
@@ -1254,7 +1277,148 @@ document.addEventListener('keydown', function(e){
   }
 });
 
-// ── 데이터 센터 맵 통계 ───────────────────────────────────
+// ── 데이터 센터 맵 통계 테이블 ───────────────────────────────
+var MA = 'https://media.valorant-api.com';
+
+var MAP_DATA = [
+  {name:'Bind',    games:0,  w:0, l:0, atk1:0, def1:0, atkRwin:null,  atkRw:0,  atkRl:0,  defRwin:null,  defRw:0,  defRl:0,  comps:[], mapId:'2c9d57ec-4431-9c5e-2939-8f9ef6dd5cba'},
+  {name:'Haven',   games:3,  w:1, l:2, atk1:2, def1:1, atkRwin:42,    atkRw:13, atkRl:18, defRwin:55,    defRw:16, defRl:13, comps:[
+    ['add6443a-41bd-e414-f6ad-e58d267f4e95','320b2a48-4d9b-a075-30f1-1f93a9b638fa','41fb69c1-4189-7b37-f117-bcaf1e96f1bf','117ed9e3-49f3-6512-3ccf-0cada7e3823b','1e58de9c-4950-5125-93e9-a0aee9f98746'],
+    ['a3bfb853-43b2-7238-a4f1-ad90e9e46bcc','320b2a48-4d9b-a075-30f1-1f93a9b638fa','41fb69c1-4189-7b37-f117-bcaf1e96f1bf','117ed9e3-49f3-6512-3ccf-0cada7e3823b','569fdd95-4d10-43ab-ca70-79becc718b46'],
+  ], mapId:'2bee0dc9-4ffe-519b-1cbd-7fbe763a6047'},
+  {name:'Split',   games:4,  w:2, l:2, atk1:3, def1:1, atkRwin:61,    atkRw:28, atkRl:18, defRwin:47,    defRw:16, defRl:18, comps:[
+    ['add6443a-41bd-e414-f6ad-e58d267f4e95','6f2a04ca-43e0-4a99-9300-37a3a7d63e46','41fb69c1-4189-7b37-f117-bcaf1e96f1bf','1e58de9c-4950-5125-93e9-a0aee9f98746','117ed9e3-49f3-6512-3ccf-0cada7e3823b'],
+  ], mapId:'d960549e-485c-e861-8d71-aa9d1aed12a2'},
+  {name:'Ascent',  games:5,  w:5, l:0, atk1:4, def1:1, atkRwin:62,    atkRw:38, atkRl:23, defRwin:78,    defRw:28, defRl:8,  comps:[
+    ['add6443a-41bd-e414-f6ad-e58d267f4e95','320b2a48-4d9b-a075-30f1-1f93a9b638fa','6f2a04ca-43e0-4a99-9300-37a3a7d63e46','22697a3d-45bf-8dd7-4fec-84a9e28c69d4','9f0d8ba9-4140-b941-57d3-a7ad57c6b417'],
+  ], mapId:'7eaecc1b-4337-bbf6-6ab9-04b8f06b3319'},
+  {name:'Icebox',  games:0,  w:0, l:0, atk1:0, def1:0, atkRwin:null,  atkRw:0,  atkRl:0,  defRwin:null,  defRw:0,  defRl:0,  comps:[], mapId:'e2ad5c54-4114-a870-9641-8ea21279579a'},
+  {name:'Breeze',  games:1,  w:1, l:0, atk1:0, def1:1, atkRwin:70,    atkRw:7,  atkRl:3,  defRwin:50,    defRw:6,  defRl:6,  comps:[
+    ['add6443a-41bd-e414-f6ad-e58d267f4e95','a3bfb853-43b2-7238-a4f1-ad90e9e46bcc','320b2a48-4d9b-a075-30f1-1f93a9b638fa','6f2a04ca-43e0-4a99-9300-37a3a7d63e46','117ed9e3-49f3-6512-3ccf-0cada7e3823b'],
+  ], mapId:'2fe4ed3a-450a-948b-9f6a-d19be4c846fc'},
+  {name:'Fracture',games:0,  w:0, l:0, atk1:0, def1:0, atkRwin:null,  atkRw:0,  atkRl:0,  defRwin:null,  defRw:0,  defRl:0,  comps:[], mapId:'b529448b-4d60-346e-e89e-00a4c527a405'},
+  {name:'Pearl',   games:4,  w:1, l:3, atk1:2, def1:2, atkRwin:36,    atkRw:14, atkRl:25, defRwin:53,    defRw:21, defRl:19, comps:[
+    ['a3bfb853-43b2-7238-a4f1-ad90e9e46bcc','6f2a04ca-43e0-4a99-9300-37a3a7d63e46','41fb69c1-4189-7b37-f117-bcaf1e96f1bf','1e58de9c-4950-5125-93e9-a0aee9f98746'],
+    ['add6443a-41bd-e414-f6ad-e58d267f4e95','320b2a48-4d9b-a075-30f1-1f93a9b638fa','9f0d8ba9-4140-b941-57d3-a7ad57c6b417','117ed9e3-49f3-6512-3ccf-0cada7e3823b'],
+  ], mapId:'fd267378-4d1d-484f-ff52-77821f700d4e'},
+  {name:'Lotus',   games:2,  w:1, l:1, atk1:2, def1:0, atkRwin:38,    atkRw:9,  atkRl:15, defRwin:50,    defRw:6,  defRl:6,  comps:[
+    ['add6443a-41bd-e414-f6ad-e58d267f4e95','1e58de9c-4950-5125-93e9-a0aee9f98746','41fb69c1-4189-7b37-f117-bcaf1e96f1bf','6f2a04ca-43e0-4a99-9300-37a3a7d63e46'],
+  ], mapId:'2fe4ed3a-450a-948b-9f6a-d19be4c846fc'},
+  {name:'Sunset',  games:0,  w:0, l:0, atk1:0, def1:0, atkRwin:null,  atkRw:0,  atkRl:0,  defRwin:null,  defRw:0,  defRl:0,  comps:[], mapId:''},
+  {name:'Abyss',   games:0,  w:0, l:0, atk1:0, def1:0, atkRwin:null,  atkRw:0,  atkRl:0,  defRwin:null,  defRw:0,  defRl:0,  comps:[], mapId:''},
+];
+
+function pctClass(v) {
+  if (v === null) return 'pct-none';
+  if (v >= 55) return 'pct-good';
+  if (v >= 45) return 'pct-mid';
+  return 'pct-bad';
+}
+function pctText(v) { return v === null ? '-' : v + '%'; }
+
+function renderMapTable(mapImg) {
+  mapImg = mapImg || {};
+  var tbody = document.getElementById('mapTableBody');
+  if (!tbody) return;
+  tbody.innerHTML = '';
+
+  MAP_DATA.forEach(function(m, idx) {
+    var winPct = m.games > 0 ? Math.round(m.w / m.games * 100) + '%' : '-';
+    var imgUrl = mapImg[m.name] || (m.mapId ? MA + '/maps/' + m.mapId + '/splash.png' : '');
+
+    var thumbHtml = imgUrl
+      ? '<img class="map-thumb-sm" src="' + imgUrl + '" alt="" onerror="this.style.display=\'none\'">'
+      : '<div style="width:52px;height:32px;border-radius:4px;background:#1a1a2a;display:inline-block;margin-right:8px;vertical-align:middle;"></div>';
+
+    // 에이전트 컴포지션 (첫 번째 줄만 테이블에 표시)
+    var compHtml = '';
+    if (m.comps.length > 0) {
+      compHtml = '<div class="agent-comp">' +
+        m.comps[0].map(function(id) {
+          return '<img src="' + MA + '/agents/' + id + '/displayiconsmall.png" alt="" onerror="this.style.display=\'none\'">';
+        }).join('') +
+        (m.comps.length > 1 ? '<span style="font-size:10px;color:var(--dim);margin-left:4px;">+' + (m.comps.length - 1) + '</span>' : '') +
+      '</div>';
+    }
+
+    // 확장 시 전체 컴포지션
+    var expandHtml = '';
+    if (m.comps.length > 0) {
+      expandHtml = '<div class="expand-comp-title">전체 에이전트 구성</div>';
+      m.comps.forEach(function(comp, ci) {
+        expandHtml += '<div class="agent-comp" style="margin-bottom:6px;">' +
+          '<span class="comp-label">(' + (ci + 1) + ')</span>' +
+          comp.map(function(id) {
+            return '<img src="' + MA + '/agents/' + id + '/displayiconsmall.png" alt="" style="width:26px;height:26px;" onerror="this.style.display=\'none\'">';
+          }).join('') +
+        '</div>';
+      });
+    } else {
+      expandHtml = '<span style="font-size:11px;color:var(--dim)">데이터 없음</span>';
+    }
+
+    var hasData = m.games > 0;
+    tbody.innerHTML +=
+      '<tr class="map-row" id="row-' + idx + '">' +
+        '<td>' +
+          '<div class="map-name-cell">' +
+            thumbHtml +
+            '<span style="font-size:12px;font-weight:600;">' + m.name + ' (' + m.games + ')</span>' +
+          '</div>' +
+        '</td>' +
+        '<td class="' + (hasData ? (m.w/m.games >= 0.55 ? 'pct-good' : m.w/m.games >= 0.45 ? 'pct-mid' : 'pct-bad') : 'pct-none') + '">' + winPct + '</td>' +
+        '<td class="win-num">' + m.w + '</td>' +
+        '<td class="loss-num">' + m.l + '</td>' +
+        '<td>' + (hasData ? m.atk1 : '-') + '</td>' +
+        '<td>' + (hasData ? m.def1 : '-') + '</td>' +
+        '<td class="atk-bg ' + pctClass(m.atkRwin) + '">' + pctText(m.atkRwin) + '</td>' +
+        '<td class="atk-bg" style="color:#ff8a80;">' + (hasData ? m.atkRw : '-') + '</td>' +
+        '<td class="atk-bg" style="color:#ff8a80;">' + (hasData ? m.atkRl : '-') + '</td>' +
+        '<td class="def-bg ' + pctClass(m.defRwin) + '">' + pctText(m.defRwin) + '</td>' +
+        '<td class="def-bg" style="color:#69c79a;">' + (hasData ? m.defRw : '-') + '</td>' +
+        '<td class="def-bg" style="color:#69c79a;">' + (hasData ? m.defRl : '-') + '</td>' +
+        '<td style="display:flex;align-items:center;gap:8px;">' +
+          compHtml +
+          '<button class="expand-btn" onclick="toggleExpand(' + idx + ')">' +
+            (m.comps.length > 0 ? '▾ 상세' : '—') +
+          '</button>' +
+        '</td>' +
+      '</tr>' +
+      '<tr class="expand-row" id="expand-' + idx + '">' +
+        '<td colspan="13">' +
+          '<div class="expand-inner" id="inner-' + idx + '">' +
+            '<div class="expand-detail">' + expandHtml + '</div>' +
+          '</div>' +
+        '</td>' +
+      '</tr>';
+  });
+}
+
+function toggleExpand(idx) {
+  var inner = document.getElementById('inner-' + idx);
+  if (!inner) return;
+  inner.classList.toggle('open');
+}
+
+function filterDataSeason(type, btn) {
+  document.querySelectorAll('#page-data .filter-btn').forEach(function(b){ b.classList.remove('on'); });
+  btn.classList.add('on');
+}
+
+// ── 데이터 센터 초기화 (lazy) ────────────────────────────────
+var dataChartInited = false;
+function initDataCharts() {
+  if (dataChartInited) return;
+  dataChartInited = true;
+  renderMapTable();
+  // 맵 이미지 프록시 연동
+  fetch('/api/valo-assets?type=maps').then(function(r){ return r.ok ? r.json() : null; }).then(function(json){
+    if (!json) return;
+    var d = {};
+    json.data.forEach(function(m){ if(m.displayName && m.splash) d[m.displayName] = m.splash; });
+    renderMapTable(d);
+  }).catch(function(){});
+}
 var mapStats = [
   {map:'Ascent', win:68, played:22, kd:1.54},
   {map:'Haven',  win:61, played:18, kd:1.38},
@@ -1323,23 +1487,6 @@ new Chart(document.getElementById('dayChart'), {
   data: { labels:['월','화','수','목','금','토','일'], datasets:[{ data:[142,156,171,165,148,172,161], backgroundColor:['rgba(255,70,85,0.35)','rgba(255,70,85,0.35)','rgba(255,70,85,0.35)','rgba(255,70,85,0.35)','rgba(255,70,85,0.35)','#ff4655','rgba(255,70,85,0.35)'], borderRadius:3, borderSkipped:false }] },
   options: { plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return 'ACS: '+c.parsed.y;}}}}, scales:{x:{ticks:{color:'#8888a0',font:{size:10}},grid:{display:false},border:{display:false}},y:{display:false,min:100,max:200}}, animation:false, responsive:true, maintainAspectRatio:false }
 });
-
-// ── 데이터 센터 차트: 해당 페이지 진입 시에만 생성 (lazy) ──
-var dataChartInited = false;
-function initDataCharts() {
-  if (dataChartInited) return;
-  dataChartInited = true;
-  new Chart(document.getElementById('dataChart'), {
-    type: 'line',
-    data: { labels:['1월','2월','3월','4월','5월'], datasets:[ { label:'K/D', data:[1.1,1.2,1.3,1.38,1.42], borderColor:'#ff4655', borderWidth:2, pointRadius:3, pointBackgroundColor:'#ff4655', fill:false, tension:0.3 }, { label:'ACS', data:[185,192,198,207,214], borderColor:'#8891f2', borderWidth:2, pointRadius:3, pointBackgroundColor:'#8891f2', fill:false, tension:0.3, yAxisID:'y2' } ] },
-    options: { plugins:{legend:{display:true,labels:{color:'#8888a0',font:{size:11}}}}, scales:{ x:{ticks:{color:'#8888a0'},grid:{color:'rgba(255,255,255,0.05)'},border:{display:false}}, y:{ticks:{color:'#4a4a60',font:{size:8}},grid:{color:'rgba(255,255,255,0.05)'},border:{display:false},min:0,max:2}, y2:{position:'right',ticks:{color:'#4a4a60',font:{size:8}},grid:{display:false},border:{display:false},min:150,max:250} }, animation:false, responsive:true, maintainAspectRatio:false }
-  });
-  new Chart(document.getElementById('roleChart'), {
-    type: 'doughnut',
-    data: { labels:['듀얼리스트','센티넬','이니시에이터','컨트롤러'], datasets:[{ data:[55,10,20,15], backgroundColor:['#ff4655','#8891f2','#3fa571','#f39c12'], borderWidth:0, cutout:'60%' }] },
-    options: { plugins:{legend:{display:true,position:'bottom',labels:{color:'#8888a0',font:{size:10},padding:8}}}, animation:false }
-  });
-}
 
 // ── 프록시 로드: 페이지 인터랙티브 후 순차 실행 ─────────────
 setTimeout(loadFromProxy, 300);
