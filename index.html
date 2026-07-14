@@ -1419,27 +1419,6 @@ function initDataCharts() {
     renderMapTable(d);
   }).catch(function(){});
 }
-var mapStats = [
-  {map:'Ascent', win:68, played:22, kd:1.54},
-  {map:'Haven',  win:61, played:18, kd:1.38},
-  {map:'Lotus',  win:55, played:11, kd:1.21},
-  {map:'Split',  win:42, played:14, kd:1.05},
-  {map:'Bind',   win:38, played:13, kd:0.92},
-];
-var mst = document.getElementById('mapStatsTable');
-if (mst) {
-  mst.innerHTML = mapStats.map(function(m){
-    var color = m.win >= 55 ? '#3fa571' : m.win < 45 ? '#ff4655' : '#e0e0ea';
-    return '<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.04)">' +
-      '<span style="font-size:12px;font-weight:600">' + m.map + '</span>' +
-      '<span style="font-size:11px;color:var(--muted)">' + m.played + '판</span>' +
-      '<div style="flex:1;margin:0 12px;height:4px;background:rgba(255,255,255,.08);border-radius:2px">' +
-        '<div style="width:' + m.win + '%;height:100%;background:' + color + ';border-radius:2px"></div>' +
-      '</div>' +
-      '<span style="font-size:12px;font-weight:700;color:' + color + '">' + m.win + '%</span>' +
-    '</div>';
-  }).join('');
-}
 
 // ── CHARTS ────────────────────────────────────────────────
 new Chart(document.getElementById('onlineChart'), {
