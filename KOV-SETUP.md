@@ -4,7 +4,7 @@
 
 ## 실행과 검증
 
-Vercel Git 연동으로 배포합니다. 별도 프런트엔드 빌드나 npm 패키지 설치는 필요하지 않습니다. `/api/kov`는 Vercel Node.js Function에서 실행합니다.
+Vercel Git 연동으로 배포합니다. 별도 프런트엔드 빌드나 추가 패키지는 필요하지 않습니다. `package.json`의 `type: module`로 기존 API와 공통 운영 모듈을 ESM으로 실행합니다. `/api/kov`는 Vercel Node.js Function에서 실행합니다.
 
 ```sh
 node --test tests/kov-core.test.mjs tests/kov-api.test.mjs

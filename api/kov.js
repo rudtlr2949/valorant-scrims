@@ -1,4 +1,4 @@
-import {createHash,randomUUID,timingSafeEqual} from 'node:crypto';
+import {createHash,randomUUID} from 'node:crypto';
 import {initialState,applyCommand,publicState,getMatch,isParticipant,RuleError,ensure} from '../lib/kov-core.mjs';
 
 const sessions=new Map();
