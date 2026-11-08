@@ -7,8 +7,9 @@ const key=suffix=>`kov:{${namespace()}}:${suffix}`;
 const configured=()=>!!(process.env.UPSTASH_REDIS_REST_URL&&process.env.UPSTASH_REDIS_REST_TOKEN);
 async function redis(command){
   ensure(configured(),'대회 저장소가 연결되지 않았습니다. Upstash 환경변수를 확인해 주세요.',503);
-  const response=await fetch(process.env.UPSTASH_REDIS_REST_URL,{method:'POST',headers:{Authorization:`Bearer ${process.env.UPSTASH_REDIS_REST_TOKEN}`,'Content-Type':'application/json'},body:JSON.stringify(command),signal:AbortSignal.timeout(10000)});
-  ensure(response.ok,'대회 저장소에 연결할 수 없습니다.',503);const json=await response.json();ensure(!json.error,'대회 저장소 명령을 처리할 수 없습니다.',503);return json.result;
+  let response;
+  try{response=await fetch(process.env.UPSTASH_REDIS_REST_URL,{method:'POST',headers:{Authorization:`Bearer ${process.env.UPSTASH_REDIS_REST_TOKEN}`,'Content-Type':'application/json'},body:JSON.stringify(command),signal:globalThis.AbortSignal?.timeout?.(10000)});}catch{throw new RuleError('기존 Upstash Redis에 연결하지 못했습니다. Vercel의 REST URL·토큰과 데이터베이스 활성 상태를 확인해 주세요.',503);}
+  ensure(response.ok,'대회 저장소 인증 또는 연결에 실패했습니다. Upstash 연결 상태를 확인해 주세요.',503);const json=await response.json();ensure(!json.error,'대회 저장소 명령을 처리할 수 없습니다.',503);return json.result;
 }
 async function identity(req){
   const token=(req.headers.authorization||'').replace(/^Bearer\s+/i,'');if(!token)return null;
@@ -24,7 +25,12 @@ async function identity(req){
   }
   return {id:user.id,name:user.name,isAdmin:user.isAdmin};
 }
-async function readState(){const raw=await redis(['GET',key('state')]);return {raw,state:raw?JSON.parse(raw):initialState()};}
+async function readState(){
+  const raw=await redis(['GET',key('state')]);let state;
+  try{state=raw?JSON.parse(raw):initialState();}catch{throw new RuleError('저장된 KOV 데이터 형식을 확인할 수 없습니다. 운영진의 저장소 점검이 필요합니다.',503);}
+  ensure(state?.schema===2&&['tournaments','teams','applications','matches','submissions','hall','notifications','audit'].every(k=>Array.isArray(state[k])),'저장된 KOV 데이터 형식이 맞지 않습니다. 기존 데이터는 변경하지 않았습니다.',503);
+  return {raw,state};
+}
 async function saveState(raw,state){
   const json=JSON.stringify(state);ensure(Buffer.byteLength(json)<5*1024*1024,'데이터 보관 한도에 도달했습니다. 저장소를 확장해 주세요.',503);
   return Number(await redis(['EVAL',"local v=redis.call('GET',KEYS[1]); if (v or '')~=ARGV[1] then return 0 end;redis.call('SET',KEYS[1],ARGV[2]);return 1",1,key('state'),raw||'',json]))===1;
@@ -51,17 +57,19 @@ async function sendNotice(id,actor){
 }
 export default async function handler(req,res){
   res.setHeader('Cache-Control','no-store');res.setHeader('X-Content-Type-Options','nosniff');
+  let phase='request';
   try{
     ensure(['GET','POST'].includes(req.method),'지원하지 않는 요청입니다.',405);
     const query=req.query||Object.fromEntries(new URL(req.url||'/api/kov',`https://${req.headers.host||'localhost'}`).searchParams);
-    const actor=await identity(req);
+    phase='identity';const actor=await identity(req);
     if(req.method==='GET'){
       if(query.evidence){
         ensure(actor,'로그인이 필요합니다.',401);const {state}=await readState();const sub=state.submissions.find(x=>x.evidenceId===query.evidence);ensure(sub,'증빙 자료를 찾을 수 없습니다.',404);const m=getMatch(state,sub.matchId);ensure(actor.isAdmin||isParticipant(m,actor),'해당 경기 참가자와 운영진만 증빙을 볼 수 있습니다.',403);
         const item=await redis(['GET',key(`evidence:${query.evidence}`)]);ensure(item,'증빙 보관 기간이 만료되었습니다.',404);const evidence=JSON.parse(item);return res.status(200).json({image:evidence.image});
       }
-      const state=configured()?(await readState()).state:initialState();
-      return res.status(200).json({state:publicState(state,actor),actor,storageReady:configured(),webhookReady:!!process.env.KOV_DISCORD_WEBHOOK_URL});
+      phase='storage';let state=initialState();let storageError='';
+      if(configured())try{state=(await readState()).state;}catch(error){if(error.status!==503)throw error;storageError=error.message;}
+      phase='projection';return res.status(200).json({state:publicState(state,actor),actor,storageReady:configured()&&!storageError,storageError,webhookReady:!!process.env.KOV_DISCORD_WEBHOOK_URL});
     }
     ensure(actor,'Discord 로그인이 필요합니다.',401);ensure(configured(),'대회 저장소가 연결되지 않았습니다.',503);
     if(req.headers.origin)ensure(new URL(req.headers.origin).host===req.headers.host,'허용되지 않은 출처입니다.',403);
@@ -81,6 +89,6 @@ export default async function handler(req,res){
   }catch(error){
     const status=error.status||500;
     if(status===500)console.error('KOV request failed:',error.name,'location:',String(error.stack||'').split('\n').slice(1,4).join('\n'));
-    return res.status(status).json({error:status===500?'처리 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.':error.message});
+    return res.status(status).json({error:status===500?'처리 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.':error.message,reference:status===500?`KOV_${phase}`:undefined});
   }
 }
