@@ -30,5 +30,8 @@ test('API fails closed without storage and never trusts client-side admin flags'
     assert.equal(response.code,200);assert.equal(response.body.state.tournaments.length,1);
     const saved=response.body.state.tournaments[0];response=await request('GET');assert.equal(response.body.state.tournaments[0].id,saved.id);assert.equal(response.body.state.audit.length,0);
     response=await request('POST',{type:'submitResult',payload:{matchId:'missing',image:'not-an-image'}},'viewer-test');assert.equal(response.code,404);
+    global.fetch=async()=>{throw new TypeError('fetch failed');};
+    response=await request('GET');assert.equal(response.code,200);assert.equal(response.body.storageReady,false);assert.ok(response.body.storageError.includes('Upstash'));
+    response=await request('POST',{type:'generateSwiss',payload:{}},'admin-test');assert.equal(response.code,503);
   }finally{global.fetch=original;for(const k of Object.keys(process.env))if(!(k in prev))delete process.env[k];Object.assign(process.env,prev);}
 });

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {demoState,applyCommand,currentVeto,standings,metrics,eligibleForFinal,parseScoreboard,publicState} from '../lib/kov-core.mjs';
+import {demoState,applyCommand,currentVeto,standings,metrics,eligibleForFinal,parseScoreboard,publicState,blankScoreboard} from '../lib/kov-core.mjs';
 
 const now=Date.parse('2026-11-08T12:00:00Z');
 const admin={id:'demo-admin',name:'운영진',isAdmin:true};
@@ -17,7 +17,7 @@ function completeMatch(source,mid,winner='A'){
   }
   let m=s.matches.find(m=>m.id===mid);
   while(m.status!=='finished'){
-    const rows=[...m.rosterA.players.map(p=>({...p,teamId:m.teamA})),...m.rosterB.players.map(p=>({...p,teamId:m.teamB}))].filter(p=>p.slot==='starter').map(p=>({playerId:p.id,agent:'Jett',kills:20,deaths:12,assists:5,reviewed:true,confidence:91}));
+    const rows=blankScoreboard(m).map(p=>({...p,agent:'Jett',kills:20,deaths:12,assists:5,reviewed:true,confidence:91}));
     s=command(s,'submitResult',{matchId:mid,mapIndex:m.maps.filter(x=>x.result).length,roundA:winner==='A'?13:7,roundB:winner==='B'?13:7,rows,evidenceId:'fixture-evidence'},captain(s,mid,'A'));
     const sub=s.submissions.at(-1);s=command(s,'reviewResult',{id:sub.id,status:'confirmed'});m=s.matches.find(m=>m.id===mid);
   }

@@ -45,7 +45,7 @@ function validEvidence(image){
 async function sendNotice(id,actor){
   ensure(actor?.isAdmin,'운영진만 알림을 전송할 수 있습니다.',403);const webhook=process.env.KOV_DISCORD_WEBHOOK_URL;
   ensure(webhook&&/^https:\/\/(?:canary\.|ptb\.)?discord(?:app)?\.com\/api\/webhooks\/\d+\//.test(webhook),'Discord 웹훅 환경변수가 연결되지 않았습니다.',503);
-  const claimed=await mutate(async s=>{const n=s.notifications.find(n=>n.id===id);ensure(n&&n.status!=='sent','이미 전송되었거나 없는 알림입니다.');ensure(n.status!=='sending','이미 전송 중인 알림입니다.',409);n.status='sending';n.attempts++;n.startedAt=Date.now();s.revision++;return {state:s,output:n};});
+  const claimed=await mutate(async s=>{const n=s.notifications.find(n=>n.id===id);ensure(n&&n.status!=='sent','이미 전송되었거나 없는 알림입니다.');ensure(n.status!=='sending','이미 전송 중인 알림입니다.',409);n.status='sending';n.attempts++;n.startedAt=Date.now();n.sentBy=actor.id;s.audit.push({id:randomUUID(),type:'sendNotification',by:actor.id,name:actor.name,at:Date.now(),notificationId:id});s.revision++;return {state:s,output:n};});
   const n=claimed.output;const m=claimed.state.matches.find(m=>m.id===n.matchId);
   const origin=process.env.KOV_PUBLIC_ORIGIN||'https://valorant-scrims.vercel.app';
   const link=`${origin}/#kov/match/${encodeURIComponent(m?.id||'')}`;
