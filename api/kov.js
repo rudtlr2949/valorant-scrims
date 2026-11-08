@@ -53,11 +53,12 @@ export default async function handler(req,res){
   res.setHeader('Cache-Control','no-store');res.setHeader('X-Content-Type-Options','nosniff');
   try{
     ensure(['GET','POST'].includes(req.method),'지원하지 않는 요청입니다.',405);
+    const query=req.query||Object.fromEntries(new URL(req.url||'/api/kov',`https://${req.headers.host||'localhost'}`).searchParams);
     const actor=await identity(req);
     if(req.method==='GET'){
-      if(req.query.evidence){
-        ensure(actor,'로그인이 필요합니다.',401);const {state}=await readState();const sub=state.submissions.find(x=>x.evidenceId===req.query.evidence);ensure(sub,'증빙 자료를 찾을 수 없습니다.',404);const m=getMatch(state,sub.matchId);ensure(actor.isAdmin||isParticipant(m,actor),'해당 경기 참가자와 운영진만 증빙을 볼 수 있습니다.',403);
-        const item=await redis(['GET',key(`evidence:${req.query.evidence}`)]);ensure(item,'증빙 보관 기간이 만료되었습니다.',404);const evidence=JSON.parse(item);return res.status(200).json({image:evidence.image});
+      if(query.evidence){
+        ensure(actor,'로그인이 필요합니다.',401);const {state}=await readState();const sub=state.submissions.find(x=>x.evidenceId===query.evidence);ensure(sub,'증빙 자료를 찾을 수 없습니다.',404);const m=getMatch(state,sub.matchId);ensure(actor.isAdmin||isParticipant(m,actor),'해당 경기 참가자와 운영진만 증빙을 볼 수 있습니다.',403);
+        const item=await redis(['GET',key(`evidence:${query.evidence}`)]);ensure(item,'증빙 보관 기간이 만료되었습니다.',404);const evidence=JSON.parse(item);return res.status(200).json({image:evidence.image});
       }
       const state=configured()?(await readState()).state:initialState();
       return res.status(200).json({state:publicState(state,actor),actor,storageReady:configured(),webhookReady:!!process.env.KOV_DISCORD_WEBHOOK_URL});
@@ -79,7 +80,7 @@ export default async function handler(req,res){
     }catch(error){if(evidenceId)await redis(['DEL',key(`evidence:${evidenceId}`)]).catch(()=>{});throw error;}
   }catch(error){
     const status=error.status||500;
-    if(status===500)console.error('KOV request failed:',error.name);
+    if(status===500)console.error('KOV request failed:',error.name,'location:',String(error.stack||'').split('\n').slice(1,4).join('\n'));
     return res.status(status).json({error:status===500?'처리 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.':error.message});
   }
 }

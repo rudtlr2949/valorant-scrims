@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import handler from '../api/kov.js';
 
-const request=async(method,body,token,query={})=>{
+const request=async(method,body,token,query)=>{
   const req={method,body,query,headers:{host:'kov.test',origin:'https://kov.test',...(token?{authorization:'Bearer '+token}:{})}};
   const res={code:200,headers:{},setHeader(k,v){this.headers[k]=v;},status(c){this.code=c;return this;},json(body){this.body=body;return this;}};
   await handler(req,res);return res;
