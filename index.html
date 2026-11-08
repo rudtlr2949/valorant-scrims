@@ -3,7 +3,9 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>VALORANT SCRIMS</title>
+<title>KOV | VALORANT SCRIMS</title>
+<meta name="description" content="KOV 대회, 경기 일정, 스크림과 팀 모집을 한곳에서 확인하세요.">
+<script src="kov-home.js" defer></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
@@ -316,6 +318,7 @@ main::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:3px;
 .modal-input-group select option{background:#161620;}
 .modal-btn-row{display:flex;gap:10px;justify-content:flex-end;margin-top:20px;}
 </style>
+<link rel="stylesheet" href="kov-home.css">
 </head>
 <body>
 
@@ -366,7 +369,8 @@ main::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:3px;
     <div class="logo-sub">팀 스크림 매칭 플랫폼</div>
   </div>
   <nav>
-    <button class="nav-item active" onclick="goPage('profile',this)"><svg><use href="#ic-user"/></svg>프로필</button>
+    <button class="nav-item active" onclick="goPage('home',this)" aria-label="KOV 홈"><svg><use href="#ic-home"/></svg>KOV 홈</button>
+    <button class="nav-item" onclick="goPage('profile',this)"><svg><use href="#ic-user"/></svg>프로필</button>
     <button class="nav-item" onclick="goPage('scrim',this)"><svg><use href="#ic-shield"/></svg>스크림</button>
     <button class="nav-item" onclick="goPage('myteam',this)"><svg><use href="#ic-users"/></svg>나의 팀</button>
     <button class="nav-item" onclick="goPage('match',this)"><svg><use href="#ic-arrows"/></svg>매칭</button>
@@ -408,8 +412,35 @@ main::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:3px;
 
   <main id="mainContent">
 
+    <!-- KOV 홈: 기존 페이지와 로그인/API 코드는 유지합니다. -->
+    <section class="page active" id="page-home" aria-label="KOV 홈">
+      <div class="kov-topline"><span>KOV COMPETITIVE COMMUNITY</span><span>YOUR NEXT STAGE STARTS HERE <span class="kov-dot"></span></span></div>
+      <section class="kov-hero" aria-labelledby="kov-hero-title">
+        <div class="kov-hero-copy"><span class="kov-kicker" id="kov-tournament-status">NEXT TOURNAMENT · 준비 중</span><h1 id="kov-hero-title">승리를 향한<br>다음 무대, <em>KOV.</em></h1><p id="kov-tournament-description">팀을 만나고, 실력을 증명하고, 새로운 정상에 도전하세요.<br>KOV의 다음 대회 소식을 가장 먼저 만나보세요.</p><div class="kov-hero-meta" id="kov-tournament-meta"><span>대회 일정 <strong>추후 공개</strong></span><span>참가 접수 <strong>안내 예정</strong></span></div><div class="kov-actions"><button class="btn-red" data-kov-action="tournament">대회 보기 <span>↗</span></button><button class="btn-outline" data-kov-action="apply">참가 신청 <span>→</span></button></div></div>
+        <div class="kov-poster" id="kov-poster" role="img" aria-label="KOV 대회 안내 그래픽"><div class="kov-poster-head">KOV OFFICIAL TOURNAMENT<span>VALORANT</span></div><div class="kov-poster-symbol" aria-hidden="true">K</div><div class="kov-poster-title">PLAY.<br>COMPETE.<br><span>PROVE.</span></div><div class="kov-poster-foot">ONE TEAM. NEXT LEVEL.<span>COMING SOON ↗</span></div></div>
+      </section>
+
+      <section class="kov-section" aria-labelledby="kov-today-heading"><div class="kov-section-head"><h2 id="kov-today-heading"><span class="kov-number">01</span>오늘의 경기</h2><span id="kov-today-date" class="kov-muted"></span></div><div id="kov-today-matches" class="kov-match-grid"></div></section>
+
+      <section class="kov-quick" aria-label="빠른 실행">
+        <button data-kov-page="scrim"><svg><use href="#ic-shield"/></svg><span><small>실력을 맞춰볼 상대</small><strong>스크림 찾기</strong></span><b>↗</b></button>
+        <button data-kov-page="findteam"><svg><use href="#ic-users"/></svg><span><small>함께할 다음 멤버</small><strong>팀·선수 모집</strong></span><b>↗</b></button>
+        <button data-kov-page="match"><svg><use href="#ic-arrows"/></svg><span><small>나의 매칭 현황</small><strong>내 경기</strong></span><b>↗</b></button>
+        <button data-kov-action="discord"><svg><use href="#ic-discord"/></svg><span><small>커뮤니티와 실시간 소통</small><strong>Discord 입장</strong></span><b>↗</b></button>
+      </section>
+
+      <section class="kov-section" aria-labelledby="kov-recruit-heading"><div class="kov-section-head"><h2 id="kov-recruit-heading"><span class="kov-number">02</span>함께할 팀, 다음 상대.</h2><span class="kov-muted">FIND YOUR NEXT</span></div><div class="kov-two-col"><article class="card"><div class="card-header"><h3 class="card-title">스크림 모집</h3><div class="kov-inline-actions"><button class="card-link" data-kov-action="create-scrim">모집하기 +</button><button class="card-link" data-kov-page="scrim">전체 보기 ↗</button></div></div><div id="kov-scrim-summary"></div></article><article class="card"><div class="card-header"><h3 class="card-title">팀·선수 모집</h3><div class="kov-inline-actions"><button class="card-link" data-kov-action="create-team">모집하기 +</button><button class="card-link" data-kov-page="findteam">전체 보기 ↗</button></div></div><div id="kov-team-summary"></div></article></div><p class="kov-source-note">스크림·모집·소식 요약은 기존 화면의 예시 내용을 표시합니다.</p></section>
+
+      <div class="kov-two-col"><section class="kov-section" aria-labelledby="kov-results-heading"><div class="kov-section-head"><h2 id="kov-results-heading"><span class="kov-number">03</span>최근 경기 결과</h2><button class="card-link" data-kov-action="records">경기 기록 ↗</button></div><div class="card" id="kov-results"></div></section><section class="kov-section" aria-labelledby="kov-news-heading"><div class="kov-section-head"><h2 id="kov-news-heading"><span class="kov-number">04</span>KOV 소식</h2><button class="card-link" data-kov-page="notice">공지 보기 ↗</button></div><div class="card" id="kov-news"></div></section></div>
+
+      <section class="kov-section" aria-labelledby="kov-history-heading"><div class="kov-section-head"><h2 id="kov-history-heading"><span class="kov-number">05</span>지난 대회 · 명예의 전당</h2><button class="card-link" data-kov-action="history">지난 대회 보기 ↗</button></div><div id="kov-hall" class="kov-hall-grid"></div></section>
+
+      <section class="kov-partners kov-section" aria-labelledby="kov-partners-heading"><div><span class="kov-kicker">BETTER TOGETHER</span><h2 id="kov-partners-heading">후원·파트너</h2><p>함께 만드는 더 큰 무대</p></div><div id="kov-partner-list" class="kov-partner-list"></div></section>
+      <div class="kov-footer"><strong>KOV <span>× VALORANT SCRIMS</span></strong><span>모든 플레이어의 다음 무대를 위해.</span><button class="card-link" data-kov-action="top">맨 위로 ↑</button></div>
+    </section>
+
     <!-- ══════════ PAGE: 프로필 ══════════ -->
-    <div class="page active" id="page-profile">
+    <div class="page" id="page-profile">
       <div class="hero">
         <div class="hero-deco">
           <div class="hero-deco-line" style="top:-60px"></div>
@@ -1491,3 +1522,4 @@ setTimeout(loadFromProxy, 300);
 
 </body>
 </html>
+
