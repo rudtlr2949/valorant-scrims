@@ -3,7 +3,9 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>VALORANT SCRIMS</title>
+<title>KOV | VALORANT SCRIMS</title>
+<meta name="description" content="KOV 대회, 경기 일정, 스크림과 팀 모집을 한곳에서 확인하세요.">
+<script src="kov-platform.js" type="module"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
@@ -316,6 +318,7 @@ main::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:3px;
 .modal-input-group select option{background:#161620;}
 .modal-btn-row{display:flex;gap:10px;justify-content:flex-end;margin-top:20px;}
 </style>
+<link rel="stylesheet" href="kov-platform.css">
 </head>
 <body>
 
@@ -366,7 +369,12 @@ main::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:3px;
     <div class="logo-sub">팀 스크림 매칭 플랫폼</div>
   </div>
   <nav>
-    <button class="nav-item active" onclick="goPage('profile',this)"><svg><use href="#ic-user"/></svg>프로필</button>
+    <button class="nav-item active" onclick="openKov('tournaments')" aria-label="KOV 홈"><svg><use href="#ic-home"/></svg>KOV 홈</button>
+    <button class="nav-item" data-kov-nav="records" onclick="openKov('records')"><svg><use href="#ic-chart"/></svg>선수·팀 기록실</button>
+    <button class="nav-item" data-kov-nav="hall" onclick="openKov('hall')"><svg><use href="#ic-shield"/></svg>명예의 전당</button>
+    <button class="nav-item" data-kov-nav="admin" onclick="openKov('admin')"><svg><use href="#ic-edit"/></svg>운영진 관리실</button>
+    <div class="nav-label">PLAYER TOOLS</div>
+    <button class="nav-item" onclick="goPage('profile',this)"><svg><use href="#ic-user"/></svg>프로필</button>
     <button class="nav-item" onclick="goPage('scrim',this)"><svg><use href="#ic-shield"/></svg>스크림</button>
     <button class="nav-item" onclick="goPage('myteam',this)"><svg><use href="#ic-users"/></svg>나의 팀</button>
     <button class="nav-item" onclick="goPage('match',this)"><svg><use href="#ic-arrows"/></svg>매칭</button>
@@ -408,8 +416,11 @@ main::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:3px;
 
   <main id="mainContent">
 
+    <!-- KOV Tournament Platform -->
+    <section class="page active" id="page-home" aria-label="KOV 대회 플랫폼"><div id="kov-app" aria-live="polite"><div class="kp-loading">KOV 대회 정보를 불러오는 중입니다…</div></div></section>
+
     <!-- ══════════ PAGE: 프로필 ══════════ -->
-    <div class="page active" id="page-profile">
+    <div class="page" id="page-profile">
       <div class="hero">
         <div class="hero-deco">
           <div class="hero-deco-line" style="top:-60px"></div>
@@ -1491,3 +1502,4 @@ setTimeout(loadFromProxy, 300);
 
 </body>
 </html>
+
