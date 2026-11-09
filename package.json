@@ -4,6 +4,6 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "node --test tests/kov-core.test.mjs tests/kov-api.test.mjs"
+    "test": "node --test tests/kov-core.test.mjs tests/kov-api.test.mjs tests/kov-bracket.test.mjs"
   }
 }
