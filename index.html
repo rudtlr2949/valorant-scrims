@@ -6,6 +6,7 @@
 <title>KOV | VALORANT SCRIMS</title>
 <meta name="description" content="KOV 대회, 경기 일정, 스크림과 팀 모집을 한곳에서 확인하세요.">
 <script src="kov-platform.js" type="module"></script>
+<script src="kov-registered-teams.js" type="module"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
@@ -760,6 +761,11 @@ main::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:3px;
         <div><div class="page-title" style="margin:0">팀 찾기</div><div style="font-size:12px;color:var(--muted);margin-top:4px">마음에 맞는 팀을 찾아 합류하세요</div></div>
         <button class="btn-red" onclick="document.getElementById('createTeamModal').classList.add('open')"><svg width="14" height="14" style="vertical-align:middle;margin-right:4px"><use href="#ic-plus"/></svg>팀 만들기</button>
       </div>
+      <section aria-labelledby="kov-registered-title" style="margin-bottom:24px">
+        <h2 id="kov-registered-title" style="font-size:16px;margin-bottom:12px">KOV 등록 팀·클랜</h2>
+        <p id="kov-registered-status" role="status" style="color:var(--muted);margin-bottom:12px"></p>
+        <div id="kov-registered-list" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,210px),1fr));gap:12px"></div>
+      </section>
       <div class="filter-row">
         <button class="filter-btn on">전체 티어</button>
         <button class="filter-btn">아이언~실버</button>
