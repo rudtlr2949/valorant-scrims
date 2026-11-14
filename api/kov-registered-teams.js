@@ -7,13 +7,19 @@ const fields = {
 };
 
 export function parseRegistration(message) {
-  const source = [
+  const textParts = [
     message.content,
-    ...(message.embeds || []).flatMap(embed => [
-      embed.description,
-      ...(embed.fields || []).map(field => `${field.name}: ${field.value}`),
-    ]),
-  ].filter(Boolean).join('\n').replace(/\*\*|__/g, '');
+    ...(message.embeds || []).map(embed => embed.description),
+  ].filter(Boolean).map(value => value.replace(/\*\*|__/g, '').trim());
+  const footerPattern = /(?:^|\n)[ \t]*(팀|클랜)[ \t]+등록[ \t]+신청합니다[.!]?[ \t]*$/;
+  const footer = textParts.map(part => footerPattern.exec(part)).find(Boolean);
+  if (!footer) return null;
+  const kind = footer[1];
+  const source = [
+    ...textParts.map(part => part.replace(footerPattern, '')),
+    ...(message.embeds || []).flatMap(embed =>
+      (embed.fields || []).map(field => `${field.name}: ${field.value}`)),
+  ].join('\n').replace(/\*\*|__/g, '');
   const labels = Object.values(fields).join('|');
   const entries = [...source.matchAll(new RegExp(
     `^\\s*(?:[-•]\\s*)?(${labels})\\s*[:：]([^\\n]*(?:\\n(?!\\s*(?:[-•]\\s*)?[^\\n:：]{1,30}[:：])[^\\n]*)*)`,
@@ -24,13 +30,19 @@ export function parseRegistration(message) {
   ]));
   const clean = value => value?.replace(/<@!?(\d+)>/g, (_, id) => mentions.get(id) || '')
     .replace(/^`|`$/g, '').trim().slice(0, 80) || '';
-  const getField = key => entries.find(entry => new RegExp(`^(?:${fields[key]})$`, 'i').test(entry[1]))?.[2];
-  const name = clean(getField('name')?.split('\n')[0]);
-  const captain = clean(getField('captain')?.trim().split('\n')[0]);
-  const members = [...new Set((getField('members') || '').split(/[,，、\n]/)
-    .map(value => clean(value.replace(/^\s*(?:[-•]|\d+[.)])\s*/, ''))).filter(Boolean))];
-  if (!name || !captain || !members.length || !/^\d+$/.test(message.id)) return null;
-  return { name, captain, members, url: `https://discord.com/channels/${guildId}/${channelId}/${message.id}` };
+  const getFields = key => entries.filter(entry => new RegExp(`^(?:${fields[key]})$`, 'i').test(entry[1]));
+  const [nameField, ...otherNames] = getFields('name');
+  const [captainField, ...otherCaptains] = getFields('captain');
+  if (!nameField || otherNames.length || !captainField || otherCaptains.length) return null;
+  if (!nameField[1].startsWith(kind)) return null;
+  const name = clean(nameField[2].split('\n')[0]);
+  const captain = clean(captainField[2].split('\n')[0]);
+  const members = [...new Set(getFields('members')
+    .flatMap(entry => entry[2].split(/[,，、\n]/))
+    .map(value => clean(value.replace(/^\s*(?:[-•]|\d+[.)])\s*/, '')))
+    .filter(member => member && member !== captain))];
+  if (!name || !captain || members.length < 2 || !/^\d+$/.test(message.id)) return null;
+  return { kind, name, captain, members, url: `https://discord.com/channels/${guildId}/${channelId}/${message.id}` };
 }
 
 async function readChannel(token) {
@@ -51,7 +63,7 @@ async function readChannel(token) {
       hasContent ||= Boolean(message.content || message.embeds?.length || message.attachments?.length);
       const team = parseRegistration(message);
       if (!team) continue;
-      const key = team.name.normalize('NFKC').toLowerCase();
+      const key = `${team.kind}:${team.name.normalize('NFKC').toLowerCase()}`;
       if (!teams.has(key)) teams.set(key, team);
     }
     if (messages.length < 100) {

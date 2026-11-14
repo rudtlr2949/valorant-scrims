@@ -10,9 +10,9 @@ function renderTeam(team) {
   name.className = 'team-card-name';
   name.textContent = team.name;
   const captain = document.createElement('p');
-  captain.textContent = `팀장 · ${team.captain}`;
+  captain.textContent = `${team.kind === '클랜' ? '클랜장' : '팀장'} · ${team.captain}`;
   const members = document.createElement('p');
-  members.textContent = `팀원 · ${team.members.join(', ')}`;
+  members.textContent = `${team.kind === '클랜' ? '클랜원' : '팀원'} · ${team.members.join(', ')}`;
   const source = document.createElement('a');
   source.href = team.url;
   source.target = '_blank';
@@ -31,7 +31,9 @@ async function loadTeams() {
     const data = await response.json();
     if (!response.ok) throw new Error(data.error);
     list.replaceChildren(...data.teams.map(renderTeam));
-    status.textContent = data.teams.length ? `${data.teams.length}팀` : '인식된 등록 팀이 없습니다.';
+    status.textContent = data.teams.length
+      ? `신청 ${data.teams.length}건 · 승인 여부 미확인`
+      : '인식된 정식 등록 신청이 없습니다.';
   } catch (error) {
     status.textContent = error.message || '등록 목록을 불러오지 못했습니다.';
   } finally {
