@@ -61,3 +61,71 @@ button, input, select, textarea { font: inherit; }
 kov-registered-teams { display: block; }
 .kov-registry-card { padding: 16px; overflow-wrap: anywhere; }
 .kov-registry-card .kp-button { margin-top: 10px; }
+
+.kov-event-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin: 22px 0;
+}
+.kov-event-filters { display: flex; flex-wrap: wrap; gap: 6px; }
+.kov-event-filters button {
+  border: 1px solid #ffffff22;
+  border-radius: 999px;
+  background: transparent;
+  color: #ccc6db;
+  padding: 6px 12px;
+}
+.kov-event-filters button span { margin-left: 3px; opacity: .78; }
+.kov-event-filters button[aria-pressed="true"] {
+  background: #522737;
+  border-color: #b4556b;
+  color: #fff;
+}
+.kov-event-admin { margin-bottom: 12px; }
+.kov-event-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 295px), 1fr));
+  gap: 16px;
+}
+.kov-event-card {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid #ffffff24;
+  border-radius: 14px;
+  background: #16141e;
+}
+.kov-event-cover {
+  aspect-ratio: 16 / 9;
+  display: grid;
+  place-items: center;
+  padding: 22px;
+  overflow: hidden;
+  position: relative;
+  text-align: center;
+  background: linear-gradient(150deg, #4a2639, #211726 70%);
+}
+.kov-event-cover span {
+  color: #faf0f7;
+  font-size: clamp(17px, 2.1vw, 25px);
+  font-weight: 800;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+.kov-event-cover img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.kov-event-card[data-status="finished"] { background: #12131b; border-color: #ffffff16; }
+.kov-event-card[data-status="finished"] .kov-event-cover { background: linear-gradient(150deg, #2a2a38, #1a1b25 72%); }
+.kov-event-card[data-status="finished"] .kov-event-cover span { color: #c2bfd0; }
+.kov-event-card[data-status="finished"] .kov-event-cover img { filter: saturate(.35) brightness(.78); }
+.kov-event-body { display: flex; flex: 1; flex-direction: column; padding: 15px; }
+.kov-event-body h2 { font-size: 16px; line-height: 1.4; margin: 8px 0; }
+.kov-event-meta { display: flex; align-items: center; justify-content: space-between; gap: 8px; color: #aeabc1; font-size: 11px; }
+.kov-event-status { flex: none; border: 1px solid #6e637b; color: #ddd6e5; border-radius: 999px; padding: 2px 9px; }
+[data-status="registration"] .kov-event-status { color: #a4e8c6; border-color: #398263; }
+[data-status="ongoing"] .kov-event-status { color: #ffb0b9; border-color: #ad5264; }
+.kov-event-result { color: #b7b2c7; }
+.kov-event-result strong { color: #efeaf5; margin-left: 5px; }
+.kov-event-actions { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 7px; margin-top: auto; padding-top: 12px; }
