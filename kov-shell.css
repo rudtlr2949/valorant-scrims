@@ -1,0 +1,63 @@
+:root {
+  color-scheme: dark;
+  background: #0d0d12;
+  color: #ececf4;
+  font-family: "Segoe UI", "Noto Sans KR", sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+body { margin: 0; }
+button, input, select, textarea { font: inherit; }
+:where(h1, h2, h3, h4, p, dl, dd) { margin: 0; }
+
+.kov-header {
+  background: #111019;
+  border-bottom: 1px solid #ffffff16;
+}
+
+.kov-header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px 30px;
+  max-width: 1440px;
+  margin: auto;
+  padding: 14px clamp(14px, 4vw, 50px);
+}
+
+.kov-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: inherit;
+  text-decoration: none;
+  font-size: 13px;
+}
+
+.kov-brand strong {
+  color: #ff4655;
+  font-size: 26px;
+  font-style: italic;
+  letter-spacing: -1px;
+}
+
+.kov-main-nav { display: flex; flex-wrap: wrap; gap: 4px 8px; }
+.kov-main-nav a {
+  padding: 8px 10px;
+  border-radius: 6px;
+  color: #b4b0c5;
+  text-decoration: none;
+  font-size: 13px;
+}
+.kov-main-nav a:hover, .kov-main-nav a[aria-current="page"] {
+  color: #fff;
+  background: #ff46551c;
+}
+.kov-header :focus-visible { outline: 2px solid #ff8792; outline-offset: 3px; }
+.kov-main { max-width: 1440px; margin: auto; padding: 20px clamp(12px, 4vw, 50px); }
+.kp-hero:has(.kp-hero-art:empty) { grid-template-columns: 1fr; }
+.kp-hero-art:empty { display: none; }
+kov-registered-teams { display: block; }
+.kov-registry-card { padding: 16px; overflow-wrap: anywhere; }
+.kov-registry-card .kp-button { margin-top: 10px; }

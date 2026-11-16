@@ -9,7 +9,14 @@ const readLocal=k=>{try{return localStorage.getItem(k);}catch{return null;}};
 async function responseJson(response){const body=await response.text();try{return JSON.parse(body);}catch{throw Error('대회 서버가 정상적으로 응답하지 않았습니다. 잠시 후 새로고침해 주세요.');}}
 const writeLocal=(k,v)=>{try{localStorage.setItem(k,v);return true;}catch{return false;}};
 let state=initialState(),actor=null,demo=new URLSearchParams(location.search).get('demo')==='1'||readLocal('kov-demo-active')==='1',storageReady=false,webhookReady=false,loading=true,busy=false,detailTab='overview';
-let route=location.hash.startsWith('#kov/')?location.hash.slice(5).split('/').map(decodeURIComponent):['tournaments'];
+function readRoute() {
+  try {
+    if (location.hash.startsWith('#kov/')) return location.hash.slice(5).split('/').map(decodeURIComponent);
+  } catch {}
+  return ['tournaments'];
+}
+let route = readRoute();
+let loginPopup;
 let storageError='',fetching=false,nextFetchAt=0;
 let bracketView='manual',bracketZoom=1;
 let selectedTeam='',resultDraft=null,recordFilters={},recordTab='players',adminTournament='',toastTimer,ocrBusy=false;
@@ -37,19 +44,46 @@ modal.addEventListener('click',e=>{const r=modal.getBoundingClientRect();if(e.ta
 
 function roleOptions(){return `<option value="demo-admin" ${actor?.id==='demo-admin'?'selected':''}>운영진 체험</option>${state.teams.slice(0,2).map((t,i)=>`<option value="demo-captain-${i}" ${actor?.id===`demo-captain-${i}`?'selected':''}>${esc(t.name)} 주장</option>`).join('')}<option value="demo-viewer" ${actor?.id==='demo-viewer'?'selected':''}>일반 관람자</option>`;}
 function statusBar(){return `<div class="kp-statusbar ${demo?'demo':''}"><span class="kp-mode">${demo?'DEMO / 체험 모드':'KOV / LIVE SERVICE'}</span><span>${demo?'예시 데이터 · 이 브라우저에만 저장됩니다.':loading?'서버 연결 중…':!storageReady?(storageError?'저장소 연결 확인 필요':'저장소 연결 대기 · 운영 데이터 미등록'):'대회 서버 연결됨'}</span><div class="kp-right">${demo?`<label class="kp-inline-label">역할<select id="kp-demo-role" aria-label="체험 역할">${roleOptions()}</select></label>${button('초기화','reset-demo','','small')}${button('실서비스로','exit-demo','','small')}`:`<span>${actor?`${esc(actor.name)} · ${actor.isAdmin?'운영진':'선수'} · ID ${esc(actor.id)}`:'게스트'}</span>${actor?'':button('Discord 로그인','login','','small')}${button('전체 기능 체험','enter-demo','','small')}`}</div></div>`;}
-function routeNav(){const tid=route[0]==='tournament'||route[0]==='apply'||route[0]==='bracket'?route[1]:match(route[1])?.tournamentId||state.tournaments[0]?.id;const m=state.matches.find(x=>x.tournamentId===tid&&!['waiting','cancelled','finished'].includes(x.status))||state.matches.find(x=>x.tournamentId===tid);const items=[['① 대회 메인','tournaments'],['② 대회 상세',tid?`tournament/${tid}`:'tournaments'],['③ 참가 신청',tid?`apply/${tid}`:'tournaments'],['④ 대진표',tid?`bracket/${tid}`:'tournaments'],['⑤ 경기',m?`match/${m.id}`:'tournaments'],['⑥ 밴픽',m?`veto/${m.id}`:'tournaments'],['⑦ 결과 등록',m?`result/${m.id}`:'tournaments'],['⑧ 기록실','records'],['⑨ 관리실','admin']];return `<nav class="kp-route-nav" aria-label="대회 화면">${items.map(([l,p])=>`<button data-action="route" data-path="${esc(p)}" class="${route[0]===p.split('/')[0]?'current':''}">${l}</button>`).join('')}</nav>`;}
+function routeNav() {
+  const [page, id] = route;
+  const currentMatch = ['match', 'veto', 'result'].includes(page) ? match(id) : null;
+  const tid = currentMatch?.tournamentId || (['tournament', 'apply', 'bracket'].includes(page) ? id : null);
+  const tournament = tour(tid);
+  if (!tournament) return '';
+  const items = [['대회 상세', `tournament/${tid}`], ['대진표', `bracket/${tid}`]];
+  if (tournament.status === 'registration' || page === 'apply') items.push(['참가 신청', `apply/${tid}`]);
+  if (currentMatch) items.push(['경기', `match/${id}`]);
+  return `<nav class="kp-route-nav" aria-label="선택한 대회">${items.map(([label, path]) =>
+    `<button type="button" data-action="route" data-path="${esc(path)}" class="${page === path.split('/')[0] ? 'current' : ''}">${label}</button>`
+  ).join('')}</nav>`;
+}
 function top(eyebrow,title,desc,actions='',back=''){return `<div class="kp-top"><div>${back?`<button class="kp-back" data-action="route" data-path="${esc(back)}">← 이전 화면</button><br>`:''}<span class="kp-eyebrow">${eyebrow}</span><h1 class="kp-title">${esc(title)}</h1><p class="kp-desc">${esc(desc)}</p></div><div class="kp-top-actions">${actions}</div></div>`;}
 function matchCard(m){return `<button class="kp-panel kp-match" data-action="route" data-path="match/${esc(m.id)}"><div class="kp-match-top">${badge(m.status)}<span>${esc(m.stage==='swiss'?`SWISS R${m.round} · ${m.group}`:m.slot)} · BO${m.bestOf}</span></div><div class="kp-match-teams"><div class="kp-team">${logo(m.rosterA)}<span class="kp-team-name">${esc(m.rosterA?.name||'TBD')}</span></div><strong class="kp-score">${m.status==='finished'||m.scoreA||m.scoreB?`${m.scoreA}<i>:</i>${m.scoreB}`:'VS'}</strong><div class="kp-team">${logo(m.rosterB)}<span class="kp-team-name">${esc(m.rosterB?.name||(m.bye?'부전승':'TBD'))}</span></div></div><div class="kp-match-foot"><span>${date(m.startsAt,true)}</span><span>경기 보기 ↗</span></div></button>`;}
 function listMatches(ms){return ms.length?`<div class="kp-grid three">${ms.map(matchCard).join('')}</div>`:empty('등록된 경기가 없습니다.','운영진이 대진을 생성하면 경기 일정이 표시됩니다.');}
-function tournamentMain(){
-  const sorted=state.tournaments.slice().sort((a,b)=>Date.parse(b.startAt)-Date.parse(a.startAt));const featured=sorted.find(t=>t.status==='ongoing')||sorted.find(t=>t.status==='registration')||sorted[0];
-  const active=state.matches.filter(m=>!['waiting','cancelled','finished'].includes(m.status)).sort((a,b)=>Date.parse(a.startsAt)-Date.parse(b.startsAt));
-  const finished=state.matches.filter(m=>m.status==='finished'&&!m.bye).slice().reverse().slice(0,3);
-  const hero=`<section class="kp-hero"><div class="kp-hero-copy"><span class="kp-eyebrow">${featured?esc(featured.season)+' / '+esc(names[featured.status]):'KOV OFFICIAL TOURNAMENT'}</span><h1>${featured?esc(featured.name):'승리를 향한<br>다음 무대, <span>KOV.</span>'}</h1><p class="kp-desc">${esc(featured?.description||'팀을 만나고, 실력을 증명하고, 새로운 정상에 도전하세요. 다음 KOV 대회를 준비하고 있습니다.')}</p><div class="kp-hero-meta"><span>대회 일정<strong>${featured?date(featured.startAt,true):'추후 공개'}</strong></span><span>상금<strong>${esc(featured?.prize||'추후 공개')}</strong></span><span>참가 규모<strong>${featured?`${state.applications.filter(a=>a.tournamentId===featured.id&&a.status==='approved').length} / ${featured.capacity} TEAMS`:'안내 예정'}</strong></span></div><div class="kp-actions">${featured?go('대회 보기 ↗',`tournament/${featured.id}`,'primary')+go('참가 신청 →',`apply/${featured.id}`):button('전체 기능 체험 ↗','enter-demo','','primary')}</div></div><div class="kp-hero-art"><small>KOV COMPETITIVE COMMUNITY <span>VALORANT</span></small><div class="kp-art-title">PLAY.<br>COMPETE.<br><span>PROVE.</span></div><small>ONE TEAM. NEXT LEVEL.<span>${featured?esc(featured.kind):'COMING SOON'}</span></small>${https(featured?.posterUrl)?`<img src="${esc(https(featured.posterUrl))}" alt="${esc(featured.name)} 포스터">`:''}</div></section>`;
-  return hero+section('01','다음 경기',listMatches(active.slice(0,3)),featured?go('전체 대진표 ↗',`bracket/${featured.id}`,'small'):'')+section('02','KOV TOURNAMENTS',sorted.length?`<div class="kp-grid three">${sorted.map(t=>`<article class="kp-panel kp-tournament-card">${badge(t.status)}<span class="kp-eyebrow">${esc(t.season)}</span><h3>${esc(t.name)}</h3><span class="kp-meta">${date(t.startAt,true)} · ${t.capacity} TEAMS</span><div class="kp-actions">${go('상세 보기 ↗',`tournament/${t.id}`,'small')}${t.status==='registration'?go('참가 신청',`apply/${t.id}`,'small'):''}</div></article>`).join('')}</div>`:empty('공식 대회를 준비하고 있습니다.','운영진이 대회를 등록하면 이곳에서 참가할 수 있습니다.',admin()?button('대회 등록','new-tournament','','primary'):''))+section('03','최신 경기 결과',listMatches(finished),go('선수·팀 기록실 ↗','records','small'))+section('04','후원·파트너',`<div class="kp-partners"><div><span class="kp-eyebrow">BETTER TOGETHER</span><br><strong>함께 만드는 더 큰 무대</strong></div><span>공식 후원·파트너 라인업을 준비하고 있습니다.</span></div>`);
+function tournamentMain() {
+  const sorted = state.tournaments.filter(t => t.status !== 'draft').sort((a, b) => Date.parse(b.startAt) - Date.parse(a.startAt));
+  const featured = sorted.find(t => t.status === 'ongoing') || sorted.find(t => t.status === 'registration');
+  const active = state.matches.filter(m => sorted.some(t => t.id === m.tournamentId && t.status === 'ongoing') && !['waiting', 'cancelled', 'finished'].includes(m.status)).sort((a, b) => Date.parse(a.startsAt) - Date.parse(b.startsAt));
+  const finished = state.matches.filter(m => m.status === 'finished' && !m.bye).slice().reverse().slice(0, 3);
+  const hero = featured ? `<section class="kp-hero"><div class="kp-hero-copy">
+    <span class="kp-eyebrow">${esc(featured.season)} / ${esc(names[featured.status])}</span>
+    <h1>${esc(featured.name)}</h1><p class="kp-desc">${esc(featured.description)}</p>
+    <div class="kp-hero-meta"><span>대회 일정<strong>${date(featured.startAt,true)}</strong></span><span>상금<strong>${esc(featured.prize || '추후 공개')}</strong></span><span>참가 규모<strong>${state.applications.filter(a => a.tournamentId === featured.id && a.status === 'approved').length} / ${featured.capacity}팀</strong></span></div>
+    <div class="kp-actions">${go('대회 보기', `tournament/${featured.id}`, 'primary')}${featured.status === 'registration' ? go('참가 신청', `apply/${featured.id}`) : go('대진표', `bracket/${featured.id}`)}</div>
+    </div><div class="kp-hero-art">${https(featured.posterUrl) ? `<img src="${esc(https(featured.posterUrl))}" alt="${esc(featured.name)} 포스터">` : ''}</div></section>`
+    : `<section class="kp-panel kp-hero-copy"><h1 class="kp-title">KOV 발로란트 대회</h1>
+       <p class="kp-desc">현재 참가 모집 중이거나 진행 중인 대회가 없습니다.</p>
+       <div class="kp-actions">${go('지난 경기 기록', 'records')}${admin() ? button('대회 등록', 'new-tournament', '', 'primary') : ''}</div></section>`;
+  const upcoming = active.length ? section('01', '다음 경기', listMatches(active.slice(0, 3))) : '';
+  const archive = sorted.length ? section('02', '대회 목록', `<div class="kp-grid three">${sorted.map(t => `
+    <article class="kp-panel kp-tournament-card">${badge(t.status)}<span class="kp-eyebrow">${esc(t.season)}</span>
+    <h3>${esc(t.name)}</h3><span class="kp-meta">${date(t.startAt,true)} · ${t.capacity}팀</span>
+    <div class="kp-actions">${go('상세 보기', `tournament/${t.id}`, 'small')}${t.status === 'registration' ? go('참가 신청', `apply/${t.id}`, 'small') : ''}</div></article>`).join('')}</div>`) : '';
+  const results = finished.length ? section('03', '최신 경기 결과', listMatches(finished), go('경기 기록', 'records', 'small')) : '';
+  return hero + upcoming + archive + results;
 }
 function rosterTable(r){return `<div class="kp-table-scroll"><table class="kp-roster-table"><thead><tr><th>구분</th><th>선수</th><th>Riot ID · 참가 당시 명단</th></tr></thead><tbody>${(r?.players||[]).map(p=>`<tr><td>${p.slot==='sub'?'후보':'주전'} ${p.discordId&&p.discordId===r.captainId?'ⓒ':''}</td><td>${esc(p.name)}</td><td>${esc(p.riotId)}</td></tr>`).join('')}</tbody></table></div>`;}
-function tournamentDetail(tid){const t=tour(tid);if(!t)return notFound();const apps=state.applications.filter(a=>a.tournamentId===tid&&a.status==='approved');const ms=state.matches.filter(m=>m.tournamentId===tid);return top(t.season,t.name,'대회 소개부터 경기와 선수 기록까지, 하나의 무대에서 확인하세요.',badge(t.status)+go('참가 신청 ↗',`apply/${tid}`,'primary')+external('방송 보기',t.broadcastUrl),'tournaments')+`<div class="kp-tabs" role="tablist" aria-label="대회 상세 탭">${[['overview','대회 소개'],['bracket','대진표'],['matches','경기'],['stats','선수 기록']].map(([id,label])=>`<button role="tab" aria-selected="${detailTab===id}" class="${detailTab===id?'active':''}" data-action="detail-tab" data-tab="${id}">${label}</button>`).join('')}</div>`+(detailTab==='bracket'?bracketBody(tid):detailTab==='matches'?listMatches(ms):detailTab==='stats'?recordsBody({tournamentId:tid}):`<div class="kp-grid two"><article class="kp-panel kp-pad"><h2>대회 소개</h2><p class="kp-desc" style="margin:14px 0 23px">${esc(t.description)}</p><dl class="kp-info-grid"><div><dt>총 상금</dt><dd>${esc(t.prize)}</dd></div><div><dt>진행 방식</dt><dd>${t.manualBracket?`${t.manualBracket.size}강 · 관리자 편집 토너먼트`:'스위스 → 4강 더블 엘리미네이션'}</dd></div><div><dt>대회 일정</dt><dd>${date(t.startAt)}<br>~ ${date(t.endAt)}</dd></div><div><dt>참가 마감</dt><dd>${date(t.deadline)}</dd></div><div><dt>매치 형식</dt><dd>BO${t.bestOf} · 그랜드 파이널 BO5</dd></div><div><dt>시드권</dt><dd>${t.kind==='FINAL'?'WINTER·SUMMER 입상 팀 참가':'상위 '+t.seedSlots+'팀 FINAL 자격'}</dd></div></dl><div class="kp-divider"></div><h3>참가 규정</h3><p class="kp-rules">${esc(t.rules)}</p></article><article class="kp-panel"><div class="kp-card-head"><h3>참가 팀</h3><span class="kp-meta">${apps.length} / ${t.capacity} TEAMS</span></div>${apps.length?apps.map(a=>`<div class="kp-list-row"><div class="kp-team-line">${logo(a.snapshot)}<div><strong>${esc(a.snapshot.name)}</strong><br><small>SEED ${a.seed} · ${a.snapshot.players.length}인 등록</small></div></div>${button('명단 보기','roster',`data-id="${esc(a.id)}"`,'small')}</div>`).join(''):empty('아직 승인된 팀이 없습니다.','참가 신청 후 운영진 승인 시 표시됩니다.')}</article></div>`);}
+function tournamentDetail(tid){const t=tour(tid);if(!t)return notFound();const apps=state.applications.filter(a=>a.tournamentId===tid&&a.status==='approved');const ms=state.matches.filter(m=>m.tournamentId===tid);return top(t.season,t.name,'대회 소개부터 경기와 선수 기록까지, 하나의 무대에서 확인하세요.',badge(t.status)+(t.status==='registration'?go('참가 신청 ↗',`apply/${tid}`,'primary'):'')+external('방송 보기',t.broadcastUrl),'tournaments')+`<div class="kp-tabs" role="tablist" aria-label="대회 상세 탭">${[['overview','대회 소개'],['bracket','대진표'],['matches','경기'],['stats','선수 기록']].map(([id,label])=>`<button role="tab" aria-selected="${detailTab===id}" class="${detailTab===id?'active':''}" data-action="detail-tab" data-tab="${id}">${label}</button>`).join('')}</div>`+(detailTab==='bracket'?bracketBody(tid):detailTab==='matches'?listMatches(ms):detailTab==='stats'?recordsBody({tournamentId:tid}):`<div class="kp-grid two"><article class="kp-panel kp-pad"><h2>대회 소개</h2><p class="kp-desc" style="margin:14px 0 23px">${esc(t.description)}</p><dl class="kp-info-grid"><div><dt>총 상금</dt><dd>${esc(t.prize)}</dd></div><div><dt>진행 방식</dt><dd>${t.manualBracket?`${t.manualBracket.size}강 · 관리자 편집 토너먼트`:'스위스 → 4강 더블 엘리미네이션'}</dd></div><div><dt>대회 일정</dt><dd>${date(t.startAt)}<br>~ ${date(t.endAt)}</dd></div><div><dt>참가 마감</dt><dd>${date(t.deadline)}</dd></div><div><dt>매치 형식</dt><dd>BO${t.bestOf} · 그랜드 파이널 BO5</dd></div><div><dt>시드권</dt><dd>${t.kind==='FINAL'?'WINTER·SUMMER 입상 팀 참가':'상위 '+t.seedSlots+'팀 FINAL 자격'}</dd></div></dl><div class="kp-divider"></div><h3>참가 규정</h3><p class="kp-rules">${esc(t.rules)}</p></article><article class="kp-panel"><div class="kp-card-head"><h3>참가 팀</h3><span class="kp-meta">${apps.length} / ${t.capacity} TEAMS</span></div>${apps.length?apps.map(a=>`<div class="kp-list-row"><div class="kp-team-line">${logo(a.snapshot)}<div><strong>${esc(a.snapshot.name)}</strong><br><small>SEED ${a.seed} · ${a.snapshot.players.length}인 등록</small></div></div>${button('명단 보기','roster',`data-id="${esc(a.id)}"`,'small')}</div>`).join(''):empty('아직 승인된 팀이 없습니다.','참가 신청 후 운영진 승인 시 표시됩니다.')}</article></div>`);}
 function applicationPage(tid){const t=tour(tid);if(!t)return notFound();const teams=myTeams();const selected=teams.find(x=>x.id===selectedTeam)||teams[0];selectedTeam=selected?.id||'';const a=state.applications.find(a=>a.tournamentId===tid&&a.teamId===selected?.id&&a.status!=='rejected');return top('TEAM REGISTRATION',`${t.name} 참가 신청`,'기존 팀 명단을 불러오고, 참가 당시 명단을 확정해 운영진 승인을 요청하세요.',button('팀 등록·수정','edit-team',selected?`data-id="${selected.id}"`:'','primary'),`tournament/${tid}`)+(!actor?loginRequired():`<div class="kp-grid two"><article class="kp-panel kp-pad"><div class="kp-form"><label class="kp-field">기존 팀 명단 불러오기<select id="kp-application-team">${teams.length?teams.map(team=>`<option value="${team.id}" ${team.id===selectedTeam?'selected':''}>${esc(team.name)}</option>`).join(''):'<option value="">먼저 팀을 등록해 주세요</option>'}</select></label><div class="kp-note">신청 시점의 팀 로고·주장·주전·후보·Riot ID를 별도 보관합니다. 이후 팀 정보가 바뀌어도 대회 참가 명단과 과거 기록은 유지됩니다.</div>${selected?`<div class="kp-team-line">${logo(selected)}<div><strong>${esc(selected.name)}</strong><br><small>주장 ${esc(selected.captainName)} · ${selected.players.length}명</small></div></div>${rosterTable(selected)}<label class="kp-check"><input type="checkbox" id="kp-roster-consent">명단과 대회 규정을 확인했습니다.</label>${button('명단 확정 후 참가 신청','apply',`data-tid="${tid}" data-team="${selected.id}" ${a?'disabled':''}`,'primary')}`:empty('등록된 팀이 없습니다.','팀을 등록하고 주전 5명의 Riot ID를 입력해 주세요.',button('내 팀 등록','edit-team','','primary'))}</div></article><article class="kp-panel kp-pad"><h2>신청 상태</h2><div class="kp-divider"></div>${a?`${badge(a.status)}<h3 style="margin:16px 0">${esc(a.snapshot.name)}</h3><p class="kp-meta">신청일 ${date(a.submittedAt)}</p><p class="kp-rules">${esc(a.note||'운영진이 참가 명단과 자격을 확인합니다.')}</p>`:empty('아직 신청하지 않았습니다.','왼쪽에서 팀 명단을 확인하고 신청해 주세요.')}<div class="kp-divider"></div><dl class="kp-info-grid"><div><dt>접수 마감</dt><dd>${date(t.deadline)}</dd></div><div><dt>참가 자격</dt><dd>${selected&&eligibleForFinal(state,t,selected.id)?'참가 자격 충족':t.kind==='FINAL'?'시드권 보유 팀만 신청 가능':'5인 팀'}</dd></div></dl><p class="kp-meta" style="margin-top:20px">반려 사유가 있으면 명단을 수정한 뒤 다시 신청할 수 있습니다.</p></article></div>`);}
 function bracketCard(m){return `<button class="kp-bracket-card" data-action="route" data-path="match/${m.id}"><div class="kp-match-top"><span>${esc(m.slot||`R${m.round}`)} · BO${m.bestOf}</span>${badge(m.status)}</div>${[['A',m.rosterA,m.teamA],['B',m.rosterB,m.teamB]].map(([side,r,id])=>`<div class="kp-bracket-team ${id&&m.winnerId===id?'winner':''}"><span>${esc(r?.name||(m.bye&&side==='B'?'부전승':'TBD'))}</span><strong>${side==='A'?m.scoreA:m.scoreB}</strong></div>`).join('')}<div class="kp-meta">${date(m.startsAt,true)}</div></button>`;}
 function bracketBody(tid){return `<div class="kp-tabs" aria-label="대진표 방식"><button data-action="bracket-view" data-view="manual" class="${bracketView==='manual'?'active':''}">관리자 편집 토너먼트</button><button data-action="bracket-view" data-view="legacy" class="${bracketView==='legacy'?'active':''}">스위스·더블 엘리미네이션</button></div>`+(bracketView==='manual'?renderManualBracket(state,tid,{isAdmin:admin(),zoom:bracketZoom}):legacyBracketBody(tid));}
@@ -77,15 +111,31 @@ function loginRequired(staff=false){return empty(staff?'운영진 권한이 필�
 function notFound(){return empty('요청한 대회 또는 경기를 찾을 수 없습니다.','대회 메인에서 다시 선택해 주세요.',go('대회 메인','tournaments'));}
 
 function render(){
-  let content='';try{switch(route[0]){case 'tournaments':content=tournamentMain();break;case 'tournament':content=tournamentDetail(route[1]);break;case 'apply':content=applicationPage(route[1]);break;case 'bracket':content=bracketPage(route[1]);break;case 'match':content=matchPage(route[1]);break;case 'veto':content=vetoPage(route[1]);break;case 'result':content=resultPage(route[1]);break;case 'records':content=recordsPage();break;case 'hall':content=hallPage();break;case 'admin':content=adminPage();break;default:content=notFound();}}catch(error){content=empty('화면을 불러오지 못했습니다.',error.message,go('대회 메인','tournaments'));}
-  app.innerHTML=statusBar()+(!demo&&storageError?`<div class="kp-note red">${esc(storageError)} ${button('연결 재확인','refresh-server','','small')}</div>`:'')+routeNav()+content+`<footer class="kp-footer"><strong>KOV <span>COMPETITIVE COMMUNITY</span></strong><span>PLAY. COMPETE. PROVE.</span></footer>`;
-  document.querySelectorAll('aside .nav-item').forEach(b=>{b.title=b.textContent.trim();b.setAttribute('aria-label',b.textContent.trim());});
-  const activeNav=document.querySelector(`[data-kov-nav="${route[0]}"]`);if($('#page-home').classList.contains('active')){document.querySelectorAll('aside .nav-item').forEach(b=>b.classList.remove('active'));(activeNav||document.querySelector('[aria-label="KOV 홈"]'))?.classList.add('active');}
+  let content='';try{switch(route[0]){case 'tournaments':content=tournamentMain();break;case 'tournament':content=tournamentDetail(route[1]);break;case 'apply':content=applicationPage(route[1]);break;case 'bracket':content=bracketPage(route[1]);break;case 'match':content=matchPage(route[1]);break;case 'veto':content=vetoPage(route[1]);break;case 'result':content=resultPage(route[1]);break;case 'registry':content=top('KOV','팀·클랜 정식 등록 신청','Discord의 등록 신청 목록입니다. 대회 참가 승인 내역은 각 대회에서 확인할 수 있습니다.')+'<kov-registered-teams></kov-registered-teams>';break;case 'records':content=recordsPage();break;case 'hall':content=hallPage();break;case 'admin':content=adminPage();break;default:content=notFound();}}catch(error){content=empty('화면을 불러오지 못했습니다.',error.message,go('대회 메인','tournaments'));}
+  app.innerHTML=statusBar()+(!demo&&storageError?`<div class="kp-note red">${esc(storageError)} ${button('연결 재확인','refresh-server','','small')}</div>`:'')+routeNav()+content+`<footer class="kp-footer"><strong>KOV 발로란트 대회</strong></footer>`;
+  const section = ['registry', 'records', 'hall', 'admin'].includes(route[0]) ? route[0] : 'tournaments';
+  document.querySelectorAll('[data-kov-nav]').forEach(link => {
+    if (link.dataset.kovNav === 'admin') link.hidden = !admin();
+    if (link.dataset.kovNav === section) link.setAttribute('aria-current', 'page');
+    else link.removeAttribute('aria-current');
+  });
   if(route[0]==='result'&&admin()){const sub=state.submissions.find(s=>s.matchId===route[1]&&s.status==='pending');if(sub&&!demo)loadEvidence(sub);}
   updateTimer();
 }
-window.openKov=path=>{modal.close();const next=path.split('/');if(next[0]!=='result'||next[1]!==route[1])resultDraft=null;route=next;const hash='#kov/'+next.map(encodeURIComponent).join('/');if(location.hash!==hash)history.pushState(null,'',hash);window.goPage('home',document.querySelector('[aria-label="KOV 홈"]'));render();};
-window.addEventListener('popstate',()=>{if(location.hash.startsWith('#kov/')){route=location.hash.slice(5).split('/').map(decodeURIComponent);window.goPage('home');render();}});
+function navigate(next) {
+  modal.close();
+  if (next[0] !== 'result' || next[1] !== route[1]) resultDraft = null;
+  route = next;
+  window.scrollTo(0, 0);
+  render();
+}
+window.openKov = path => {
+  const next = path.split('/');
+  const hash = '#kov/' + next.map(encodeURIComponent).join('/');
+  if (location.hash !== hash) history.pushState(null, '', hash);
+  navigate(next);
+};
+window.addEventListener('hashchange', () => navigate(readRoute()));
 function demoActor(id){if(id==='demo-admin')return {id,name:'운영진 체험',isAdmin:true};const team=state.teams.find(t=>t.captainId===id);return {id,name:team?team.name+' 주장':'관람자',isAdmin:false};}
 function loadDemo(reset=false){try{state=reset?demoState():JSON.parse(readLocal('kov-demo-v2')||'null')||demoState();if(state.schema!==2)state=demoState();}catch{state=demoState();}actor=demoActor(readLocal('kov-demo-role')||'demo-admin');storageReady=false;loading=false;}
 async function fetchState(force=false){if(demo||fetching||(!force&&Date.now()<nextFetchAt))return;fetching=true;try{const token=readLocal('discordToken');const response=await fetch('/api/kov',{headers:token?{Authorization:'Bearer '+token}:{},cache:'no-store'});const data=await responseJson(response);if(!response.ok)throw Error(data.error||'대회 서버 응답 오류');const changed=state.revision!==data.state.revision||loading||force;state=data.state;actor=data.actor;storageReady=data.storageReady;storageError=data.storageError||'';nextFetchAt=storageError?Date.now()+30000:0;webhookReady=data.webhookReady;loading=false;if(changed&&!$('#kp-result-form')&&!modal.open)render();}catch(error){loading=false;storageError=error.message;nextFetchAt=Date.now()+30000;if(force)toast(error.message);if(!state.tournaments.length)render();}finally{fetching=false;}}
@@ -108,7 +158,10 @@ async function runOcr(){if(!resultDraft?.image||ocrBusy)return;collectResult();o
 document.addEventListener('click',async e=>{const b=e.target.closest('[data-action]');if(!b||(!app.contains(b)&&!modal.contains(b)))return;const a=b.dataset.action;if(b.disabled)return;try{switch(a){
   case 'route':window.openKov(b.dataset.path);break;
   case 'close-modal':modal.close();break;
-  case 'login':window.discordLogin();break;
+  case 'login':
+    loginPopup = window.open('/api/auth-login', 'discord-login', 'popup,width=500,height=700');
+    if (!loginPopup) toast('브라우저에서 로그인 팝업을 허용해 주세요.');
+    break;
   case 'refresh-server':await fetchState(true);break;
   case 'enter-demo':demo=true;writeLocal('kov-demo-active','1');loadDemo();window.openKov('tournaments');toast('체험 모드입니다. 실제 서버·Discord에는 변경을 보내지 않습니다.');break;
   case 'exit-demo':demo=false;writeLocal('kov-demo-active','0');state=initialState();actor=null;route=['tournaments'];loading=true;render();await fetchState(true);window.openKov('tournaments');break;
@@ -167,7 +220,13 @@ document.addEventListener('submit',async e=>{if(!e.target.id?.startsWith('kp-'))
   case 'kp-finalize-form':await command('finalizeTournament',{tournamentId:form.dataset.tid,mvpId:d.get('mvpId')});modal.close();window.openKov('hall');toast('최종 순위와 MVP를 보관했습니다.');break;
 }}catch(error){toast(error.message);}finally{submit.disabled=false;}});
 
-window.addEventListener('message',e=>{if(e.data?.type==='DISCORD_LOGIN_SUCCESS')setTimeout(()=>fetchState(true),150);});
+window.addEventListener('message', event => {
+  if (!loginPopup || event.source !== loginPopup) return;
+  if (![location.origin, 'https://valorant-scrims.vercel.app'].includes(event.origin)) return;
+  if (event.data?.type !== 'DISCORD_LOGIN_SUCCESS' || typeof event.data.token !== 'string') return;
+  loginPopup = null;
+  if (writeLocal('discordToken', event.data.token)) fetchState(true);
+  else toast('브라우저의 저장소 접근을 허용해 주세요.');
+});
 window.addEventListener('storage',e=>{if(demo&&e.key==='kov-demo-v2'){try{state=JSON.parse(e.newValue);render();}catch{}}else if(e.key==='discordToken')fetchState(true);});
-const sprite=document.querySelector('svg symbol')?.parentElement;if(sprite&&!$('#ic-home'))sprite.insertAdjacentHTML('beforeend','<symbol id="ic-home" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3 2 11h3v10h5v-6h4v6h5V11h3L12 3z"/></symbol>');
 if(demo)loadDemo();render();if(!demo)fetchState(true);setInterval(updateTimer,250);setInterval(()=>{if(document.visibilityState==='visible')fetchState();},4000);

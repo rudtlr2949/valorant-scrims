@@ -1,19 +1,27 @@
-const page = document.querySelector('#page-findteam');
-const status = document.querySelector('#kov-registered-status');
-const list = document.querySelector('#kov-registered-list');
-let loading = false;
+let cachedLookup;
+
+function lookupTeams() {
+  if (cachedLookup && Date.now() < cachedLookup.expiresAt) return cachedLookup.request;
+  const request = fetch('/api/kov-registered-teams').then(async response => {
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error);
+    return data.teams;
+  });
+  cachedLookup = { request, expiresAt: Date.now() + 60_000 };
+  return request;
+}
 
 function renderTeam(team) {
   const card = document.createElement('article');
-  card.className = 'team-card';
+  card.className = 'kp-panel kov-registry-card';
   const name = document.createElement('h3');
-  name.className = 'team-card-name';
   name.textContent = team.name;
   const captain = document.createElement('p');
   captain.textContent = `${team.kind === '클랜' ? '클랜장' : '팀장'} · ${team.captain}`;
   const members = document.createElement('p');
   members.textContent = `${team.kind === '클랜' ? '클랜원' : '팀원'} · ${team.members.join(', ')}`;
   const source = document.createElement('a');
+  source.className = 'kp-button small';
   source.href = team.url;
   source.target = '_blank';
   source.rel = 'noopener noreferrer';
@@ -22,27 +30,26 @@ function renderTeam(team) {
   return card;
 }
 
-async function loadTeams() {
-  if (!page.classList.contains('active') || loading) return;
-  loading = true;
-  status.textContent = 'Discord 등록 팀을 불러오는 중입니다…';
-  try {
-    const response = await fetch('/api/kov-registered-teams');
-    const data = await response.json();
-    if (!response.ok) throw new Error(data.error);
-    list.replaceChildren(...data.teams.map(renderTeam));
-    status.textContent = data.teams.length
-      ? `신청 ${data.teams.length}건 · 승인 여부 미확인`
-      : '인식된 정식 등록 신청이 없습니다.';
-  } catch (error) {
-    status.textContent = error.message || '등록 목록을 불러오지 못했습니다.';
-  } finally {
-    loading = false;
+class RegisteredTeams extends HTMLElement {
+  async connectedCallback() {
+    const status = document.createElement('p');
+    status.className = 'kp-note';
+    status.setAttribute('role', 'status');
+    status.textContent = 'Discord 등록 팀을 불러오는 중입니다…';
+    this.replaceChildren(status);
+    try {
+      const teams = await lookupTeams();
+      if (!this.isConnected) return;
+      const list = document.createElement('div');
+      list.className = 'kp-grid three kp-section';
+      list.append(...teams.map(renderTeam));
+      status.textContent = teams.length
+        ? `신청 ${teams.length}건 · 승인 여부 미확인`
+        : '인식된 정식 등록 신청이 없습니다.';
+      this.append(list);
+    } catch (error) {
+      status.textContent = error.message || '등록 목록을 불러오지 못했습니다.';
+    }
   }
 }
-
-const observer = new MutationObserver(records => {
-  if (records.some(record => !record.oldValue?.split(/\s+/).includes('active'))) void loadTeams();
-});
-observer.observe(page, { attributes: true, attributeFilter: ['class'], attributeOldValue: true });
-void loadTeams();
+customElements.define('kov-registered-teams', RegisteredTeams);

@@ -1,6 +1,6 @@
 # KOV 대회 운영 플랫폼
 
-기존 `index.html`의 프로필·전적·Discord 로그인 기능을 보존하면서 대회 플랫폼을 추가했습니다. 새 화면 코드는 `kov-platform.js`, 디자인은 `kov-platform.css`, 공통 운영 규칙은 `lib/kov-core.mjs`, 서버는 `api/kov.js`입니다.
+KOV 발로란트 대회 전용 사이트입니다. `index.html`과 `kov-shell.css`는 기본 메뉴와 레이아웃을 구성합니다. 대회 화면은 `kov-platform.js`, 디자인은 `kov-platform.css`, 공통 운영 규칙은 `lib/kov-core.mjs`, 서버는 `api/kov.js`입니다.
 
 ## 실행과 검증
 
@@ -62,7 +62,7 @@ Redis Lua 비교 후 저장으로 동시 요청 시 덮어쓰기를 방지합니
 
 Discord Developer Portal에서 봇을 만든 뒤 KOV 서버에 설치합니다. 지정된 [등록 채널](https://discord.com/channels/683829152276938814/701290347161976883)에 `View Channel`과 `Read Message History` 권한을 부여하고, 봇의 `Message Content Intent`를 활성화합니다. 봇의 토큰은 Vercel 프로젝트의 서버 전용 비밀 환경변수 `KOV_REGISTRY_BOT_TOKEN`에 추가하고 해당 환경을 다시 배포합니다.
 
-사이트의 **팀 찾기 → KOV 팀·클랜 정식 등록 신청**에 신청 명단을 표시합니다. 승인 여부는 확인되지 않은 상태로 표시합니다. 아래 예시처럼 팀장·클랜장 1명과 팀원·클랜원 2명 이상을 등록합니다.
+사이트의 **등록 팀·클랜** 메뉴에서 정식 등록 신청 명단을 표시합니다. 승인 여부는 확인되지 않은 상태로 표시합니다. 아래 예시처럼 팀장·클랜장 1명과 팀원·클랜원 2명 이상을 등록합니다.
 
 ```text
 팀명: 예시 클랜
