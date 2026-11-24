@@ -1,3 +1,5 @@
+import { createHash, randomUUID } from 'node:crypto';
+
 const guildId = '683829152276938814';
 const channelId = '701290347161976883';
 const fields = {
@@ -45,37 +47,95 @@ export function parseRegistration(message) {
   return { kind, name, captain, members, url: `https://discord.com/channels/${guildId}/${channelId}/${message.id}` };
 }
 
-async function readChannel(token) {
-  const teams = new Map();
-  const signal = AbortSignal.timeout(25000);
-  let before;
-  let hasMessages = false;
-  let hasContent = false;
-  for (let page = 0; page < 100; page++) {
+export async function readChannel(token, redis, fetcher = fetch, now = Date.now) {
+  // A shared checkpoint prevents each visitor from rescanning the whole channel.
+  const tokenId = createHash('sha256').update(token).digest('hex').slice(0, 16);
+  const prefix = `kov:registry:v2:${channelId}:${tokenId}`;
+  const snapshotKey = prefix + ':snapshot';
+  const lockKey = prefix + ':lock';
+  const raw = await redis(['GET', snapshotKey]);
+  let snapshot = raw ? JSON.parse(raw) : { teams: [], pages: 0 };
+  const result = () => ({
+    teams: snapshot.teams,
+    syncing: !snapshot.completedAt,
+    retryAfter: Math.max(2, Math.ceil(((snapshot.nextAt || 0) - now()) / 1000)),
+  });
+  if (snapshot.completedAt && now() - snapshot.completedAt < 300000) return result();
+  if (snapshot.nextAt > now()) return result();
+  const lock = randomUUID();
+  if (!await redis(['SET', lockKey, lock, 'NX', 'EX', 60])) return result();
+  try {
+    // Re-read after acquiring the lock to preserve another invocation's cursor.
+    const latest = await redis(['GET', snapshotKey]);
+    snapshot = latest ? JSON.parse(latest) : { teams: [], pages: 0 };
+    if (snapshot.completedAt && now() - snapshot.completedAt < 300000) return result();
+    if (snapshot.nextAt > now()) return result();
+    if (snapshot.completedAt) snapshot = { teams: [], pages: 0 };
+    if (snapshot.pages >= 100) throw new Error('Discord history exceeds scan limit');
     const url = new URL(`https://discord.com/api/v10/channels/${channelId}/messages`);
     url.searchParams.set('limit', '100');
-    if (before) url.searchParams.set('before', before);
-    const response = await fetch(url, { headers: { Authorization: `Bot ${token}` }, signal });
+    if (snapshot.before) url.searchParams.set('before', snapshot.before);
+    const response = await fetcher(url, {
+      headers: { Authorization: `Bot ${token}` },
+      signal: AbortSignal.timeout(10000),
+    });
+    if (response.status === 429) {
+      const body = await response.json().catch(() => ({}));
+      const delay = Number(body.retry_after || response.headers.get('retry-after')) || 5;
+      snapshot.nextAt = now() + Math.max(1, delay) * 1000;
+      await redis(['SET', snapshotKey, JSON.stringify(snapshot), 'EX', 86400]);
+      return result();
+    }
     if (!response.ok) throw new Error(`Discord HTTP ${response.status}`);
     const messages = await response.json();
+    const teams = new Map(snapshot.teams.map(team => [
+      `${team.kind}:${team.name.normalize('NFKC').toLowerCase()}`, team,
+    ]));
     for (const message of messages) {
-      hasMessages = true;
-      hasContent ||= Boolean(message.content || message.embeds?.length || message.attachments?.length);
+      snapshot.hasMessages = true;
+      snapshot.hasContent ||= Boolean(message.content || message.embeds?.length || message.attachments?.length);
       const team = parseRegistration(message);
       if (!team) continue;
       const key = `${team.kind}:${team.name.normalize('NFKC').toLowerCase()}`;
       if (!teams.has(key)) teams.set(key, team);
     }
+    snapshot.teams = [...teams.values()];
+    snapshot.pages++;
+    snapshot.before = messages.at(-1)?.id || snapshot.before;
     if (messages.length < 100) {
-      if (hasMessages && !hasContent) throw new Error('Discord message content unavailable');
-      return [...teams.values()];
+      if (snapshot.hasMessages && !snapshot.hasContent) throw new Error('Discord message content unavailable');
+      snapshot.completedAt = now();
     }
-    before = messages.at(-1).id;
+    const exhausted = response.headers.get('x-ratelimit-remaining') === '0';
+    const resetAfter = Number(response.headers.get('x-ratelimit-reset-after')) || 2;
+    snapshot.nextAt = now() + (exhausted ? resetAfter : 2) * 1000;
+    await redis(['SET', snapshotKey, JSON.stringify(snapshot), 'EX', 86400]);
+    return result();
+  } finally {
+    await redis(['EVAL',
+      "if redis.call('GET',KEYS[1])==ARGV[1] then return redis.call('DEL',KEYS[1]) end;return 0",
+      1, lockKey, lock]);
   }
-  throw new Error('Discord history exceeds scan limit');
+}
+
+async function registryRedis(command) {
+  const url = process.env.UPSTASH_REDIS_REST_URL;
+  const token = process.env.UPSTASH_REDIS_REST_TOKEN;
+  if (!url || !token) throw new Error('Registry storage unavailable');
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify(command),
+    signal: AbortSignal.timeout(8000),
+  });
+  if (!response.ok) throw new Error('Registry storage connection failed');
+  const data = await response.json();
+  if (data.error) throw new Error('Registry storage command failed');
+  return data.result;
 }
 
 export default async function handler(req, res) {
+  res.setHeader('Cache-Control', 'no-store');
   if (req.method !== 'GET') {
     res.setHeader('Allow', 'GET');
     return res.status(405).json({ error: 'GET 요청만 지원합니다.' });
@@ -83,9 +143,9 @@ export default async function handler(req, res) {
   const token = process.env.KOV_REGISTRY_BOT_TOKEN?.trim();
   if (!token) return res.status(503).json({ error: 'Discord 등록 채널 연동을 준비 중입니다.' });
   try {
-    const teams = await readChannel(token);
-    res.setHeader('Vercel-CDN-Cache-Control', 'max-age=300, stale-while-revalidate=60');
-    return res.status(200).json({ teams });
+    const result = await readChannel(token, registryRedis);
+    if (!result.syncing) res.setHeader('Vercel-CDN-Cache-Control', 'max-age=300');
+    return res.status(200).json(result);
   } catch (error) {
     console.error('KOV registry:', error.message);
     return res.status(502).json({ error: 'Discord 등록 목록을 불러오지 못했습니다.' });
