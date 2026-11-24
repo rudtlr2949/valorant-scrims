@@ -71,7 +71,6 @@ export async function readChannel(token, redis, fetcher = fetch, now = Date.now)
     if (snapshot.completedAt && now() - snapshot.completedAt < 300000) return result();
     if (snapshot.nextAt > now()) return result();
     if (snapshot.completedAt) snapshot = { teams: [], pages: 0 };
-    if (snapshot.pages >= 100) throw new Error('Discord history exceeds scan limit');
     const url = new URL(`https://discord.com/api/v10/channels/${channelId}/messages`);
     url.searchParams.set('limit', '100');
     if (snapshot.before) url.searchParams.set('before', snapshot.before);
