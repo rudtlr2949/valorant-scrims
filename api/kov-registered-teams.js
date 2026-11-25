@@ -219,7 +219,14 @@ export default async function handler(req, res) {
   const token = process.env.KOV_REGISTRY_BOT_TOKEN?.trim();
   if (!token) return res.status(503).json({ error: 'Discord 등록 채널 연동을 준비 중입니다.' });
   try {
-    const result = await readChannel(token, registryRedis);
+    const startedAt = Date.now();
+    let result = await readChannel(token, registryRedis);
+    // Do several short, rate-aware batches per request to avoid a network round trip
+    // for every checkpoint. Long Discord cooldowns remain client-side retries.
+    while (result.syncing && result.retryAfter <= 3 && Date.now() - startedAt < 8000) {
+      await new Promise(resolve => setTimeout(resolve, result.retryAfter * 1000));
+      result = await readChannel(token, registryRedis);
+    }
     if (!result.syncing) res.setHeader('Vercel-CDN-Cache-Control', 'max-age=300');
     return res.status(200).json(result);
   } catch (error) {
