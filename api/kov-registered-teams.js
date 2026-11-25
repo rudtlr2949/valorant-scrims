@@ -50,15 +50,15 @@ export function parseRegistration(message) {
 
 export function reactionDecision(emoji) {
   const name = (emoji?.name || '').normalize('NFKC').replace(/\uFE0F/g, '').toLowerCase();
-  if (['✅', '☑', '✔', '⭕', 'o', '🅾', '🇴', 'white_check_mark', 'check', 'checkmark'].includes(name)) return 'approved';
-  if (['❌', '❎', '✖', '×', 'x', '🇽'].includes(name)) return 'rejected';
+  if (['c_check', '✅', '☑', '✔', '⭕', 'o', '🅾', '🇴'].includes(name)) return 'approved';
+  if (['c_crossred', '❌', '❎', '✖', '×', 'x', '🇽'].includes(name)) return 'rejected';
   return null;
 }
 
 export async function readChannel(token, redis, fetcher = fetch, now = Date.now) {
   const tokenId = createHash('sha256').update(token).digest('hex').slice(0, 16);
   // New namespace deliberately excludes the old, unverified application cache.
-  const prefix = `kov:registry:v4:${channelId}:${tokenId}`;
+  const prefix = `kov:registry:v5:${channelId}:${tokenId}`;
   const snapshotKey = prefix + ':snapshot';
   const lockKey = prefix + ':lock';
   const fresh = () => ({ teams: [], pages: 0, pending: [], members: {}, decided: [] });

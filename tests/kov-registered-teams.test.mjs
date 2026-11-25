@@ -82,8 +82,8 @@ test('only administrator O reactions approve, while administrator X vetoes and m
   const result = await finishScan(async url => {
     const authority = authorityResponse(url); if (authority) return authority;
     if (url.pathname.endsWith('/messages')) return Response.json([
-      application('10', 'Approved', ['✅']), application('9', 'MemberOnly', ['⭕']),
-      application('8', 'Rejected', ['⭕', '❌']), application('7', 'Pending'),
+      application('10', 'Approved', ['c_check']), application('9', 'MemberOnly', ['⭕']),
+      application('8', 'Rejected', ['c_check', 'c_crossred']), application('7', 'Pending'),
       application('6', 'FormerMember', ['⭕']), application('5', 'Owner', ['⭕']),
       application('4', 'BotOnly', ['⭕']),
     ]);
