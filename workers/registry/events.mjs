@@ -28,6 +28,11 @@ export function parseRegistryEvent(message) {
   const values = label => entries.filter(entry => entry.label === label).map(entry => entry.value);
   const kind = temporary ? (values('클랜명').length ? '클랜' : '팀') : premier || categoryChange ? '팀' : footer[1];
   const nameFields = values(premier ? '신청팀명' : kind + '명');
+  if (!nameFields.length && /명\s*변경/.test(footer[0])) {
+    const before = [...values('이전' + kind + '명'), ...values('변경전' + kind + '명')];
+    const after = [...values('변경' + kind + '명'), ...values('변경후' + kind + '명')];
+    if (before.length === 1 && after.length === 1) nameFields.push(before[0] + ' → ' + after[0]);
+  }
   if (nameFields.length !== 1) return null;
   const name = nameFields[0].split('\n')[0].replace(/^`|`$/g, '').trim().slice(0, 80);
   if (!name) return null;
@@ -67,7 +72,10 @@ export function parseRegistryEvent(message) {
     return captains.length === 1 && roster.length >= 2
       ? { ...event, type: 'register', captain: captains[0], members: roster } : null;
   }
-  if (action === '해체') return { ...event, type: 'disband' };
+  if (action === '해체') {
+    const captains = people(values(kind + '장'));
+    return { ...event, type: 'disband', ...(captains.length === 1 ? { captain: captains[0] } : {}) };
+  }
   if (action === '변경' && /장\s*변경/.test(footer[0])) {
     const changes = values(kind + '장변경');
     if (changes.length !== 1) return null;
@@ -139,6 +147,12 @@ export function replayRegistryEvents(events, { now = Date.now(), premierAct = ''
       // Do not apply those old edits to the newer roster a second time.
       resolvePrevious(event, [event.name]);
       temporary.delete(id);
+      // A formal application can expand a provisional team's full name.
+      // Require the same captain ID as well as its name/explicit abbreviation.
+      for (const [temporaryKey, entry] of temporary) {
+        if (entry.kind === event.kind && entry.captain?.id && entry.captain.id === event.captain?.id
+          && (namesMatch(entry.name, event.name) || aliases(entry.name).some(alias => aliases(event.name).includes(alias)))) temporary.delete(temporaryKey);
+      }
       for (const [premierKey, entry] of premier) if (key(entry) === id) premier.delete(premierKey);
       active.set(id, { ...event, knownNames: [event.name], members: event.members.map(person => ({ ...person })) });
       continue;
@@ -147,8 +161,12 @@ export function replayRegistryEvents(events, { now = Date.now(), premierAct = ''
     if (!active.has(id) && !temporary.has(id)) {
       const entries = [...active.entries(), ...temporary.entries()].filter(([, team]) => team.kind === event.kind);
       const exact = entries.filter(([, team]) => looseName(team.name) === looseName(event.name));
-      const candidates = exact.length ? exact : entries.filter(([, team]) =>
+      let candidates = exact.length ? exact : entries.filter(([, team]) =>
         teamNames(team).some(name => namesMatch(name, event.name)));
+      if (candidates.length > 1 && event.type === 'disband' && event.captain?.id) {
+        const sameCaptain = candidates.filter(([, team]) => team.captain?.id === event.captain.id);
+        if (sameCaptain.length === 1) candidates = sameCaptain;
+      }
       if (candidates.length === 1) id = candidates[0][0];
       ambiguous = candidates.length > 1;
     }

@@ -20,6 +20,18 @@ test('recognizes observed formal registration wording and equivalent explicit ac
   assert.equal(result.unmatchedChanges, 0);
 });
 
+test('separate before/after rename fields and expanded provisional names preserve closure identity', () => {
+  const provisional = event('90', '팀명: STARFOX YOUTH(SRXA)\n팀장: <@11>\n신규 등급 신청합니다.');
+  const formal = event('100', '팀명: STARFOX E-SPORTS YOUTH(SRXA)\n팀장: <@11>\n팀원: <@12> <@13>\n팀 등록 신청합니다.');
+  const rename = event('110', '이전 팀명: STARFOX E-SPORT YOUTH(SRXA)\n변경 팀명: TEAM PULSE(TP)\n팀명 변경 신청합니다.');
+  const close = event('120', '팀명: SRXA\n팀장: <@11>\n팀 해체 신청합니다.');
+  assert.equal(rename.type, 'rename');
+  const result = replayRegistryEvents([provisional, formal, rename, close]);
+  assert.deepEqual(result.teams, []);
+  assert.deepEqual(result.temporaryTeams, []);
+  assert.equal(result.unmatchedChanges, 0);
+});
+
 test('replays additions, removals and captain transfer chronologically using stable Discord IDs', () => {
   const events = [register('100'),
     event('110', '팀명: Test GC\n팀원 추가: <@14>\n팀원 제외: <@12>\n팀원 추가 및 제외 신청합니다.'),

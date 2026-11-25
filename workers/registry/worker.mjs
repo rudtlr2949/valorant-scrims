@@ -38,7 +38,7 @@ async function catchUp() {
   // approvals and recent applications, including the active 30-day temporary window.
   await store.enqueue(await store.allEventIds(), false);
   const cutoff = Date.now() - 31 * 86400000;
-  const historyKey = store.prefix + ':forms-history-enqueued:v2';
+  const historyKey = store.prefix + ':forms-history-enqueued:v3';
   const fullHistory = !await registryRedis(['EXISTS', historyKey]);
   const known = new Set(await store.allEventIds());
   let before;
