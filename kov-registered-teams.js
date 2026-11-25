@@ -45,7 +45,43 @@ function renderTeam(team) {
   date.className = 'kp-meta';
   date.textContent = '최근 내역 · ';
   date.append(renderDate(team));
-  card.append(category, name, captain, members, date, source);
+  const details = document.createElement('details');
+  details.dataset.rosterSource = team.url;
+  const summary = document.createElement('summary');
+  summary.className = 'kp-button small';
+  summary.textContent = '팀장·팀원 Discord 태그 보기';
+  const roster = document.createElement('div');
+  roster.setAttribute('aria-live', 'polite');
+  details.append(summary, roster);
+  details.addEventListener('toggle', async () => {
+    if (!details.open || details.dataset.loaded) return;
+    details.dataset.loaded = 'true';
+    roster.textContent = 'Discord 태그를 확인하고 있습니다…';
+    try {
+      const response = await fetch('/api/kov-registry-roster?source=' + encodeURIComponent(team.url));
+      if (!response.ok) throw new Error();
+      const data = await response.json();
+      roster.replaceChildren();
+      for (const person of data.people) {
+        const row = document.createElement('p');
+        row.append(`${person.role === 'captain' ? (team.kind === '클랜' ? '클랜장' : '팀장') : (team.kind === '클랜' ? '클랜원' : '팀원')} · ${person.name} · `);
+        if (person.id) {
+          const link = document.createElement('a');
+          link.href = 'https://discord.com/users/' + person.id;
+          link.target = '_blank'; link.rel = 'noopener noreferrer';
+          link.textContent = person.tag || 'Discord 프로필 ↗';
+          row.append(link);
+        } else row.append('태그 확인 불가');
+        roster.append(row);
+      }
+    } catch {
+      roster.textContent = '태그를 불러오지 못했습니다. 다시 열어 재시도해 주세요.';
+      delete details.dataset.loaded;
+    }
+  });
+  name.style.cursor = 'pointer';
+  name.addEventListener('click', () => { details.open = !details.open; });
+  card.append(category, name, captain, members, date, details, source);
   return card;
 }
 
@@ -63,6 +99,7 @@ class RegisteredTeams extends HTMLElement {
   selectedRegistryType = 'formal';
 
   renderList() {
+    const openRosters = new Set([...this.querySelectorAll('details[data-roster-source][open]')].map(item => item.dataset.rosterSource));
     const rulesOpen = this.querySelector('.kov-registry-rules')?.open || false;
     const reviewOpen = this.querySelector('.kov-registry-review')?.open || false;
     const groups = [
@@ -110,7 +147,11 @@ class RegisteredTeams extends HTMLElement {
       filters.append(button);
     }
     const visible = teams.filter(team => this.selectedCategory === '전체' || registryCategory(team) === this.selectedCategory);
-    list.append(...visible.map(renderTeam));
+    list.append(...visible.map(team => {
+      const card = renderTeam(team);
+      if (openRosters.has(team.url)) card.querySelector('details').open = true;
+      return card;
+    }));
     if (!visible.length) {
       const empty = document.createElement('p');
       empty.className = 'kp-empty';

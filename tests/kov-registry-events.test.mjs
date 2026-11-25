@@ -19,7 +19,7 @@ test('replays additions, removals and captain transfer chronologically using sta
   assert.equal(result.appliedChanges, 3);
   assert.deepEqual(result.teams.map(team => ({ name: team.name, captain: team.captain, members: team.members })),
     [{ name: 'Test GC', captain: 'Gamma', members: ['Captain'] }]);
-  assert.ok(!JSON.stringify(result.teams).includes('"id"'));
+  assert.deepEqual(result.teams[0].discordRoster.map(person => [person.id, person.role]), [['14', 'captain'], ['11', 'member']]);
 });
 
 test('renames route later updates to the correct team, disband removes it, and re-registration starts fresh', () => {

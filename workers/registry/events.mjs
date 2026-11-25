@@ -196,6 +196,7 @@ export function replayRegistryEvents(events, { now = Date.now(), premierAct = ''
     appliedChanges++;
   }
   const display = team => ({ kind: team.kind, name: team.name,
+    discordRoster: [team.captain && { ...team.captain, role: 'captain' }, ...team.members.map(person => ({ ...person, role: 'member' }))].filter(Boolean),
     captain: team.captain?.name || '미지정', members: team.members.map(person => person.name), url: team.url,
     ...(team.category ? { category: team.category } : {}),
     ...(team.registryType ? { registryType: team.registryType } : {}),
