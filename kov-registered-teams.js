@@ -41,11 +41,13 @@ class RegisteredTeams extends HTMLElement {
 
   async connectedCallback() {
     clearTimeout(this.refreshTimer);
-    const status = document.createElement('p');
+    const status = this.querySelector('[role="status"]') || document.createElement('p');
     status.className = 'kp-note';
     status.setAttribute('role', 'status');
-    status.textContent = 'Discord 등록 팀을 불러오는 중입니다…';
-    this.replaceChildren(status);
+    if (!status.isConnected) {
+      status.textContent = 'Discord 등록 팀을 불러오는 중입니다…';
+      this.replaceChildren(status);
+    }
     try {
       const data = await lookupTeams();
       const teams = data.teams;
@@ -58,7 +60,7 @@ class RegisteredTeams extends HTMLElement {
         : teams.length
         ? `관리자 O 확인 · 등록 ${teams.length}건`
         : '관리자의 O 반응이 확인된 등록 팀·클랜이 없습니다.';
-      this.append(list);
+      this.replaceChildren(status, list);
       if (data.syncing) {
         this.refreshTimer = setTimeout(() => {
           if (this.isConnected) void this.connectedCallback();
