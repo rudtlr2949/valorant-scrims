@@ -90,7 +90,7 @@ test('only administrator O reactions approve, while administrator X vetoes and m
     const id = url.pathname.split('/messages/')[1].split('/')[0];
     return Response.json([{ id: id === '9' ? 'regular' : id === '6' ? 'left' : id === '5' ? 'owner' : 'adminUser', bot: id === '4' }]);
   });
-  assert.deepEqual(result.teams.map(team => team.name), ['Approved', 'Owner']);
+  assert.deepEqual(result.teams.map(team => team.name).sort(), ['Approved', 'Owner']);
   assert.equal(result.approvalVerified, true);
 });
 
@@ -123,4 +123,20 @@ test('message pagination continues past a full page and unapproved cache cannot 
   });
   assert.equal(pages, 2);
   assert.deepEqual(result.teams.map(team => team.name), ['Last']);
+});
+
+test('only approved changes update the live roster and rejected disband requests do not remove it', async () => {
+  const changes = [
+    { id: '120', content: '팀명: Live\n팀 해체 신청합니다.', reactions: [{ emoji: { name: 'c_crossred' } }] },
+    { id: '115', content: '팀명: Live\n팀원: Unapproved\n팀원 추가 신청합니다.', reactions: [{ emoji: { name: 'c_check' } }] },
+    { id: '110', content: '팀명: Live\n팀원 추가: C\n팀원 제외: A\n팀원 추가 및 제외 신청합니다.', reactions: [{ emoji: { name: 'c_check' } }] },
+    application('100', 'Live', ['c_check']),
+  ];
+  const result = await finishScan(async url => {
+    const authority = authorityResponse(url); if (authority) return authority;
+    if (url.pathname.endsWith('/messages')) return Response.json(changes);
+    return Response.json([{ id: url.pathname.includes('/115/') ? 'regular' : 'adminUser' }]);
+  });
+  assert.deepEqual(result.teams[0].members, ['B', 'C']);
+  assert.equal(result.appliedChanges, 1);
 });

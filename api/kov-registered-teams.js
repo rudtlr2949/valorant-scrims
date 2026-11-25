@@ -1,3 +1,4 @@
+import { parseRegistryEvent, replayRegistryEvents } from './kov-registry-events.js';
 import { createHash, randomUUID } from 'node:crypto';
 
 const guildId = '683829152276938814';
@@ -58,13 +59,16 @@ export function reactionDecision(emoji) {
 export async function readChannel(token, redis, fetcher = fetch, now = Date.now) {
   const tokenId = createHash('sha256').update(token).digest('hex').slice(0, 16);
   // New namespace deliberately excludes the old, unverified application cache.
-  const prefix = `kov:registry:v5:${channelId}:${tokenId}`;
+  const prefix = `kov:registry:v6:${channelId}:${tokenId}`;
   const snapshotKey = prefix + ':snapshot';
   const lockKey = prefix + ':lock';
-  const fresh = () => ({ teams: [], pages: 0, pending: [], members: {}, decided: [] });
+  const publishedKey = prefix + ':published';
+  const published = JSON.parse(await redis(['GET', publishedKey]) || 'null');
+  const fresh = () => ({ teams: published?.teams || [], appliedChanges: published?.appliedChanges || 0,
+    unmatchedChanges: published?.unmatchedChanges || 0, pages: 0, pending: [], members: {}, events: [] });
   let snapshot = JSON.parse(await redis(['GET', snapshotKey]) || 'null') || fresh();
   const result = () => ({
-    teams: snapshot.teams, syncing: !snapshot.completedAt, approvalVerified: true,
+    teams: snapshot.teams, appliedChanges: snapshot.appliedChanges || 0, unmatchedChanges: snapshot.unmatchedChanges || 0, checkedEvents: snapshot.events.length, syncing: !snapshot.completedAt, approvalVerified: true,
     retryAfter: Math.max(2, Math.ceil(((snapshot.nextAt || 0) - now()) / 1000)),
   });
   if (snapshot.completedAt && now() - snapshot.completedAt < 300000) return result();
@@ -73,8 +77,9 @@ export async function readChannel(token, redis, fetcher = fetch, now = Date.now)
   if (!await redis(['SET', lockKey, lock, 'NX', 'EX', 60])) return result();
   const pause = Symbol('checkpoint');
   let calls = 0;
+  const startedAt = now();
   const request = async (path, missingMember = false) => {
-    if (calls >= 4 || snapshot.nextAt > now()) throw pause;
+    if (calls >= 12 || now() - startedAt >= 8000 || snapshot.nextAt > now()) throw pause;
     calls++;
     const response = await fetcher(new URL('https://discord.com/api/v10' + path), {
       headers: { Authorization: `Bot ${token}` }, signal: AbortSignal.timeout(10000),
@@ -105,6 +110,7 @@ export async function readChannel(token, redis, fetcher = fetch, now = Date.now)
       if (!snapshot.pending.length) {
         if (snapshot.historyDone) {
           if (snapshot.hasMessages && !snapshot.hasContent) throw new Error('Discord message content unavailable');
+          Object.assign(snapshot, replayRegistryEvents(snapshot.events));
           snapshot.completedAt = now();
           break;
         }
@@ -115,8 +121,8 @@ export async function readChannel(token, redis, fetcher = fetch, now = Date.now)
         for (const message of messages) {
           snapshot.hasMessages = true;
           snapshot.hasContent ||= Boolean(message.content || message.embeds?.length || message.attachments?.length);
-          const team = parseRegistration(message);
-          if (!team) continue;
+          const event = parseRegistryEvent(message);
+          if (!event) continue;
           for (const reaction of message.reactions || []) reactionNames.add(reaction.emoji?.name);
           const reactions = (message.reactions || []).flatMap(reaction => {
             const decision = reactionDecision(reaction.emoji);
@@ -127,7 +133,7 @@ export async function readChannel(token, redis, fetcher = fetch, now = Date.now)
               ? [0, 1].filter(type => reaction.count_details[type ? 'burst' : 'normal'] > 0) : [0];
             return types.map(type => ({ emoji, decision, type }));
           }).sort((a, b) => Number(b.decision === 'rejected') - Number(a.decision === 'rejected'));
-          if (reactions.length) snapshot.pending.push({ team, id: message.id, reactions });
+          if (reactions.length) snapshot.pending.push({ event, id: message.id, reactions });
         }
         if (reactionNames.size) console.info('KOV registry reaction formats:', JSON.stringify([...reactionNames]), 'admin roles:', snapshot.adminRoles.length);
         snapshot.pages++;
@@ -136,14 +142,9 @@ export async function readChannel(token, redis, fetcher = fetch, now = Date.now)
         continue;
       }
       const task = snapshot.pending[0];
-      const key = task.team.kind + ':' + task.team.name.normalize('NFKC').toLowerCase();
-      if (snapshot.decided.includes(key)) { snapshot.pending.shift(); continue; }
       const reaction = task.reactions[0];
       if (!reaction) {
-        if (task.approved || task.rejected) {
-          snapshot.decided.push(key);
-          if (task.approved && !task.rejected) snapshot.teams.push(task.team);
-        }
+        if (task.approved && !task.rejected) snapshot.events.push(task.event);
         snapshot.pending.shift();
         continue;
       }
@@ -180,7 +181,11 @@ export async function readChannel(token, redis, fetcher = fetch, now = Date.now)
   } finally {
     // Persist even on a rate-limit pause, including partially checked reaction pages.
     snapshot.nextAt = Math.max(snapshot.nextAt || 0, now() + 2000);
-    try { await redis(['SET', snapshotKey, JSON.stringify(snapshot), 'EX', 86400]); }
+    try {
+      if (snapshot.completedAt) await redis(['SET', publishedKey, JSON.stringify({ teams: snapshot.teams,
+        appliedChanges: snapshot.appliedChanges, unmatchedChanges: snapshot.unmatchedChanges }), 'EX', 604800]);
+      await redis(['SET', snapshotKey, JSON.stringify(snapshot), 'EX', 86400]);
+    }
     finally {
       await redis(['EVAL',
         "if redis.call('GET',KEYS[1])==ARGV[1] then return redis.call('DEL',KEYS[1]) end;return 0",

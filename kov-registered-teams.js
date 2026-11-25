@@ -35,7 +35,7 @@ function renderTeam(team) {
   source.href = team.url;
   source.target = '_blank';
   source.rel = 'noopener noreferrer';
-  source.textContent = 'Discord 등록글 ↗';
+  source.textContent = 'Discord 최신 내역 ↗';
   card.append(category, name, captain, members, source);
   return card;
 }
@@ -104,10 +104,13 @@ class RegisteredTeams extends HTMLElement {
       const teams = data.teams;
       if (!this.isConnected) return;
       status.textContent = data.syncing
-        ? `Discord 목록 동기화 중 · 관리자 승인 ${teams.length}건`
+        ? `변경 이력 확인 중 · 승인된 내역 ${data.checkedEvents || 0}건`
         : teams.length
-        ? `관리자 O 확인 · 등록 ${teams.length}건`
+        ? `관리자 O 확인 · 현재 등록 ${teams.length}건 · 명단 변경 ${data.appliedChanges || 0}건 반영`
         : '관리자의 O 반응이 확인된 등록 팀·클랜이 없습니다.';
+      if (!data.syncing && data.unmatchedChanges) {
+        status.textContent += ` · 팀명·이전 팀장 확인이 필요한 변경 ${data.unmatchedChanges}건`;
+      }
       this.registryData = data;
       this.renderList();
       if (data.syncing) {
