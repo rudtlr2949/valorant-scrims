@@ -64,6 +64,11 @@ export function parseRegistryEvent(message) {
 export function replayRegistryEvents(events) {
   const active = new Map();
   let appliedChanges = 0, unmatchedChanges = 0;
+  const reviewChanges = [];
+  const review = (event, reason) => {
+    unmatchedChanges++;
+    reviewChanges.push({ name: event.name, type: event.type, url: event.url, reason });
+  };
   const key = event => event.kind + ':' + normalize(event.name);
   const sorted = [...new Map(events.map(event => [event.id, event])).values()]
     .sort((a, b) => BigInt(a.id) < BigInt(b.id) ? -1 : 1);
@@ -74,14 +79,14 @@ export function replayRegistryEvents(events) {
       continue;
     }
     const team = active.get(id);
-    if (!team) { unmatchedChanges++; continue; }
+    if (!team) { review(event, '일치하는 활성 등록을 찾지 못했습니다.'); continue; }
     if (event.type === 'disband') active.delete(id);
     else if (event.type === 'rename') {
       const nextKey = key({ ...event, name: event.after });
-      if (active.has(nextKey) && nextKey !== id) { unmatchedChanges++; continue; }
+      if (active.has(nextKey) && nextKey !== id) { review(event, '변경할 이름에 다른 등록이 있습니다.'); continue; }
       active.delete(id); team.name = event.after; active.set(nextKey, team);
     } else if (event.type === 'captain') {
-      if (!samePerson(team.captain, event.before)) { unmatchedChanges++; continue; }
+      if (!samePerson(team.captain, event.before)) { review(event, '변경 전 팀장과 현재 명단의 팀장이 다릅니다.'); continue; }
       const former = team.captain;
       team.captain = event.after;
       team.members = team.members.filter(person => !samePerson(person, event.after));
@@ -100,5 +105,5 @@ export function replayRegistryEvents(events) {
   }
   return { teams: [...active.values()].map(team => ({ kind: team.kind, name: team.name,
     captain: team.captain?.name || '미지정', members: team.members.map(person => person.name), url: team.url })),
-    appliedChanges, unmatchedChanges };
+    appliedChanges, unmatchedChanges, reviewChanges };
 }

@@ -68,7 +68,8 @@ export async function readChannel(token, redis, fetcher = fetch, now = Date.now)
     unmatchedChanges: published?.unmatchedChanges || 0, pages: 0, pending: [], members: {}, events: [] });
   let snapshot = JSON.parse(await redis(['GET', snapshotKey]) || 'null') || fresh();
   const result = () => ({
-    teams: snapshot.teams, appliedChanges: snapshot.appliedChanges || 0, unmatchedChanges: snapshot.unmatchedChanges || 0, checkedEvents: snapshot.events.length, syncing: !snapshot.completedAt, approvalVerified: true,
+    teams: snapshot.teams, appliedChanges: snapshot.appliedChanges || 0, unmatchedChanges: snapshot.unmatchedChanges || 0,
+    reviewChanges: snapshot.reviewChanges || [], checkedEvents: snapshot.events.length, syncing: !snapshot.completedAt, approvalVerified: true,
     retryAfter: Math.max(2, Math.ceil(((snapshot.nextAt || 0) - now()) / 1000)),
   });
   if (snapshot.completedAt && now() - snapshot.completedAt < 300000) return result();

@@ -83,6 +83,23 @@ class RegisteredTeams extends HTMLElement {
     results.className = 'kov-registry-results';
     results.setAttribute('aria-label', '유형별 등록 목록');
     results.append(filters, list);
+    if (!this.registryData.syncing && this.registryData.reviewChanges?.length) {
+      const review = document.createElement('details');
+      review.className = 'kp-panel kp-pad kp-section';
+      const summary = document.createElement('summary');
+      summary.textContent = `명단 확인이 필요한 변경 ${this.registryData.reviewChanges.length}건`;
+      review.append(summary);
+      for (const change of this.registryData.reviewChanges) {
+        const item = document.createElement('p');
+        const link = document.createElement('a');
+        link.href = change.url;
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+        link.textContent = `${change.name} · ${change.reason} Discord 내역 ↗`;
+        item.append(link); review.append(item);
+      }
+      results.append(review);
+    }
     this.append(results);
   }
 
