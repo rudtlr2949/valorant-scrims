@@ -58,7 +58,7 @@ export async function readChannel(token, redis, fetcher = fetch, now = Date.now)
   // New namespace deliberately excludes the old, unverified application cache.
   const prefix = `kov:registry:v6:${channelId}:${tokenId}`;
   const snapshotKey = prefix + ':snapshot';
-  const replayRevision = 5;
+  const replayRevision = 6;
   const lockKey = prefix + ':lock';
   const publishedKey = prefix + ':published';
   const published = JSON.parse(await redis(['GET', publishedKey]) || 'null');

@@ -1,6 +1,10 @@
 const channelUrl = 'https://discord.com/channels/683829152276938814/701290347161976883/';
 const normalize = value => value.normalize('NFKC').trim().toLowerCase().replace(/\s+/g, ' ');
 const looseName = value => normalize(value).replace(/[\s()[\]{}._-]/g, '');
+// Ignore presentation-only word order and the common e-sport(s) spelling.
+// Keep all meaningful words: never match on a shared generic word alone.
+const wordName = value => normalize(value).replace(/e[ -]?sports?\b/g, 'esport')
+  .replace(/[()[\]{}._-]/g, ' ').split(/\s+/).filter(Boolean).sort().join(' ');
 const aliases = name => [name, name.replace(/[([][^)\]]*[)\]]/g, '').trim(),
   ...[...name.matchAll(/[([]([^\])]+)[)\]]/g)].map(match => match[1])]
   .map(looseName).filter(value => value.length >= 2 && !['gc', 'team', 'clan', 'academy', '팀', '클랜', '아카데미'].includes(value));
@@ -93,6 +97,7 @@ export function replayRegistryEvents(events, { now = Date.now(), premierAct = ''
   const temporary = new Map(), premier = new Map();
   const closed = [];
   const namesMatch = (a, b) => looseName(a) === looseName(b)
+    || wordName(a) === wordName(b)
     || aliases(a).includes(looseName(b)) || aliases(b).includes(looseName(a));
   const teamNames = team => team.knownNames || [team.name];
   const isClosed = event => closed.some(entry => entry.kind === event.kind && entry.names.some(name => namesMatch(name, event.name)));
@@ -104,6 +109,15 @@ export function replayRegistryEvents(events, { now = Date.now(), premierAct = ''
       ...(event.type === 'rename' ? { afterName: event.after } : {}),
       ...(event.type === 'roster' ? { action: event.add.length && event.remove.length ? '추가 및 제외'
         : event.add.length ? '추가' : '제외' } : {}) });
+  };
+  const resolvePrevious = (event, names) => {
+    for (let i = reviewChanges.length - 1; i >= 0; i--) {
+      const item = reviewChanges[i];
+      if (item.kind === event.kind && names.some(name => namesMatch(name, item.name)
+        || item.afterName && namesMatch(name, item.afterName))) {
+        reviewChanges.splice(i, 1); unmatchedChanges--;
+      }
+    }
   };
   const key = event => event.kind + ':' + normalize(event.name);
   const sorted = [...new Map(events.map(event => [event.id, event])).values()]
@@ -120,6 +134,9 @@ export function replayRegistryEvents(events, { now = Date.now(), premierAct = ''
       continue;
     }
     if (event.type === 'register') {
+      // A later complete approved roster replaces older, unlinked partial edits.
+      // Do not apply those old edits to the newer roster a second time.
+      resolvePrevious(event, [event.name]);
       temporary.delete(id);
       for (const [premierKey, entry] of premier) if (key(entry) === id) premier.delete(premierKey);
       active.set(id, { ...event, knownNames: [event.name], members: event.members.map(person => ({ ...person })) });
@@ -170,6 +187,7 @@ export function replayRegistryEvents(events, { now = Date.now(), premierAct = ''
       const nextKey = key({ ...event, name: event.after });
       if ((active.has(nextKey) || temporary.has(nextKey)) && nextKey !== id) { review(event, '변경할 이름에 다른 등록이 있습니다.'); continue; }
       team.knownNames = [...new Set([...teamNames(team), event.name, event.after])];
+      resolvePrevious(event, team.knownNames);
       container.delete(id); team.name = event.after; container.set(nextKey, team);
     } else if (event.type === 'captain') {
       const former = team.captain;

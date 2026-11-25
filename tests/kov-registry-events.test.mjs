@@ -98,3 +98,19 @@ test('approved captain changes set the requested new captain even when previous 
   assert.deepEqual(result.teams[0].members, ['Beta']);
   assert.equal(result.unmatchedChanges, 0);
 });
+
+test('a later complete registration supersedes earlier unlinked changes without replaying them onto its roster', () => {
+  const orphan = event('90', '팀명: Test GC\n팀원: <@14>\n팀원 추가 신청합니다.');
+  const result = replayRegistryEvents([orphan, register('100')]);
+  assert.equal(result.unmatchedChanges, 0);
+  assert.deepEqual(result.teams[0].members, ['Alpha', 'Beta']);
+});
+
+test('word order and e-sports spelling link full names but colliding short aliases stay unresolved', () => {
+  const make = (id, name) => event(id, `팀명: ${name}\n팀장: <@11>\n팀원: <@12> <@13>\n팀 등록 신청합니다.`);
+  const remove = (id, name) => event(id, `팀명: ${name}\n팀원: <@12>\n팀원 제외 신청합니다.`);
+  const result = replayRegistryEvents([make('100', 'KHU ESPers'), remove('110', 'ESPers KHU'),
+    make('120', 'STARFOX E-SPORTS YOUTH (SRXA)'), remove('130', 'STARFOX E-SPORT YOUTH (SRXA)')]);
+  assert.equal(result.unmatchedChanges, 0);
+  assert.deepEqual(result.teams.map(team => team.members), [['Beta'], ['Beta']]);
+});
