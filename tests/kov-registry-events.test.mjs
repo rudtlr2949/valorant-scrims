@@ -40,6 +40,13 @@ test('an omitted team-name colon and spaced hyphen captain transfer retain expli
   assert.equal(replayRegistryEvents([registration, captain]).teams[0].captain, 'Gamma');
 });
 
+test('short team applications require a complete roster, while explicit new-team applications remain temporary', () => {
+  assert.equal(event('100', '팀명: NaviJack\n팀장: <@11>\n팀원: <@12> <@13>\n팀 신청합니다').type, 'register');
+  assert.equal(event('101', '팀명: NaviJack\n팀장: <@11>\n팀 신청합니다'), null);
+  assert.equal(event('102', '팀명: Swing\n팀장: <@11>\n신규 팀 등록 신청합니다.').type, 'temporary');
+  assert.equal(event('103', '팀명: Swing GC\n팀장: <@11>\n신규 GC팀 신청합니다.').category, 'GC');
+});
+
 test('replays additions, removals and captain transfer chronologically using stable Discord IDs', () => {
   const events = [register('100'),
     event('110', '팀명: Test GC\n팀원 추가: <@14>\n팀원 제외: <@12>\n팀원 추가 및 제외 신청합니다.'),

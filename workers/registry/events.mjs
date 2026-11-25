@@ -17,10 +17,11 @@ export function parseRegistryEvent(message) {
     .filter(Boolean).join('\n').replace(/\*\*|__/g, '').trim()
     .replace(/(?:신청\s*(?:합니다|드립니다)|부탁\s*드립니다)([.!]?[ \t]*)$/, '신청합니다$1');
   // Require the action footer; never interpret templates, discussion, or provisional applications.
-  const temporary = /(?:^|\n)[ \t]*신규\s*(?:(?:GC)?팀\s*|클랜\s*)?등급\s*신청합니다[.!]?[ \t]*$/.exec(text);
+  const temporary = /(?:^|\n)[ \t]*신규\s*(?:(?:(?:GC)?팀|클랜)\s*(?:등급|등록)?|등급)\s*신청합니다[.!]?[ \t]*$/.exec(text);
   const premier = /(?:^|\n)[ \t]*프리미어\s*등급\s*신청합니다[.!]?[ \t]*$/.exec(text);
   const categoryChange = /(?:^|\n)[ \t]*(팀|GC팀)\s*(?:→|->|⇒)\s*(GC팀|팀)\s*변경\s*신청합니다[.!]?[ \t]*$/.exec(text);
-  const footer = temporary || premier || categoryChange || /(?:^|\n)[ \t]*(?:(?:정식|본인)\s*)?(?:GC\s*)?(팀|클랜)(?:원|장|명)?[ \t]*(등록|해체|추가(?:\s*(?:및|\/|,|·)\s*제외)?|제외|변경|이름\s*변경)\s*신청합니다[.!]?[ \t]*$/.exec(text);
+  const footer = temporary || premier || categoryChange || /(?:^|\n)[ \t]*(?:(?:정식|본인)\s*)?(?:GC\s*)?(팀|클랜)(?:원|장|명)?[ \t]*(등록|해체|추가(?:\s*(?:및|\/|,|·)\s*제외)?|제외|변경|이름\s*변경)\s*신청합니다[.!]?[ \t]*$/.exec(text)
+    || /(?:^|\n)[ \t]*(팀|클랜)\s*신청합니다[.!]?[ \t]*$/.exec(text);
   if (!footer) return null;
   const body = text.slice(0, footer.index)
     .replace(/^([ \t]*(?:팀|클랜)명)[ \t]+([^\s:：][^\n]*)$/gm, '$1: $2');
@@ -62,11 +63,11 @@ export function parseRegistryEvent(message) {
       return acts.length === 1 && acts[0].trim()
         ? { ...event, type: 'premier', captain: captains[0], members: [], act: acts[0].trim().slice(0, 80) } : null;
     }
-    const gc = (message.registryRoleNames || []).some(role => /신규.*GC/i.test(role)) || /신규\s*\(GC팀\)/i.test(body);
+    const gc = (message.registryRoleNames || []).some(role => /신규.*GC/i.test(role)) || /신규\s*\(?GC팀/i.test(body + footer[0]);
     return { ...event, type: 'temporary', captain: captains[0], members: [], category: kind === '클랜' ? 'CLAN' : gc ? 'GC' : undefined,
       expiresAt: createdAt + 30 * 86400000 };
   }
-  const action = footer[2].replace(/\s+/g, '');
+  const action = (footer[2] || '등록').replace(/\s+/g, '');
   if (action === '등록') {
     const captains = people(values(kind + '장'));
     const roster = unique(people(values(kind + '원'))).filter(person => !samePerson(person, captains[0]));
