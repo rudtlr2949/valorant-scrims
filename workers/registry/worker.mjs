@@ -43,6 +43,8 @@ async function checkpoint() {
 }
 
 async function catchUp() {
+  while (managedRunning && !stopping) await sleep(500);
+  if (stopping) return;
   // Resume handles normal reconnects. A fresh session additionally audits known
   // approvals and recent applications, including the active 30-day temporary window.
   await store.enqueue(await store.allEventIds(), false);
@@ -52,6 +54,8 @@ async function catchUp() {
   const known = new Set(await store.allEventIds());
   let before;
   do {
+    while (managedRunning && !stopping) await sleep(500);
+    if (stopping) return;
     const messages = await discord.recentMessages(before);
     if (!messages.length) break;
     const candidates = messages.filter(message => parseRegistryEvent(message) && (!fullHistory || !known.has(message.id)));
@@ -154,6 +158,7 @@ async function main() {
   audit();
   while (!stopping) {
     if (managedRequested) refreshManaged();
+    if (managedRunning) { await sleep(500); continue; }
     if (auditRequested && !auditRunning) audit();
     const id = await store.next();
     if (!id) {
