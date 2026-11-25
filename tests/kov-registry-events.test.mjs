@@ -9,6 +9,19 @@ const mentions = [
 const event = (id, content, users = mentions) => parseRegistryEvent({ id, content, mentions: users });
 const register = id => event(id, '팀명: Test GC\n팀장: <@11>\n팀원: <@12> <@13>\n팀 등록 신청합니다.');
 
+test('owner-authorized SV recovery creates SN without invented people and respects later disband', () => {
+  const rename = event('1560449166742782044', '팀명: SV → SN\n팀명 변경 신청합니다.');
+  const result = replayRegistryEvents([rename]);
+  assert.equal(result.unmatchedChanges, 0);
+  assert.equal(result.teams[0].name, 'SN');
+  assert.equal(result.teams[0].captain, '미지정');
+  assert.deepEqual(result.teams[0].members, []);
+  assert.equal(result.teams[0].rosterIncomplete, true);
+  const close = event('1560449166742782045', '팀명: SN\n팀 해체 신청합니다.');
+  assert.deepEqual(replayRegistryEvents([rename, close]).teams, []);
+  assert.equal(replayRegistryEvents([{ ...rename, id: '1560449166742782043' }]).teams.length, 0);
+});
+
 test('recognizes observed formal registration wording and equivalent explicit action labels', () => {
   const registration = event('100', '팀명: WAK\n코치: <@14>\n팀장: <@11>\n팀원: <@12> <@13>\n정식 팀 등록 신청합니다.');
   assert.equal(registration.type, 'register');

@@ -36,7 +36,7 @@ function renderTeam(team) {
     ? `임시 등록 · ${Math.max(0, Math.ceil((team.expiresAt - Date.now()) / 86400000))}일 남음`
     : team.registryType === 'premier'
     ? `신청 액트 · ${team.act}${team.actConfirmed ? '' : ' · 현재 액트 확인 필요'}`
-    : '정식 등록';
+    : team.managedStatus === 'pending' ? '운영진 확인 대기' : team.rosterIncomplete ? '명단 등록 대기' : '정식 등록';
   members.className = 'kp-badge kov-registry-state';
   const source = document.createElement('a');
   source.className = 'kp-button small';
@@ -87,6 +87,7 @@ function renderTeam(team) {
       }
       const data = await entry.request;
       roster.replaceChildren();
+      if (!data.people.length) roster.textContent = '팀장·팀원 명단은 확인 후 등록됩니다.';
       for (const person of data.people) {
         const row = document.createElement('div');
         row.className = 'kov-registry-person';
@@ -114,7 +115,7 @@ function renderTeam(team) {
       delete details.dataset.loaded;
     }
   });
-  details.append(source);
+  if (team.source !== 'admin-management') details.append(source);
   card.append(details);
   return card;
 }
@@ -246,7 +247,7 @@ class RegisteredTeams extends HTMLElement {
       '해체 후 1개월, 등급 회수 후 3개월, 이중 등록·규정 위반 제재 시 6개월 등 재신청 제한은 운영진 판정을 따릅니다.',
       '임시 등급 만료 후 3개월간 재신청할 수 없으며, 기간 전 해체·회수 시 재부여할 수 없습니다.',
       '프리미어는 신청인 본인과 신청 액트를 기록하며, 현재 액트 설정이 확인된 경우에만 해당 액트로 필터링합니다.',
-      '사이트는 관리자 O 승인 내역을 반영합니다. X·승인 취소·글 삭제는 다시 계산하며, 역할 부여나 제재는 임의로 실행하지 않습니다.',
+      '정식 팀·클랜은 운영진 관리 기록의 최종 명단을 기준으로 반영합니다. 임시·프리미어 신청은 관리자 O 승인 내역을 사용하며, 역할 부여나 제재는 임의로 실행하지 않습니다.',
       '등록보다 최신인 해체 승인이 있으면 목록에서 제거합니다. 해체된 팀의 지난 변경 내역은 확인 필요 목록에서 정리하며, 새로운 정식 등록 승인 후 다시 표시합니다.',
     ]) {
       const item = document.createElement('p'); item.textContent = text; rules.append(item);
@@ -293,7 +294,9 @@ class RegisteredTeams extends HTMLElement {
       const data = await lookupTeams();
       const teams = data.teams;
       if (!this.isConnected) return;
-      status.textContent = data.syncing
+      status.textContent = data.directorySource === 'admin-management'
+        ? `운영진 관리 명단 기준 · 현재 등록 ${teams.length}건 · 해체·회수 ${data.closedManagedTeams || 0}건 제외`
+        : data.syncing
         ? `변경 이력 확인 중 · 승인된 내역 ${data.checkedEvents || 0}건`
         : teams.length
         ? `관리자 O 확인 · 현재 등록 ${teams.length}건 · 명단 변경 ${data.appliedChanges || 0}건 반영`
@@ -303,6 +306,8 @@ class RegisteredTeams extends HTMLElement {
       }
       if ('liveConnected' in data) status.textContent += data.liveConnected
         ? ' · Discord 실시간 연결됨' : ' · 실시간 봇 연결 대기';
+      if (data.managementSync?.state === 'syncing') status.textContent += ` · 관리자 기록 정리 중 (${data.managementSync.processed}/${data.managementSync.total})`;
+      if (data.managementSync?.state === 'access-denied') status.textContent += ' · 봇의 관리자 관리 채널 읽기 권한이 필요합니다';
       this.registryData = data;
       this.renderList();
       if (data.syncing || 'liveConnected' in data) {

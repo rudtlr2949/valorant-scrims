@@ -1,3 +1,5 @@
+import { renameRecoveries } from './manual-recoveries.mjs';
+
 const channelUrl = 'https://discord.com/channels/683829152276938814/701290347161976883/';
 const normalize = value => value.normalize('NFKC').trim().toLowerCase().replace(/\s+/g, ' ');
 const looseName = value => normalize(value).replace(/[\s()[\]{}._-]/g, '');
@@ -207,7 +209,18 @@ export function replayRegistryEvents(events, { now = Date.now(), premierAct = ''
       appliedChanges++;
       continue;
     }
-    if (!team) { review(event, '일치하는 활성 등록을 찾지 못했습니다.'); continue; }
+    if (!team) {
+      const recovery = renameRecoveries.get(event.id);
+      if (!ambiguous && event.type === 'rename' && event.kind === '팀'
+        && recovery?.before === event.name && recovery.after === event.after) {
+        active.set(key({ ...event, name: event.after }), { ...event, name: event.after,
+          knownNames: [event.name, event.after], captain: null, members: [], rosterIncomplete: true });
+        resolvePrevious(event, [event.name, event.after]);
+        appliedChanges++;
+        continue;
+      }
+      review(event, '일치하는 활성 등록을 찾지 못했습니다.'); continue;
+    }
     const container = active.has(id) ? active : temporary;
     if (event.type === 'disband') container.delete(id);
     else if (event.type === 'rename') {
@@ -241,6 +254,7 @@ export function replayRegistryEvents(events, { now = Date.now(), premierAct = ''
     appliedChanges++;
   }
   const display = team => ({ kind: team.kind, name: team.name,
+    ...(team.rosterIncomplete ? { rosterIncomplete: true } : {}),
     discordRoster: [team.captain && { ...team.captain, role: 'captain' }, ...team.members.map(person => ({ ...person, role: 'member' }))].filter(Boolean),
     captain: team.captain?.name || '미지정', members: team.members.map(person => person.name), url: team.url,
     ...(team.category ? { category: team.category } : {}),

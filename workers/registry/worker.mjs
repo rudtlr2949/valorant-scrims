@@ -5,6 +5,7 @@ import { guildId, channelId, registryMessageIds } from './config.mjs';
 import { RegistryGateway } from './gateway.mjs';
 import { DiscordRegistryClient, RegistryLiveStore } from './live.mjs';
 import { parseRegistryEvent } from './events.mjs';
+import { ManagedRegistry, managedChannels } from './managed.mjs';
 
 const token = process.env.KOV_REGISTRY_BOT_TOKEN?.trim();
 if (!token || !process.env.UPSTASH_REDIS_REST_URL || !process.env.UPSTASH_REDIS_REST_TOKEN) {
@@ -12,6 +13,14 @@ if (!token || !process.env.UPSTASH_REDIS_REST_URL || !process.env.UPSTASH_REDIS_
 }
 const store = new RegistryLiveStore(token, registryRedis);
 const discord = new DiscordRegistryClient(token);
+const managed = new ManagedRegistry(discord, registryRedis, store.prefix);
+let managedRequested = true, managedRunning = false, managedTimer;
+const refreshManaged = () => {
+  if (managedRunning || stopping) return;
+  managedRunning = true; managedRequested = false;
+  managed.sync().catch(error => console.error('KOV managed directory:', error.message))
+    .finally(() => { managedRunning = false; });
+};
 const owner = randomUUID();
 const leaseKey = store.prefix + ':worker';
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
@@ -62,7 +71,7 @@ async function catchUp() {
 
 async function shutdown() {
   if (stopping) return;
-  stopping = true; notify(); clearInterval(heartbeatTimer); clearInterval(probeTimer);
+  stopping = true; notify(); clearInterval(heartbeatTimer); clearInterval(probeTimer); clearInterval(managedTimer);
   await gateway?.stop();
   await Promise.race([inFlight, sleep(20000)]);
   if (gateway?.session) await registryRedis(['SET', store.prefix + ':session', JSON.stringify(gateway.session), 'EX', 86400]).catch(() => {});
@@ -84,6 +93,10 @@ async function main() {
     onError: error => { lastError = error.message; console.error('KOV registry gateway:', error.message); },
     onConnection: connected => { if (connected) lastError = null; console.info('KOV registry gateway:', connected ? 'connected' : 'reconnecting'); },
     onDispatch: async (type, data) => {
+      if (managed.threadIds.has(data.channel_id) || managedChannels.has(data.parent_id)
+        || type === 'THREAD_DELETE' && managed.threadIds.has(data.id)) {
+        managed.invalidate(data.channel_id || data.id); managedRequested = true; notify();
+      }
       const ids = registryMessageIds(type, data);
       if (ids.length && type.startsWith('MESSAGE_REACTION_') && data.user_id) discord.memberCache.delete(data.user_id);
       if (ids.length) { await store.enqueue(ids); notify(); }
@@ -118,6 +131,8 @@ async function main() {
     await sleep(Math.max(250, result.retryAfter * 1000));
   }
   await store.recover();
+  refreshManaged();
+  managedTimer = setInterval(() => { managedRequested = true; notify(); }, 120000);
   // Source-verified missed forms: inspect fresh content AND administrator reactions
   // before applying; these are references, never approval or roster overrides.
   const repairKey = store.prefix + ':source-verified-form-repair:v5';
@@ -138,6 +153,7 @@ async function main() {
   };
   audit();
   while (!stopping) {
+    if (managedRequested) refreshManaged();
     if (auditRequested && !auditRunning) audit();
     const id = await store.next();
     if (!id) {

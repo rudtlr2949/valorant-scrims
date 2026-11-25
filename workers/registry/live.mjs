@@ -167,6 +167,17 @@ export async function readLivePublic(token, redis, now = Date.now) {
   data.temporaryTeams = (data.temporaryTeams || []).filter(team => team.expiresAt > now());
   data.liveConnected = Boolean(heartbeat?.connected && now() - heartbeat.at < 90000);
   data.liveUpdatedAt = heartbeat?.at || null;
+  const managed = JSON.parse(await redis(['GET', prefix + ':managed:public']) || 'null');
+  data.managementSync = JSON.parse(await redis(['GET', prefix + ':managed:status']) || 'null');
+  if (managed) {
+    data.teams = managed.teams;
+    data.reviewChanges = managed.reviewChanges;
+    data.unmatchedChanges = managed.reviewChanges.length;
+    data.directorySource = 'admin-management';
+    data.updatedAt = managed.updatedAt;
+    data.managedThreadCount = managed.threadCount;
+    data.closedManagedTeams = managed.closed;
+  }
   data.retryAfter = 15;
   return data;
 }
