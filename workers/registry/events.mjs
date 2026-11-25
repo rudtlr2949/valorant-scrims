@@ -91,11 +91,16 @@ export function parseRegistryEvent(message) {
 export function replayRegistryEvents(events, { now = Date.now(), premierAct = '' } = {}) {
   const active = new Map();
   const temporary = new Map(), premier = new Map();
+  const closed = [];
+  const namesMatch = (a, b) => looseName(a) === looseName(b)
+    || aliases(a).includes(looseName(b)) || aliases(b).includes(looseName(a));
+  const teamNames = team => team.knownNames || [team.name];
+  const isClosed = event => closed.some(entry => entry.kind === event.kind && entry.names.some(name => namesMatch(name, event.name)));
   let appliedChanges = 0, unmatchedChanges = 0;
   const reviewChanges = [];
   const review = (event, reason) => {
     unmatchedChanges++;
-    reviewChanges.push({ name: event.name, type: event.type, url: event.url, reason });
+    reviewChanges.push({ kind: event.kind, name: event.name, type: event.type, url: event.url, reason });
   };
   const key = event => event.kind + ':' + normalize(event.name);
   const sorted = [...new Map(events.map(event => [event.id, event])).values()]
@@ -114,17 +119,39 @@ export function replayRegistryEvents(events, { now = Date.now(), premierAct = ''
     if (event.type === 'register') {
       temporary.delete(id);
       for (const [premierKey, entry] of premier) if (key(entry) === id) premier.delete(premierKey);
-      active.set(id, { ...event, members: event.members.map(person => ({ ...person })) });
+      active.set(id, { ...event, knownNames: [event.name], members: event.members.map(person => ({ ...person })) });
       continue;
     }
-    if (!active.has(id)) {
+    let ambiguous = false;
+    if (!active.has(id) && !temporary.has(id)) {
       const entries = [...active.entries(), ...temporary.entries()].filter(([, team]) => team.kind === event.kind);
       const exact = entries.filter(([, team]) => looseName(team.name) === looseName(event.name));
       const candidates = exact.length ? exact : entries.filter(([, team]) =>
-        aliases(team.name).includes(looseName(event.name)) || aliases(event.name).includes(looseName(team.name)));
+        teamNames(team).some(name => namesMatch(name, event.name)));
       if (candidates.length === 1) id = candidates[0][0];
+      ambiguous = candidates.length > 1;
     }
     const team = active.get(id) || temporary.get(id);
+    if (event.type === 'disband') {
+      if (ambiguous) { review(event, '해체 대상의 팀명·약자가 여러 활성 등록과 일치합니다.'); continue; }
+      const names = [...new Set([event.name, ...(team ? teamNames(team) : [])])];
+      active.delete(id); temporary.delete(id);
+      for (const [premierKey, entry] of premier) {
+        if (entry.kind === event.kind && names.some(name => looseName(name) === looseName(entry.name))) premier.delete(premierKey);
+      }
+      closed.push({ kind: event.kind, names });
+      // A confirmed closure resolves earlier orphaned changes for that team too.
+      for (let i = reviewChanges.length - 1; i >= 0; i--) {
+        const item = reviewChanges[i];
+        if (item.kind === event.kind && names.some(name => namesMatch(name, item.name))) {
+          reviewChanges.splice(i, 1); unmatchedChanges--;
+        }
+      }
+      appliedChanges++;
+      continue;
+    }
+    // Roster edits never reopen a closed team; only a new approved registration does.
+    if (!team && !ambiguous && isClosed(event)) continue;
     if (!team) { review(event, '일치하는 활성 등록을 찾지 못했습니다.'); continue; }
     const container = active.has(id) ? active : temporary;
     if (container === temporary && event.type !== 'disband' && event.createdAt >= team.expiresAt) {
@@ -134,6 +161,7 @@ export function replayRegistryEvents(events, { now = Date.now(), premierAct = ''
     else if (event.type === 'rename') {
       const nextKey = key({ ...event, name: event.after });
       if ((active.has(nextKey) || temporary.has(nextKey)) && nextKey !== id) { review(event, '변경할 이름에 다른 등록이 있습니다.'); continue; }
+      team.knownNames = [...new Set([...teamNames(team), event.after])];
       container.delete(id); team.name = event.after; container.set(nextKey, team);
     } else if (event.type === 'captain') {
       if (!samePerson(team.captain, event.before)) { review(event, '변경 전 팀장과 현재 명단의 팀장이 다릅니다.'); continue; }

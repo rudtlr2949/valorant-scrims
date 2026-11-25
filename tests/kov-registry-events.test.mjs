@@ -31,7 +31,7 @@ test('renames route later updates to the correct team, disband removes it, and r
   ];
   const result = replayRegistryEvents(events);
   assert.deepEqual(result.teams, []);
-  assert.equal(result.unmatchedChanges, 1);
+  assert.equal(result.unmatchedChanges, 0);
   events.push(event('150', '팀명: New GC\n팀장: <@14>\n팀원: <@12>, <@13>\n팀 등록 신청합니다.'));
   assert.deepEqual(replayRegistryEvents(events).teams[0].members, ['Alpha', 'Beta']);
 });
@@ -56,4 +56,25 @@ test('unique bracketed aliases resolve changes while colliding abbreviations rem
   assert.equal(result.unmatchedChanges, 1);
   assert.deepEqual(result.teams[0].members, ['Alpha', 'Beta', 'Gamma']);
   assert.deepEqual(result.teams[1].members, ['Alpha', 'Beta']);
+});
+
+test('the latest approved disband closes a team and resolves its orphaned history until re-registration', () => {
+  const orphan = event('90', '팀명: Test GC\n팀원: <@12>\n팀원 추가 신청합니다.');
+  const close = event('100', '팀명: Test GC\n팀 해체 신청합니다.');
+  const laterEdit = event('110', '팀명: Test GC\n팀원: <@13>\n팀원 추가 신청합니다.');
+  const unrelated = event('115', '팀명: Other\n팀원: <@12>\n팀원 추가 신청합니다.');
+  const closed = replayRegistryEvents([laterEdit, close, orphan, unrelated]);
+  assert.deepEqual(closed.teams, []);
+  assert.deepEqual(closed.reviewChanges.map(item => item.name), ['Other']);
+  const reopened = replayRegistryEvents([orphan, close, laterEdit, register('120')]);
+  assert.equal(reopened.teams.length, 1);
+  assert.deepEqual(reopened.teams[0].members, ['Alpha', 'Beta']);
+  assert.equal(reopened.unmatchedChanges, 0);
+});
+
+test('a newer closure using the old approved name removes the renamed team, while an older closure does not remove re-registration', () => {
+  const rename = event('110', '팀명: Test GC → New GC\n팀명 변경 신청합니다.');
+  const close = event('120', '팀명: Test GC\n팀 해체 신청합니다.');
+  assert.deepEqual(replayRegistryEvents([register('100'), rename, close]).teams, []);
+  assert.equal(replayRegistryEvents([close, register('130')]).teams.length, 1);
 });
