@@ -100,7 +100,10 @@ export function replayRegistryEvents(events, { now = Date.now(), premierAct = ''
   const reviewChanges = [];
   const review = (event, reason) => {
     unmatchedChanges++;
-    reviewChanges.push({ kind: event.kind, name: event.name, type: event.type, url: event.url, reason });
+    reviewChanges.push({ kind: event.kind, name: event.name, type: event.type, url: event.url, reason,
+      ...(event.type === 'rename' ? { afterName: event.after } : {}),
+      ...(event.type === 'roster' ? { action: event.add.length && event.remove.length ? '추가 및 제외'
+        : event.add.length ? '추가' : '제외' } : {}) });
   };
   const key = event => event.kind + ':' + normalize(event.name);
   const sorted = [...new Map(events.map(event => [event.id, event])).values()]
@@ -131,6 +134,14 @@ export function replayRegistryEvents(events, { now = Date.now(), premierAct = ''
       if (candidates.length === 1) id = candidates[0][0];
       ambiguous = candidates.length > 1;
     }
+    // Discord authors may have edited the original registration to its new name.
+    // An approved explicit A → B request still links A to that unique B roster.
+    if (!active.has(id) && !temporary.has(id) && !ambiguous && event.type === 'rename') {
+      const renamed = [...active.entries(), ...temporary.entries()].filter(([, entry]) =>
+        entry.kind === event.kind && looseName(entry.name) === looseName(event.after));
+      if (renamed.length === 1) id = renamed[0][0];
+      else if (renamed.length > 1) ambiguous = true;
+    }
     const team = active.get(id) || temporary.get(id);
     if (event.type === 'disband') {
       if (ambiguous) { review(event, '해체 대상의 팀명·약자가 여러 활성 등록과 일치합니다.'); continue; }
@@ -154,21 +165,17 @@ export function replayRegistryEvents(events, { now = Date.now(), premierAct = ''
     if (!team && !ambiguous && isClosed(event)) continue;
     if (!team) { review(event, '일치하는 활성 등록을 찾지 못했습니다.'); continue; }
     const container = active.has(id) ? active : temporary;
-    if (container === temporary && event.type !== 'disband' && event.createdAt >= team.expiresAt) {
-      review(event, '임시 등록 기간이 만료되어 정식 등록 승인이 필요합니다.'); continue;
-    }
     if (event.type === 'disband') container.delete(id);
     else if (event.type === 'rename') {
       const nextKey = key({ ...event, name: event.after });
       if ((active.has(nextKey) || temporary.has(nextKey)) && nextKey !== id) { review(event, '변경할 이름에 다른 등록이 있습니다.'); continue; }
-      team.knownNames = [...new Set([...teamNames(team), event.after])];
+      team.knownNames = [...new Set([...teamNames(team), event.name, event.after])];
       container.delete(id); team.name = event.after; container.set(nextKey, team);
     } else if (event.type === 'captain') {
-      if (!samePerson(team.captain, event.before)) { review(event, '변경 전 팀장과 현재 명단의 팀장이 다릅니다.'); continue; }
       const former = team.captain;
       team.captain = event.after;
       team.members = team.members.filter(person => !samePerson(person, event.after));
-      if (!samePerson(former, event.after) && !team.members.some(person => samePerson(person, former))) team.members.push(former);
+      if (former && !samePerson(former, event.after) && !team.members.some(person => samePerson(person, former))) team.members.push(former);
     } else if (event.type === 'category') {
       if (team.kind !== '팀') { review(event, '클랜의 팀 속성 전환은 해체 후 새 등록이 필요합니다.'); continue; }
       team.category = event.after;

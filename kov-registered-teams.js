@@ -159,7 +159,7 @@ class RegisteredTeams extends HTMLElement {
         link.href = change.url;
         link.target = '_blank';
         link.rel = 'noopener noreferrer';
-        link.textContent = `${change.name} · ${change.reason} Discord 내역 ↗`;
+        link.textContent = `${change.name}${change.afterName ? ` → ${change.afterName}` : ''}${change.action ? ` · ${change.action}` : ''} · ${change.reason} Discord 내역 ↗`;
         item.append(renderDate(change), ' · ', link); review.append(item);
       }
       results.append(review);
@@ -190,7 +190,7 @@ class RegisteredTeams extends HTMLElement {
         ? `관리자 O 확인 · 현재 등록 ${teams.length}건 · 명단 변경 ${data.appliedChanges || 0}건 반영`
         : '관리자의 O 반응이 확인된 등록 팀·클랜이 없습니다.';
       if (!data.syncing && data.unmatchedChanges) {
-        status.textContent += ` · 팀명·이전 팀장 확인이 필요한 변경 ${data.unmatchedChanges}건`;
+        status.textContent += ` · 기존 명단 연결 확인이 필요한 변경 ${data.unmatchedChanges}건`;
       }
       if ('liveConnected' in data) status.textContent += data.liveConnected
         ? ' · Discord 실시간 연결됨' : ' · 실시간 봇 연결 대기';
