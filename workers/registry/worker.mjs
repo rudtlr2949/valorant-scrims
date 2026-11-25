@@ -38,7 +38,7 @@ async function catchUp() {
   // approvals and recent applications, including the active 30-day temporary window.
   await store.enqueue(await store.allEventIds(), false);
   const cutoff = Date.now() - 31 * 86400000;
-  const historyKey = store.prefix + ':forms-history-enqueued:v3';
+  const historyKey = store.prefix + ':forms-history-enqueued:v4';
   const fullHistory = !await registryRedis(['EXISTS', historyKey]);
   const known = new Set(await store.allEventIds());
   let before;
@@ -120,10 +120,10 @@ async function main() {
   await store.recover();
   // Source-verified missed forms: inspect fresh content AND administrator reactions
   // before applying; these are references, never approval or roster overrides.
-  const repairKey = store.prefix + ':source-verified-form-repair:v3';
+  const repairKey = store.prefix + ':source-verified-form-repair:v4';
   if (!await registryRedis(['EXISTS', repairKey])) {
-    for (const sourceId of ['1461039009030475869', '1358825950279762070',
-      '1345767844905746515', '1353615750660886632']) {
+    for (const sourceId of ['1454429673130819626', '1221385331136528404',
+      '1294925890710667305', '1295529880104079443', '1273599871752081428']) {
       const event = await discord.inspectMessage(sourceId);
       await store.mutate(sourceId, event);
     }

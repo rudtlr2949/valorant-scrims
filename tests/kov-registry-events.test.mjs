@@ -32,6 +32,14 @@ test('separate before/after rename fields and expanded provisional names preserv
   assert.equal(result.unmatchedChanges, 0);
 });
 
+test('an omitted team-name colon and spaced hyphen captain transfer retain explicit form meaning', () => {
+  const registration = event('100', '팀명 Rising star\n팀장: <@11>\n팀원: <@12> <@13>\n팀 등록 신청합니다');
+  const captain = event('110', '팀명: Rising star\n팀장변경: <@11> - <@14>\n팀장 변경 신청 합니다.');
+  assert.equal(registration.type, 'register');
+  assert.equal(captain.type, 'captain');
+  assert.equal(replayRegistryEvents([registration, captain]).teams[0].captain, 'Gamma');
+});
+
 test('replays additions, removals and captain transfer chronologically using stable Discord IDs', () => {
   const events = [register('100'),
     event('110', '팀명: Test GC\n팀원 추가: <@14>\n팀원 제외: <@12>\n팀원 추가 및 제외 신청합니다.'),

@@ -22,7 +22,8 @@ export function parseRegistryEvent(message) {
   const categoryChange = /(?:^|\n)[ \t]*(팀|GC팀)\s*(?:→|->|⇒)\s*(GC팀|팀)\s*변경\s*신청합니다[.!]?[ \t]*$/.exec(text);
   const footer = temporary || premier || categoryChange || /(?:^|\n)[ \t]*(?:(?:정식|본인)\s*)?(?:GC\s*)?(팀|클랜)(?:원|장|명)?[ \t]*(등록|해체|추가(?:\s*(?:및|\/|,|·)\s*제외)?|제외|변경|이름\s*변경)\s*신청합니다[.!]?[ \t]*$/.exec(text);
   if (!footer) return null;
-  const body = text.slice(0, footer.index);
+  const body = text.slice(0, footer.index)
+    .replace(/^([ \t]*(?:팀|클랜)명)[ \t]+([^\s:：][^\n]*)$/gm, '$1: $2');
   const entries = [...body.matchAll(/^\s*(?:[-•]\s*)?([^\n:：]{1,25})\s*[:：]([^\n]*(?:\n(?!\s*(?:[-•]\s*)?[^\n:：]{1,25}[:：])[^\n]*)*)/gm)]
     .map(match => ({ label: match[1].replace(/\s+/g, '').replace(/^(추가|제외)(팀원|클랜원)$/, '$2$1'), value: match[2].trim() }));
   const values = label => entries.filter(entry => entry.label === label).map(entry => entry.value);
@@ -79,7 +80,7 @@ export function parseRegistryEvent(message) {
   if (action === '변경' && /장\s*변경/.test(footer[0])) {
     const changes = values(kind + '장변경');
     if (changes.length !== 1) return null;
-    const parts = changes[0].split(/→|->|⇒/);
+    const parts = changes[0].split(/→|->|⇒|\s+-\s+/);
     if (parts.length !== 2) return null;
     const before = people([parts[0]]), after = people([parts[1]]);
     return before.length === 1 && after.length === 1
