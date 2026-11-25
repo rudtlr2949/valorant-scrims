@@ -47,7 +47,10 @@ async function catchUp() {
     if (!messages.length) break;
     const candidates = messages.filter(message => parseRegistryEvent(message) && (!fullHistory || !known.has(message.id)));
     // Previously missed forms must not sit behind the entire known-message audit.
-    await store.enqueue(candidates.map(message => message.id), fullHistory);
+    await store.enqueue(candidates.filter(message => !fullHistory || parseRegistryEvent(message).type !== 'register')
+      .map(message => message.id), fullHistory);
+    const registrations = fullHistory ? candidates.filter(message => parseRegistryEvent(message).type === 'register') : [];
+    if (registrations.length) await registryRedis(['RPUSH', store.prefix + ':urgent', ...registrations.map(message => message.id)]);
     if (candidates.length) notify();
     before = messages.at(-1).id;
     const oldest = Date.parse(messages.at(-1).timestamp);
@@ -117,10 +120,10 @@ async function main() {
   await store.recover();
   // Source-verified missed forms: inspect fresh content AND administrator reactions
   // before applying; these are references, never approval or roster overrides.
-  const repairKey = store.prefix + ':source-verified-form-repair:v1';
+  const repairKey = store.prefix + ':source-verified-form-repair:v2';
   if (!await registryRedis(['EXISTS', repairKey])) {
-    await store.enqueue(['1461039009030475869', '1358825950279762070',
-      '1345767844905746515', '1353615750660886632'], true);
+    await registryRedis(['RPUSH', store.prefix + ':urgent', '1353615750660886632',
+      '1345767844905746515', '1358825950279762070', '1461039009030475869']);
     await registryRedis(['SET', repairKey, '1']);
   }
   // Catch-up runs separately so newly approved messages always take priority.
