@@ -106,6 +106,14 @@ test('a later complete registration supersedes earlier unlinked changes without 
   assert.deepEqual(result.teams[0].members, ['Alpha', 'Beta']);
 });
 
+test('exclusion from an absent team is satisfied without creating a roster or changing another team', () => {
+  const remove = event('110', '팀명: Absent\n팀원: <@12>\n팀원 제외 신청합니다.');
+  const result = replayRegistryEvents([register('100'), remove]);
+  assert.equal(result.unmatchedChanges, 0);
+  assert.deepEqual(result.teams[0].members, ['Alpha', 'Beta']);
+  assert.equal(result.teams.length, 1);
+});
+
 test('word order and e-sports spelling link full names but colliding short aliases stay unresolved', () => {
   const make = (id, name) => event(id, `팀명: ${name}\n팀장: <@11>\n팀원: <@12> <@13>\n팀 등록 신청합니다.`);
   const remove = (id, name) => event(id, `팀명: ${name}\n팀원: <@12>\n팀원 제외 신청합니다.`);

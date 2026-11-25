@@ -180,6 +180,12 @@ export function replayRegistryEvents(events, { now = Date.now(), premierAct = ''
     }
     // Roster edits never reopen a closed team; only a new approved registration does.
     if (!team && !ambiguous && isClosed(event)) continue;
+    // An exclusion is already satisfied when no corresponding team exists.
+    // Never create a team or alter an ambiguous match just to remove a member.
+    if (!team && !ambiguous && event.type === 'roster' && !event.add.length) {
+      appliedChanges++;
+      continue;
+    }
     if (!team) { review(event, '일치하는 활성 등록을 찾지 못했습니다.'); continue; }
     const container = active.has(id) ? active : temporary;
     if (event.type === 'disband') container.delete(id);
