@@ -34,47 +34,93 @@ test('excludes provisional applications and roster, rename and disband requests'
   assert.equal(parseRegistration({ id: '126', content: '팀명 : Eclipse\n팀장 : Captain\n팀원 : Alpha\n팀 등록 신청합니다.' }), null);
 });
 
-test('rate limits preserve pagination and completed snapshots avoid duplicate scans', async () => {
+
+function memoryRedis() {
   const stored = new Map();
-  const redis = async ([command, key, value, ...args]) => {
+  return async ([command, key, value, ...args]) => {
     if (command === 'GET') return stored.get(key) || null;
     if (command === 'SET') {
       if (args.includes('NX') && stored.has(key)) return null;
-      stored.set(key, value);
-      return 'OK';
+      stored.set(key, value); return 'OK';
     }
     if (command === 'EVAL') {
-      const lockKey = args[0];
-      const lockValue = args[1];
-      if (stored.get(lockKey) === lockValue) stored.delete(lockKey);
+      if (stored.get(args[0]) === args[1]) stored.delete(args[0]);
       return 1;
     }
     throw Error('unexpected command');
   };
+}
+const application = (id, name, reactions = []) => ({
+  id, content: '팀명: '+name+'\n팀장: Captain\n팀원: A\n팀원: B\n팀 등록 신청합니다.',
+  reactions: reactions.map(name => ({ emoji: { name }, count: 1 })),
+});
+async function finishScan(fetcher) {
   let time = 100000;
-  let calls = 0;
-  const fetcher = async url => {
-    calls++;
-    if (calls === 1) return Response.json({ retry_after: 5 }, { status: 429 });
-    if (calls === 2) return Response.json(Array.from({ length: 100 }, (_, i) => ({
-      id: String(200 - i), content: '공지',
-    })), { headers: { 'x-ratelimit-remaining': '0', 'x-ratelimit-reset-after': '3' } });
-    assert.equal(url.searchParams.get('before'), '101');
-    return Response.json([{ id: '100', content:
-      '팀명: Test\n팀장: Captain\n팀원: A\n팀원: B\n팀 등록 신청합니다.' }]);
-  };
-  const read = () => readChannel('fixture-token', redis, fetcher, () => time);
-  assert.equal((await read()).retryAfter, 5);
-  await read();
-  assert.equal(calls, 1);
-  time += 5000;
-  assert.equal((await read()).retryAfter, 3);
-  await read();
-  assert.equal(calls, 2);
-  time += 3000;
-  const final = await read();
-  assert.equal(final.syncing, false);
-  assert.equal(final.teams[0].name, 'Test');
-  assert.deepEqual(await read(), final);
-  assert.equal(calls, 3);
+  const redis = memoryRedis();
+  let result;
+  for (let i = 0; i < 100; i++) {
+    result = await readChannel('fixture-token', redis, fetcher, () => time);
+    if (!result.syncing) {
+      assert.deepEqual(await readChannel('fixture-token', redis, () => { throw Error('cached'); }, () => time), result);
+      return result;
+    }
+    time += result.retryAfter * 1000;
+  }
+  throw Error('scan failed to finish');
+}
+function authorityResponse(url) {
+  if (url.pathname.endsWith('/roles')) return Response.json([{ id: 'admin', permissions: '8' }, { id: 'member', permissions: '0' }]);
+  if (url.pathname === '/api/v10/guilds/683829152276938814') return Response.json({ owner_id: 'owner' });
+  if (url.pathname.includes('/members/')) {
+    const id = url.pathname.split('/').at(-1);
+    if (id === 'left') return Response.json({}, { status: 404 });
+    return Response.json({ user: { id }, roles: id === 'adminUser' ? ['admin'] : ['member'] });
+  }
+}
+
+test('only administrator O reactions approve, while administrator X vetoes and missing approvals stay hidden', async () => {
+  const result = await finishScan(async url => {
+    const authority = authorityResponse(url); if (authority) return authority;
+    if (url.pathname.endsWith('/messages')) return Response.json([
+      application('10', 'Approved', ['⭕']), application('9', 'MemberOnly', ['⭕']),
+      application('8', 'Rejected', ['⭕', '❌']), application('7', 'Pending'),
+      application('6', 'FormerMember', ['⭕']), application('5', 'Owner', ['⭕']),
+      application('4', 'BotOnly', ['⭕']),
+    ]);
+    const id = url.pathname.split('/messages/')[1].split('/')[0];
+    return Response.json([{ id: id === '9' ? 'regular' : id === '6' ? 'left' : id === '5' ? 'owner' : 'adminUser', bot: id === '4' }]);
+  });
+  assert.deepEqual(result.teams.map(team => team.name), ['Approved', 'Owner']);
+  assert.equal(result.approvalVerified, true);
+});
+
+test('reaction user pagination and rate limits resume without treating counts as approval', async () => {
+  let throttled = false, pages = 0;
+  const result = await finishScan(async url => {
+    const authority = authorityResponse(url); if (authority) return authority;
+    if (url.pathname.endsWith('/messages')) return Response.json([application('12', 'Paged', ['⭕'])]);
+    if (!throttled) { throttled = true; return Response.json({ retry_after: 5 }, { status: 429 }); }
+    pages++;
+    if (!url.searchParams.has('after')) return Response.json(Array.from({ length: 100 }, (_, i) => ({ id: String(i + 1), bot: true })));
+    assert.equal(url.searchParams.get('after'), '100');
+    return Response.json([{ id: 'adminUser' }]);
+  });
+  assert.equal(pages, 2);
+  assert.equal(result.teams[0].name, 'Paged');
+});
+
+test('message pagination continues past a full page and unapproved cache cannot leak', async () => {
+  let pages = 0;
+  const result = await finishScan(async url => {
+    const authority = authorityResponse(url); if (authority) return authority;
+    if (url.pathname.endsWith('/messages')) {
+      pages++;
+      if (pages === 1) return Response.json(Array.from({ length: 100 }, (_, i) => ({ id: String(200-i), content: '공지' })));
+      assert.equal(url.searchParams.get('before'), '101');
+      return Response.json([application('100', 'Last', ['⭕'])]);
+    }
+    return Response.json([{ id: 'adminUser' }]);
+  });
+  assert.equal(pages, 2);
+  assert.deepEqual(result.teams.map(team => team.name), ['Last']);
 });

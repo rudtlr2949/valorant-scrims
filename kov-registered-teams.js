@@ -54,10 +54,10 @@ class RegisteredTeams extends HTMLElement {
       list.className = 'kp-grid three kp-section';
       list.append(...teams.map(renderTeam));
       status.textContent = data.syncing
-        ? `Discord 목록 동기화 중 · 현재 신청 ${teams.length}건`
+        ? `Discord 목록 동기화 중 · 관리자 승인 ${teams.length}건`
         : teams.length
-        ? `신청 ${teams.length}건 · 승인 여부 미확인`
-        : '인식된 정식 등록 신청이 없습니다.';
+        ? `관리자 O 확인 · 등록 ${teams.length}건`
+        : '관리자의 O 반응이 확인된 등록 팀·클랜이 없습니다.';
       this.append(list);
       if (data.syncing) {
         this.refreshTimer = setTimeout(() => {
