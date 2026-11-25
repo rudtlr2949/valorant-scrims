@@ -70,7 +70,7 @@ export async function readChannel(token, redis, fetcher = fetch, now = Date.now)
   const result = () => ({
     teams: snapshot.teams, appliedChanges: snapshot.appliedChanges || 0, unmatchedChanges: snapshot.unmatchedChanges || 0,
     reviewChanges: snapshot.reviewChanges || [], checkedEvents: snapshot.events.length, syncing: !snapshot.completedAt, approvalVerified: true,
-    retryAfter: Math.max(2, Math.ceil(((snapshot.nextAt || 0) - now()) / 1000)),
+    retryAfter: Math.max(0.25, ((snapshot.nextAt || 0) - now()) / 1000),
   });
   if (snapshot.completedAt && now() - snapshot.completedAt < 300000) return result();
   if (snapshot.nextAt > now()) return result();
@@ -87,11 +87,11 @@ export async function readChannel(token, redis, fetcher = fetch, now = Date.now)
     });
     if (response.status === 429) {
       const body = await response.json().catch(() => ({}));
-      snapshot.nextAt = now() + Math.max(1, Number(body.retry_after || response.headers.get('retry-after')) || 5) * 1000;
+      snapshot.nextAt = now() + Math.max(0.05, Number(body.retry_after || response.headers.get('retry-after')) || 5) * 1000;
       throw pause;
     }
     if (response.headers.get('x-ratelimit-remaining') === '0') {
-      snapshot.nextAt = now() + Math.max(1, Number(response.headers.get('x-ratelimit-reset-after')) || 2) * 1000;
+      snapshot.nextAt = now() + Math.max(0.05, Number(response.headers.get('x-ratelimit-reset-after')) || 2) * 1000;
     }
     if (missingMember && response.status === 404) return null;
     if (!response.ok) throw new Error(`Discord HTTP ${response.status}`);
@@ -181,7 +181,7 @@ export async function readChannel(token, redis, fetcher = fetch, now = Date.now)
     if (error !== pause) throw error;
   } finally {
     // Persist even on a rate-limit pause, including partially checked reaction pages.
-    snapshot.nextAt = Math.max(snapshot.nextAt || 0, now() + 2000);
+    snapshot.nextAt = Math.max(snapshot.nextAt || 0, now() + 250);
     try {
       if (snapshot.completedAt) await redis(['SET', publishedKey, JSON.stringify({ teams: snapshot.teams,
         appliedChanges: snapshot.appliedChanges, unmatchedChanges: snapshot.unmatchedChanges }), 'EX', 604800]);
