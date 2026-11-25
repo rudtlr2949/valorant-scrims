@@ -3,8 +3,44 @@ import { guildId } from './config.mjs';
 export const managedChannels = new Map([
   ['898738915085799464', '팀'], ['898738968638672906', '클랜'],
 ]);
+export const premierManagementChannel = '1337304240229580851';
 const ascending = (a, b) => BigInt(a.id) < BigInt(b.id) ? -1 : 1;
 const closedTitle = name => /(?:^|[-–—|/\s])(?:해체|역할\s*회수|등급\s*회수)(?:$|[\s)\]])/.test(name);
+
+export function normalizePremierAct(value) {
+  const match = value.trim().match(/^V(\d{2,4})\s*(?:A(?:CT)?|액트)\s*(\d+)$/i);
+  return match ? `V${match[1]} A${Number(match[2])}` : value.trim().replace(/\s+/g, ' ').slice(0, 80);
+}
+
+export function projectManagedPremier(messages) {
+  const records = new Map(); let latestAct = '';
+  for (const message of [...messages].sort(ascending)) {
+    const text = (message.content || '').replace(/\*\*|__/g, '');
+    const fields = [...text.matchAll(/^\s*(신청\s*액트|신청\s*팀명|팀명|신청인|팀장)\s*[:：]\s*([^\n]*)/gm)];
+    const values = label => fields.filter(field => field[1].replace(/\s/g, '') === label);
+    const acts = values('신청액트');
+    const names = [...values('신청팀명'), ...values('팀명')];
+    const applicants = [...values('신청인'), ...values('팀장')];
+    if (acts.length !== 1 || names.length !== 1 || applicants.length !== 1) continue;
+    const applicant = applicants[0];
+    const next = fields.find(field => field.index > applicant.index)?.index ?? text.length;
+    const ids = [...text.slice(applicant.index, next).matchAll(/<@!?(\d+)>/g)].map(match => match[1]);
+    if (ids.length !== 1) continue;
+    const act = normalizePremierAct(acts[0][2]), name = names[0][2].trim().slice(0, 80);
+    if (!act || !name) continue;
+    const user = (message.mentions || []).find(user => user.id === ids[0]);
+    const captain = user?.member?.nick || user?.global_name || user?.username || '이름 확인 필요';
+    // One applicant per act; a corrected team name replaces their older record.
+    for (const [key, entry] of records) if (entry.act === act && (entry.discordRoster[0].id === ids[0]
+      || entry.name.toLowerCase() === name.toLowerCase())) records.delete(key);
+    if (/(?:프리미어|등급|역할)\s*(?:해체|회수|제외)/.test(text)) continue;
+    records.set(act + ':' + name.toLowerCase(), { kind: '팀', name, captain, members: [],
+      discordRoster: [{ id: ids[0], name: captain, role: 'captain' }], registryType: 'premier', act,
+      source: 'admin-management', url: `https://discord.com/channels/${guildId}/${premierManagementChannel}/${message.id}` });
+    latestAct = act;
+  }
+  return { premierTeams: [...records.values()], latestAct };
+}
 
 // Only directory fields are projected. Administrator notes, sanctions, and raw
 // message content never enter the public snapshot or the public review list.
@@ -111,6 +147,7 @@ export class ManagedRegistry {
     return [...threads.values()];
   }
   async readThread(thread) {
+    if (closedTitle(thread.name)) return { closed: true, name: thread.name };
     const messages = []; let before;
     do {
       const query = new URLSearchParams({ limit: '100' });
@@ -126,18 +163,39 @@ export class ManagedRegistry {
     } while (true);
     return projectManagedThread(thread, messages, managedChannels.get(thread.parent_id));
   }
+  async syncPremier() {
+    const messages = []; let before;
+    do {
+      const query = new URLSearchParams({ limit: '100' });
+      if (before) query.set('before', before);
+      const page = await this.discord.request(`/channels/${premierManagementChannel}/messages?${query}`);
+      messages.push(...page.filter(message => message.author && !message.author.bot));
+      if (page.length < 100) break;
+      const next = page.at(-1).id;
+      if (next === before) throw new Error('Incomplete Premier management history');
+      before = next;
+    } while (true);
+    const result = { ...projectManagedPremier(messages), updatedAt: this.now() };
+    await this.redis(['SET', this.prefix + ':managed:premier', JSON.stringify(result)]);
+    return result;
+  }
   async sync() {
     const statusKey = this.prefix + ':managed:status';
     const status = { state: 'syncing', at: this.now(), processed: 0, total: 0 };
     await this.redis(['SET', statusKey, JSON.stringify(status)]);
     try {
+      await this.syncPremier();
+      if (!this.cache.size) {
+        const saved = await this.redis(['GET', this.prefix + ':managed:cache']);
+        if (saved) this.cache = new Map(JSON.parse(saved));
+      }
       const threads = await this.inventory();
       status.total = threads.length; this.threadIds = new Set(threads.map(thread => thread.id));
       const teams = [], reviewChanges = []; let closed = 0;
       for (const thread of threads) {
         const signature = `${thread.name}:${thread.last_message_id || ''}`;
         let cached = this.cache.get(thread.id);
-        if (!cached || cached.signature !== signature || this.now() - cached.at > 300000) {
+        if (!cached || cached.signature !== signature || this.now() - cached.at > 1800000) {
           cached = { signature, at: this.now(), result: await this.readThread(thread) };
           this.cache.set(thread.id, cached);
         }
@@ -145,7 +203,10 @@ export class ManagedRegistry {
         if (cached.result.review) reviewChanges.push(cached.result.review);
         if (cached.result.closed) closed++;
         status.processed++;
-        if (status.processed % 10 === 0) await this.redis(['SET', statusKey, JSON.stringify(status)]);
+        if (status.processed % 10 === 0) {
+          await this.redis(['SET', statusKey, JSON.stringify(status)]);
+          await this.redis(['SET', this.prefix + ':managed:cache', JSON.stringify([...this.cache])]);
+        }
       }
       if (!threads.length || !teams.length && !closed) throw new Error('No managed rosters verified');
       // Publish only a complete read. Partial/failed scans retain the previous snapshot.

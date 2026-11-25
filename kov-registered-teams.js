@@ -35,7 +35,7 @@ function renderTeam(team) {
   members.textContent = team.registryType === 'temporary'
     ? `임시 등록 · ${Math.max(0, Math.ceil((team.expiresAt - Date.now()) / 86400000))}일 남음`
     : team.registryType === 'premier'
-    ? `신청 액트 · ${team.act}${team.actConfirmed ? '' : ' · 현재 액트 확인 필요'}`
+    ? `신청 액트 · ${team.act}${team.source === 'admin-management' ? ' · 운영진 기록' : team.actConfirmed ? '' : ' · 현재 액트 확인 필요'}`
     : team.managedStatus === 'pending' ? '운영진 확인 대기' : team.rosterIncomplete ? '명단 등록 대기' : '정식 등록';
   members.className = 'kp-badge kov-registry-state';
   const source = document.createElement('a');
@@ -134,6 +134,7 @@ class RegisteredTeams extends HTMLElement {
   selectedRegistryType = 'formal';
   searchQuery = '';
   sortOrder = 'recent';
+  selectedPremierAct = null;
 
   renderList() {
     const focusedSearch = this.contains(document.activeElement) && document.activeElement.matches('[data-registry-search]');
@@ -146,7 +147,12 @@ class RegisteredTeams extends HTMLElement {
       { id: 'temporary', label: '임시 등록', teams: this.registryData.temporaryTeams || [] },
       { id: 'premier', label: '프리미어', teams: this.registryData.premierTeams || [] },
     ];
-    const teams = registryNewestFirst(groups.find(group => group.id === this.selectedRegistryType).teams);
+    let teams = registryNewestFirst(groups.find(group => group.id === this.selectedRegistryType).teams);
+    const premierActs = [...new Set(teams.map(team => team.act).filter(Boolean))];
+    if (this.selectedRegistryType === 'premier' && this.registryData.premierDirectorySource === 'admin-management') {
+      const act = this.selectedPremierAct ?? this.registryData.premierLatestAct;
+      if (act && act !== 'all') teams = teams.filter(team => team.act === act);
+    }
     const modes = document.createElement('div');
     modes.className = 'kp-tabs kov-registry-modes';
     modes.setAttribute('role', 'group'); modes.setAttribute('aria-label', '등록 상태');
@@ -233,6 +239,20 @@ class RegisteredTeams extends HTMLElement {
     sort.value = this.sortOrder;
     sort.addEventListener('change', () => { this.sortOrder = sort.value; this.renderList(); this.querySelector('.kov-registry-toolbar select').focus(); });
     sortLabel.append(sort); toolbar.append(searchLabel, sortLabel);
+    if (this.selectedRegistryType === 'premier' && this.registryData.premierDirectorySource === 'admin-management') {
+      const actLabel = document.createElement('label');
+      actLabel.className = 'kp-field'; actLabel.textContent = '프리미어 신청 액트';
+      const actSelect = document.createElement('select');
+      actSelect.dataset.premierAct = 'true';
+      for (const act of ['all', ...premierActs]) {
+        const option = document.createElement('option'); option.value = act;
+        option.textContent = act === 'all' ? '전체 관리 기록' : act + (act === this.registryData.premierLatestAct ? ' · 최신 기록' : '');
+        actSelect.append(option);
+      }
+      actSelect.value = this.selectedPremierAct ?? this.registryData.premierLatestAct ?? 'all';
+      actSelect.addEventListener('change', () => { this.selectedPremierAct = actSelect.value; this.renderList(); this.querySelector('[data-premier-act]').focus(); });
+      actLabel.append(actSelect); toolbar.append(actLabel);
+    }
     results.append(modes, filters, toolbar, order, list);
     const rules = document.createElement('details');
     rules.className = 'kp-panel kp-pad kp-section kov-registry-rules';

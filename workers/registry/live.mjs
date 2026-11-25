@@ -169,6 +169,12 @@ export async function readLivePublic(token, redis, now = Date.now) {
   data.liveUpdatedAt = heartbeat?.at || null;
   const managed = JSON.parse(await redis(['GET', prefix + ':managed:public']) || 'null');
   data.managementSync = JSON.parse(await redis(['GET', prefix + ':managed:status']) || 'null');
+  const premier = JSON.parse(await redis(['GET', prefix + ':managed:premier']) || 'null');
+  if (premier) {
+    data.premierTeams = premier.premierTeams;
+    data.premierLatestAct = premier.latestAct;
+    data.premierDirectorySource = 'admin-management';
+  }
   if (managed) {
     data.teams = managed.teams;
     data.reviewChanges = managed.reviewChanges;

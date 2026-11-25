@@ -5,7 +5,7 @@ import { guildId, channelId, registryMessageIds } from './config.mjs';
 import { RegistryGateway } from './gateway.mjs';
 import { DiscordRegistryClient, RegistryLiveStore } from './live.mjs';
 import { parseRegistryEvent } from './events.mjs';
-import { ManagedRegistry, managedChannels } from './managed.mjs';
+import { ManagedRegistry, managedChannels, premierManagementChannel } from './managed.mjs';
 
 const token = process.env.KOV_REGISTRY_BOT_TOKEN?.trim();
 if (!token || !process.env.UPSTASH_REDIS_REST_URL || !process.env.UPSTASH_REDIS_REST_TOKEN) {
@@ -93,7 +93,7 @@ async function main() {
     onError: error => { lastError = error.message; console.error('KOV registry gateway:', error.message); },
     onConnection: connected => { if (connected) lastError = null; console.info('KOV registry gateway:', connected ? 'connected' : 'reconnecting'); },
     onDispatch: async (type, data) => {
-      if (managed.threadIds.has(data.channel_id) || managedChannels.has(data.parent_id)
+      if (data.channel_id === premierManagementChannel || managed.threadIds.has(data.channel_id) || managedChannels.has(data.parent_id)
         || type === 'THREAD_DELETE' && managed.threadIds.has(data.id)) {
         managed.invalidate(data.channel_id || data.id); managedRequested = true; notify();
       }

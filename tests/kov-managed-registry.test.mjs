@@ -1,11 +1,26 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { projectManagedThread, ManagedRegistry } from '../workers/registry/managed.mjs';
+import { projectManagedThread, projectManagedPremier, normalizePremierAct, ManagedRegistry } from '../workers/registry/managed.mjs';
 
 const users = [{ id: '11', username: 'Captain' }, { id: '12', username: 'Alpha' },
   { id: '13', username: 'Beta' }, { id: '14', username: 'Gamma' }];
 const message = (id, content) => ({ id, content, mentions: users });
 const thread = { id: '100', name: 'ARA(AURORA GC)' };
+
+test('Premier management normalizes equivalent acts and preserves act history separately', () => {
+  assert.equal(normalizePremierAct('V26A6'), 'V26 A6');
+  assert.equal(normalizePremierAct('V26 Act6'), 'V26 A6');
+  const result = projectManagedPremier([
+    message('101', '26.10.26\n신청 액트: V26 A5\n신청 팀명: Before\n신청인: <@11>'),
+    message('102', '26.10.26\n신청 액트: V26A6\n신청 팀명: Old\n신청인: <@11>'),
+    message('103', '26.11.02\n신청 액트:V26 Act6\n팀명: New\n팀장:\n<@11>'),
+    message('104', '내부 메모: 아무 팀도 추가하면 안 됨'),
+  ]);
+  assert.deepEqual(result.premierTeams.map(team => [team.name, team.act]), [['Before', 'V26 A5'], ['New', 'V26 A6']]);
+  assert.equal(result.latestAct, 'V26 A6');
+  assert.equal(result.premierTeams[1].discordRoster[0].id, '11');
+  assert.ok(!JSON.stringify(result).includes('내부 메모'));
+});
 
 test('managed roster applies administrator-ledger additions and exclusions without exposing private notes', () => {
   const messages = [message('101', '26.10.29\n팀장: <@11> / 11\n팀원: <@12> / 12\n팀원: <@13> / 13'),
