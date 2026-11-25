@@ -1,4 +1,4 @@
-import { parseRegistryEvent, replayRegistryEvents } from './kov-registry-events.js';
+import { parseRegistryEvent, replayRegistryEvents } from '../kov-registry-events.js';
 import { createHash, randomUUID } from 'node:crypto';
 
 const guildId = '683829152276938814';
