@@ -12,14 +12,17 @@ export function parseRegistryEvent(message) {
     ...(message.embeds || []).flatMap(embed => (embed.fields || []).map(field => `${field.name}: ${field.value}`))]
     .filter(Boolean).join('\n').replace(/\*\*|__/g, '').trim();
   // Require the action footer; never interpret templates, discussion, or provisional applications.
-  const footer = /(?:^|\n)[ \t]*(팀|클랜)(?:원|장|명)?[ \t]*(등록|해체|추가(?:\s*(?:및|\/|,|·)\s*제외)?|제외|변경|이름\s*변경)\s*신청합니다[.!]?[ \t]*$/.exec(text);
+  const temporary = /(?:^|\n)[ \t]*신규\s*등급\s*신청합니다[.!]?[ \t]*$/.exec(text);
+  const premier = /(?:^|\n)[ \t]*프리미어\s*등급\s*신청합니다[.!]?[ \t]*$/.exec(text);
+  const categoryChange = /(?:^|\n)[ \t]*(팀|GC팀)\s*(?:→|->|⇒)\s*(GC팀|팀)\s*변경\s*신청합니다[.!]?[ \t]*$/.exec(text);
+  const footer = temporary || premier || categoryChange || /(?:^|\n)[ \t]*(팀|클랜)(?:원|장|명)?[ \t]*(등록|해체|추가(?:\s*(?:및|\/|,|·)\s*제외)?|제외|변경|이름\s*변경)\s*신청합니다[.!]?[ \t]*$/.exec(text);
   if (!footer) return null;
-  const kind = footer[1];
   const body = text.slice(0, footer.index);
   const entries = [...body.matchAll(/^\s*(?:[-•]\s*)?([^\n:：]{1,25})\s*[:：]([^\n]*(?:\n(?!\s*(?:[-•]\s*)?[^\n:：]{1,25}[:：])[^\n]*)*)/gm)]
     .map(match => ({ label: match[1].replace(/\s+/g, ''), value: match[2].trim() }));
   const values = label => entries.filter(entry => entry.label === label).map(entry => entry.value);
-  const nameFields = values(kind + '명');
+  const kind = temporary ? (values('클랜명').length ? '클랜' : '팀') : premier || categoryChange ? '팀' : footer[1];
+  const nameFields = values(premier ? '신청팀명' : kind + '명');
   if (nameFields.length !== 1) return null;
   const name = nameFields[0].split('\n')[0].replace(/^`|`$/g, '').trim().slice(0, 80);
   if (!name) return null;
@@ -31,7 +34,26 @@ export function parseRegistryEvent(message) {
     return name ? [{ name }] : [];
   });
   const unique = list => list.filter((person, i) => !list.slice(0, i).some(other => samePerson(person, other)));
-  const event = { id: message.id, kind, name, url: channelUrl + message.id };
+  const createdAt = Number.isFinite(Date.parse(message.timestamp)) ? Date.parse(message.timestamp)
+    : Number((BigInt(message.id) >> 22n) + 1420070400000n);
+  const event = { id: message.id, kind, name, url: channelUrl + message.id, createdAt };
+  if (categoryChange) {
+    return categoryChange[1] !== categoryChange[2]
+      ? { ...event, type: 'category', after: categoryChange[2] === 'GC팀' ? 'GC' : 'TEAM' } : null;
+  }
+  if (temporary || premier) {
+    const captains = people(values(premier ? '신청인' : kind + '장'));
+    if (captains.length !== 1 || !captains[0].id) return null;
+    if (premier && message.author?.id && captains[0].id !== message.author.id) return null;
+    if (premier) {
+      const acts = values('신청액트');
+      return acts.length === 1 && acts[0].trim()
+        ? { ...event, type: 'premier', captain: captains[0], members: [], act: acts[0].trim().slice(0, 80) } : null;
+    }
+    const gc = (message.registryRoleNames || []).some(role => /신규.*GC/i.test(role)) || /신규\s*\(GC팀\)/i.test(body);
+    return { ...event, type: 'temporary', captain: captains[0], members: [], category: kind === '클랜' ? 'CLAN' : gc ? 'GC' : undefined,
+      expiresAt: createdAt + 30 * 86400000 };
+  }
   const action = footer[2].replace(/\s+/g, '');
   if (action === '등록') {
     const captains = people(values(kind + '장'));
@@ -65,8 +87,9 @@ export function parseRegistryEvent(message) {
   return null;
 }
 
-export function replayRegistryEvents(events) {
+export function replayRegistryEvents(events, { now = Date.now(), premierAct = '' } = {}) {
   const active = new Map();
+  const temporary = new Map(), premier = new Map();
   let appliedChanges = 0, unmatchedChanges = 0;
   const reviewChanges = [];
   const review = (event, reason) => {
@@ -78,30 +101,48 @@ export function replayRegistryEvents(events) {
     .sort((a, b) => BigInt(a.id) < BigInt(b.id) ? -1 : 1);
   for (const event of sorted) {
     let id = key(event);
+    if (event.type === 'temporary') {
+      if (!active.has(id)) temporary.set(id, { ...event, registryType: 'temporary' });
+      continue;
+    }
+    if (event.type === 'premier') {
+      if (active.has(id)) { review(event, '정식 팀 등록과 프리미어 등급은 동시에 유지할 수 없습니다.'); continue; }
+      premier.set(normalize(event.act) + ':' + id, { ...event, registryType: 'premier' });
+      continue;
+    }
     if (event.type === 'register') {
+      temporary.delete(id);
+      for (const [premierKey, entry] of premier) if (key(entry) === id) premier.delete(premierKey);
       active.set(id, { ...event, members: event.members.map(person => ({ ...person })) });
       continue;
     }
     if (!active.has(id)) {
-      const entries = [...active.entries()].filter(([, team]) => team.kind === event.kind);
+      const entries = [...active.entries(), ...temporary.entries()].filter(([, team]) => team.kind === event.kind);
       const exact = entries.filter(([, team]) => looseName(team.name) === looseName(event.name));
       const candidates = exact.length ? exact : entries.filter(([, team]) =>
         aliases(team.name).includes(looseName(event.name)) || aliases(event.name).includes(looseName(team.name)));
       if (candidates.length === 1) id = candidates[0][0];
     }
-    const team = active.get(id);
+    const team = active.get(id) || temporary.get(id);
     if (!team) { review(event, '일치하는 활성 등록을 찾지 못했습니다.'); continue; }
-    if (event.type === 'disband') active.delete(id);
+    const container = active.has(id) ? active : temporary;
+    if (container === temporary && event.type !== 'disband' && event.createdAt >= team.expiresAt) {
+      review(event, '임시 등록 기간이 만료되어 정식 등록 승인이 필요합니다.'); continue;
+    }
+    if (event.type === 'disband') container.delete(id);
     else if (event.type === 'rename') {
       const nextKey = key({ ...event, name: event.after });
-      if (active.has(nextKey) && nextKey !== id) { review(event, '변경할 이름에 다른 등록이 있습니다.'); continue; }
-      active.delete(id); team.name = event.after; active.set(nextKey, team);
+      if ((active.has(nextKey) || temporary.has(nextKey)) && nextKey !== id) { review(event, '변경할 이름에 다른 등록이 있습니다.'); continue; }
+      container.delete(id); team.name = event.after; container.set(nextKey, team);
     } else if (event.type === 'captain') {
       if (!samePerson(team.captain, event.before)) { review(event, '변경 전 팀장과 현재 명단의 팀장이 다릅니다.'); continue; }
       const former = team.captain;
       team.captain = event.after;
       team.members = team.members.filter(person => !samePerson(person, event.after));
       if (!samePerson(former, event.after) && !team.members.some(person => samePerson(person, former))) team.members.push(former);
+    } else if (event.type === 'category') {
+      if (team.kind !== '팀') { review(event, '클랜의 팀 속성 전환은 해체 후 새 등록이 필요합니다.'); continue; }
+      team.category = event.after;
     } else if (event.type === 'roster') {
       team.members = team.members.filter(person => !event.remove.some(other => samePerson(person, other)));
       if (event.remove.some(person => samePerson(person, team.captain))) team.captain = null;
@@ -110,11 +151,22 @@ export function replayRegistryEvents(events) {
         const index = team.members.findIndex(other => samePerson(person, other));
         if (index === -1) team.members.push(person); else team.members[index] = person;
       }
+      if (container === temporary && team.captain && team.members.length >= 2) {
+        temporary.delete(id); delete team.registryType; delete team.expiresAt;
+        team.type = 'register'; active.set(id, team);
+      }
     }
     team.url = event.url;
     appliedChanges++;
   }
-  return { teams: [...active.values()].map(team => ({ kind: team.kind, name: team.name,
-    captain: team.captain?.name || '미지정', members: team.members.map(person => person.name), url: team.url })),
+  const display = team => ({ kind: team.kind, name: team.name,
+    captain: team.captain?.name || '미지정', members: team.members.map(person => person.name), url: team.url,
+    ...(team.category ? { category: team.category } : {}),
+    ...(team.registryType ? { registryType: team.registryType } : {}),
+    ...(team.expiresAt ? { expiresAt: team.expiresAt } : {}),
+    ...(team.act ? { act: team.act, actConfirmed: Boolean(premierAct) } : {}) });
+  return { teams: [...active.values()].map(display),
+    temporaryTeams: [...temporary.values()].filter(team => team.expiresAt > now).map(display),
+    premierTeams: [...premier.values()].filter(team => !premierAct || normalize(team.act) === normalize(premierAct)).map(display),
     appliedChanges, unmatchedChanges, reviewChanges };
 }

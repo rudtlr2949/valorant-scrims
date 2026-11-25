@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { parseRegistryEvent, replayRegistryEvents } from '../kov-registry-events.js';
+import { parseRegistryEvent, replayRegistryEvents } from '../workers/registry/events.mjs';
 
 const mentions = [
   { id: '11', username: 'Captain' }, { id: '12', username: 'Alpha' },
