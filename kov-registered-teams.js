@@ -1,4 +1,5 @@
 import { registryCategories, registryCategory } from './kov-registry-category.js';
+import { registryNewestFirst, registryPostDate, registryDateLabel } from './kov-registry-order.js';
 
 let cachedLookup;
 
@@ -40,8 +41,21 @@ function renderTeam(team) {
   source.target = '_blank';
   source.rel = 'noopener noreferrer';
   source.textContent = 'Discord 최신 내역 ↗';
-  card.append(category, name, captain, members, source);
+  const date = document.createElement('p');
+  date.className = 'kp-meta';
+  date.textContent = '최근 내역 · ';
+  date.append(renderDate(team));
+  card.append(category, name, captain, members, date, source);
   return card;
+}
+
+function renderDate(item) {
+  const time = document.createElement('time');
+  const date = registryPostDate(item);
+  if (date) time.dateTime = date.toISOString();
+  time.textContent = registryDateLabel(item);
+  time.title = 'Discord 글 작성일 · 한국시간';
+  return time;
 }
 
 class RegisteredTeams extends HTMLElement {
@@ -56,7 +70,7 @@ class RegisteredTeams extends HTMLElement {
       { id: 'temporary', label: '임시 등록', teams: this.registryData.temporaryTeams || [] },
       { id: 'premier', label: '프리미어', teams: this.registryData.premierTeams || [] },
     ];
-    const teams = groups.find(group => group.id === this.selectedRegistryType).teams;
+    const teams = registryNewestFirst(groups.find(group => group.id === this.selectedRegistryType).teams);
     const modes = document.createElement('div');
     modes.className = 'kp-tabs kov-registry-modes';
     modes.setAttribute('role', 'group'); modes.setAttribute('aria-label', '등록 상태');
@@ -109,7 +123,10 @@ class RegisteredTeams extends HTMLElement {
     const results = document.createElement('section');
     results.className = 'kov-registry-results';
     results.setAttribute('aria-label', '유형별 등록 목록');
-    results.append(modes, filters, list);
+    const order = document.createElement('p');
+    order.className = 'kp-meta';
+    order.textContent = 'Discord 최근 내역순 · 한국시간';
+    results.append(modes, filters, order, list);
     const rules = document.createElement('details');
     rules.className = 'kp-panel kp-pad kp-section kov-registry-rules';
     rules.open = rulesOpen;
@@ -136,14 +153,14 @@ class RegisteredTeams extends HTMLElement {
       const summary = document.createElement('summary');
       summary.textContent = `명단 확인이 필요한 변경 ${this.registryData.reviewChanges.length}건`;
       review.append(summary);
-      for (const change of this.registryData.reviewChanges) {
+      for (const change of registryNewestFirst(this.registryData.reviewChanges)) {
         const item = document.createElement('p');
         const link = document.createElement('a');
         link.href = change.url;
         link.target = '_blank';
         link.rel = 'noopener noreferrer';
         link.textContent = `${change.name} · ${change.reason} Discord 내역 ↗`;
-        item.append(link); review.append(item);
+        item.append(renderDate(change), ' · ', link); review.append(item);
       }
       results.append(review);
     }
