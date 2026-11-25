@@ -120,10 +120,14 @@ async function main() {
   await store.recover();
   // Source-verified missed forms: inspect fresh content AND administrator reactions
   // before applying; these are references, never approval or roster overrides.
-  const repairKey = store.prefix + ':source-verified-form-repair:v2';
+  const repairKey = store.prefix + ':source-verified-form-repair:v3';
   if (!await registryRedis(['EXISTS', repairKey])) {
-    await registryRedis(['RPUSH', store.prefix + ':urgent', '1353615750660886632',
-      '1345767844905746515', '1358825950279762070', '1461039009030475869']);
+    for (const sourceId of ['1461039009030475869', '1358825950279762070',
+      '1345767844905746515', '1353615750660886632']) {
+      const event = await discord.inspectMessage(sourceId);
+      await store.mutate(sourceId, event);
+    }
+    console.info('KOV registry verified-source repair complete');
     await registryRedis(['SET', repairKey, '1']);
   }
   // Catch-up runs separately so newly approved messages always take priority.
