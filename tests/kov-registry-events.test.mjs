@@ -46,3 +46,14 @@ test('clan changes use the same rules and ambiguous changes do not fabricate a r
   const mismatch = event('110', '팀명: Test GC\n팀장 변경: <@12> → <@14>\n팀장 변경 신청합니다.');
   assert.equal(replayRegistryEvents([register('100'), mismatch]).unmatchedChanges, 1);
 });
+
+test('unique bracketed aliases resolve changes while colliding abbreviations remain for review', () => {
+  const make = (id, name) => event(id, `팀명: ${name}\n팀장: <@11>\n팀원: <@12> <@13>\n팀 등록 신청합니다.`);
+  const add = (id, name) => event(id, `팀명: ${name}\n팀원: <@14>\n팀원 추가 신청합니다.`);
+  const result = replayRegistryEvents([make('100', 'Focus My Team(FMT)'), add('110', 'FMT'),
+    make('120', 'Other Team(FMT)'), add('130', 'FMT')]);
+  assert.equal(result.appliedChanges, 1);
+  assert.equal(result.unmatchedChanges, 1);
+  assert.deepEqual(result.teams[0].members, ['Alpha', 'Beta', 'Gamma']);
+  assert.deepEqual(result.teams[1].members, ['Alpha', 'Beta']);
+});

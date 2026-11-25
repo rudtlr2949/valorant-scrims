@@ -61,6 +61,7 @@ export async function readChannel(token, redis, fetcher = fetch, now = Date.now)
   // New namespace deliberately excludes the old, unverified application cache.
   const prefix = `kov:registry:v6:${channelId}:${tokenId}`;
   const snapshotKey = prefix + ':snapshot';
+  const replayRevision = 2;
   const lockKey = prefix + ':lock';
   const publishedKey = prefix + ':published';
   const published = JSON.parse(await redis(['GET', publishedKey]) || 'null');
@@ -72,7 +73,7 @@ export async function readChannel(token, redis, fetcher = fetch, now = Date.now)
     reviewChanges: snapshot.reviewChanges || [], checkedEvents: snapshot.events.length, syncing: !snapshot.completedAt, approvalVerified: true,
     retryAfter: Math.max(0.25, ((snapshot.nextAt || 0) - now()) / 1000),
   });
-  if (snapshot.completedAt && now() - snapshot.completedAt < 300000) return result();
+  if (snapshot.completedAt && snapshot.replayRevision === replayRevision && now() - snapshot.completedAt < 300000) return result();
   if (snapshot.nextAt > now()) return result();
   const lock = randomUUID();
   if (!await redis(['SET', lockKey, lock, 'NX', 'EX', 60])) return result();
@@ -99,6 +100,9 @@ export async function readChannel(token, redis, fetcher = fetch, now = Date.now)
   };
   try {
     snapshot = JSON.parse(await redis(['GET', snapshotKey]) || 'null') || fresh();
+    if (snapshot.completedAt && snapshot.replayRevision !== replayRevision) {
+      Object.assign(snapshot, replayRegistryEvents(snapshot.events), { replayRevision, completedAt: now() });
+    }
     if (snapshot.completedAt && now() - snapshot.completedAt < 300000) return result();
     if (snapshot.nextAt > now()) return result();
     if (snapshot.completedAt) snapshot = fresh();
@@ -112,6 +116,7 @@ export async function readChannel(token, redis, fetcher = fetch, now = Date.now)
         if (snapshot.historyDone) {
           if (snapshot.hasMessages && !snapshot.hasContent) throw new Error('Discord message content unavailable');
           Object.assign(snapshot, replayRegistryEvents(snapshot.events));
+          snapshot.replayRevision = replayRevision;
           snapshot.completedAt = now();
           break;
         }
@@ -184,7 +189,8 @@ export async function readChannel(token, redis, fetcher = fetch, now = Date.now)
     snapshot.nextAt = Math.max(snapshot.nextAt || 0, now() + 250);
     try {
       if (snapshot.completedAt) await redis(['SET', publishedKey, JSON.stringify({ teams: snapshot.teams,
-        appliedChanges: snapshot.appliedChanges, unmatchedChanges: snapshot.unmatchedChanges }), 'EX', 604800]);
+        appliedChanges: snapshot.appliedChanges, unmatchedChanges: snapshot.unmatchedChanges,
+        reviewChanges: snapshot.reviewChanges }), 'EX', 604800]);
       await redis(['SET', snapshotKey, JSON.stringify(snapshot), 'EX', 86400]);
     }
     finally {

@@ -1,5 +1,9 @@
 const channelUrl = 'https://discord.com/channels/683829152276938814/701290347161976883/';
 const normalize = value => value.normalize('NFKC').trim().toLowerCase().replace(/\s+/g, ' ');
+const looseName = value => normalize(value).replace(/[\s()[\]{}._-]/g, '');
+const aliases = name => [name, name.replace(/[([][^)\]]*[)\]]/g, '').trim(),
+  ...[...name.matchAll(/[([]([^\])]+)[)\]]/g)].map(match => match[1])]
+  .map(looseName).filter(value => value.length >= 2 && !['gc', 'team', 'clan', 'academy', '팀', '클랜', '아카데미'].includes(value));
 const samePerson = (a, b) => Boolean(a && b && (a.id && b.id ? a.id === b.id : normalize(a.name) === normalize(b.name)));
 
 export function parseRegistryEvent(message) {
@@ -73,10 +77,17 @@ export function replayRegistryEvents(events) {
   const sorted = [...new Map(events.map(event => [event.id, event])).values()]
     .sort((a, b) => BigInt(a.id) < BigInt(b.id) ? -1 : 1);
   for (const event of sorted) {
-    const id = key(event);
+    let id = key(event);
     if (event.type === 'register') {
       active.set(id, { ...event, members: event.members.map(person => ({ ...person })) });
       continue;
+    }
+    if (!active.has(id)) {
+      const entries = [...active.entries()].filter(([, team]) => team.kind === event.kind);
+      const exact = entries.filter(([, team]) => looseName(team.name) === looseName(event.name));
+      const candidates = exact.length ? exact : entries.filter(([, team]) =>
+        aliases(team.name).includes(looseName(event.name)) || aliases(event.name).includes(looseName(team.name)));
+      if (candidates.length === 1) id = candidates[0][0];
     }
     const team = active.get(id);
     if (!team) { review(event, '일치하는 활성 등록을 찾지 못했습니다.'); continue; }

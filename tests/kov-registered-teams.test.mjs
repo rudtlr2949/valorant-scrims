@@ -140,3 +140,28 @@ test('only approved changes update the live roster and rejected disband requests
   assert.deepEqual(result.teams[0].members, ['B', 'C']);
   assert.equal(result.appliedChanges, 1);
 });
+
+test('reducer upgrades rebuild saved approved history without rescanning Discord', async () => {
+  const baseRedis = memoryRedis();
+  let snapshotKey;
+  const redis = async command => {
+    if (command[0] === 'SET' && command[1].endsWith(':snapshot')) snapshotKey = command[1];
+    return baseRedis(command);
+  };
+  let time = 100000, result;
+  const fetcher = async url => authorityResponse(url) || (url.pathname.endsWith('/messages')
+    ? Response.json([application('100', 'Saved', ['c_check'])]) : Response.json([{ id: 'adminUser' }]));
+  for (let i = 0; i < 10; i++) {
+    result = await readChannel('fixture-token', redis, fetcher, () => time);
+    time += result.retryAfter * 1000;
+    if (!result.syncing) break;
+  }
+  assert.equal(result.syncing, false);
+  const snapshot = JSON.parse(await redis(['GET', snapshotKey]));
+  snapshot.replayRevision = 1;
+  snapshot.completedAt = time - 600000;
+  await redis(['SET', snapshotKey, JSON.stringify(snapshot)]);
+  const upgraded = await readChannel('fixture-token', redis, () => { throw Error('must not rescan'); }, () => time);
+  assert.equal(upgraded.syncing, false);
+  assert.equal(upgraded.teams[0].name, 'Saved');
+});
