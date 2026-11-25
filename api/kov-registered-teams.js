@@ -111,11 +111,13 @@ export async function readChannel(token, redis, fetcher = fetch, now = Date.now)
         const query = new URLSearchParams({ limit: '100' });
         if (snapshot.before) query.set('before', snapshot.before);
         const messages = await request(`/channels/${channelId}/messages?${query}`);
+        const reactionNames = new Set();
         for (const message of messages) {
           snapshot.hasMessages = true;
           snapshot.hasContent ||= Boolean(message.content || message.embeds?.length || message.attachments?.length);
           const team = parseRegistration(message);
           if (!team) continue;
+          for (const reaction of message.reactions || []) reactionNames.add(reaction.emoji?.name);
           const reactions = (message.reactions || []).flatMap(reaction => {
             const decision = reactionDecision(reaction.emoji);
             if (!decision) return [];
@@ -127,6 +129,7 @@ export async function readChannel(token, redis, fetcher = fetch, now = Date.now)
           }).sort((a, b) => Number(b.decision === 'rejected') - Number(a.decision === 'rejected'));
           if (reactions.length) snapshot.pending.push({ team, id: message.id, reactions });
         }
+        if (reactionNames.size) console.info('KOV registry reaction formats:', JSON.stringify([...reactionNames]), 'admin roles:', snapshot.adminRoles.length);
         snapshot.pages++;
         snapshot.before = messages.at(-1)?.id || snapshot.before;
         snapshot.historyDone = messages.length < 100;
