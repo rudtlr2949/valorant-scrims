@@ -14,16 +14,17 @@ export function parseRegistryEvent(message) {
   if (!/^\d+$/.test(message.id || '')) return null;
   const text = [message.content, ...(message.embeds || []).map(embed => embed.description),
     ...(message.embeds || []).flatMap(embed => (embed.fields || []).map(field => `${field.name}: ${field.value}`))]
-    .filter(Boolean).join('\n').replace(/\*\*|__/g, '').trim();
+    .filter(Boolean).join('\n').replace(/\*\*|__/g, '').trim()
+    .replace(/(?:신청\s*(?:합니다|드립니다)|부탁\s*드립니다)([.!]?[ \t]*)$/, '신청합니다$1');
   // Require the action footer; never interpret templates, discussion, or provisional applications.
-  const temporary = /(?:^|\n)[ \t]*신규\s*등급\s*신청합니다[.!]?[ \t]*$/.exec(text);
+  const temporary = /(?:^|\n)[ \t]*신규\s*(?:(?:GC)?팀\s*|클랜\s*)?등급\s*신청합니다[.!]?[ \t]*$/.exec(text);
   const premier = /(?:^|\n)[ \t]*프리미어\s*등급\s*신청합니다[.!]?[ \t]*$/.exec(text);
   const categoryChange = /(?:^|\n)[ \t]*(팀|GC팀)\s*(?:→|->|⇒)\s*(GC팀|팀)\s*변경\s*신청합니다[.!]?[ \t]*$/.exec(text);
-  const footer = temporary || premier || categoryChange || /(?:^|\n)[ \t]*(팀|클랜)(?:원|장|명)?[ \t]*(등록|해체|추가(?:\s*(?:및|\/|,|·)\s*제외)?|제외|변경|이름\s*변경)\s*신청합니다[.!]?[ \t]*$/.exec(text);
+  const footer = temporary || premier || categoryChange || /(?:^|\n)[ \t]*(?:(?:정식|본인)\s*)?(?:GC\s*)?(팀|클랜)(?:원|장|명)?[ \t]*(등록|해체|추가(?:\s*(?:및|\/|,|·)\s*제외)?|제외|변경|이름\s*변경)\s*신청합니다[.!]?[ \t]*$/.exec(text);
   if (!footer) return null;
   const body = text.slice(0, footer.index);
   const entries = [...body.matchAll(/^\s*(?:[-•]\s*)?([^\n:：]{1,25})\s*[:：]([^\n]*(?:\n(?!\s*(?:[-•]\s*)?[^\n:：]{1,25}[:：])[^\n]*)*)/gm)]
-    .map(match => ({ label: match[1].replace(/\s+/g, ''), value: match[2].trim() }));
+    .map(match => ({ label: match[1].replace(/\s+/g, '').replace(/^(추가|제외)(팀원|클랜원)$/, '$2$1'), value: match[2].trim() }));
   const values = label => entries.filter(entry => entry.label === label).map(entry => entry.value);
   const kind = temporary ? (values('클랜명').length ? '클랜' : '팀') : premier || categoryChange ? '팀' : footer[1];
   const nameFields = values(premier ? '신청팀명' : kind + '명');

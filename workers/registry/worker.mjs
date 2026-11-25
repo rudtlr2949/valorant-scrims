@@ -38,15 +38,17 @@ async function catchUp() {
   // approvals and recent applications, including the active 30-day temporary window.
   await store.enqueue(await store.allEventIds(), false);
   const cutoff = Date.now() - 31 * 86400000;
-  const historyKey = store.prefix + ':forms-history-enqueued:v1';
+  const historyKey = store.prefix + ':forms-history-enqueued:v2';
   const fullHistory = !await registryRedis(['EXISTS', historyKey]);
   const known = new Set(await store.allEventIds());
   let before;
   do {
     const messages = await discord.recentMessages(before);
     if (!messages.length) break;
-    await store.enqueue(messages.filter(message => parseRegistryEvent(message) && (!fullHistory || !known.has(message.id)))
-      .map(message => message.id), false);
+    const candidates = messages.filter(message => parseRegistryEvent(message) && (!fullHistory || !known.has(message.id)));
+    // Previously missed forms must not sit behind the entire known-message audit.
+    await store.enqueue(candidates.map(message => message.id), fullHistory);
+    if (candidates.length) notify();
     before = messages.at(-1).id;
     const oldest = Date.parse(messages.at(-1).timestamp);
     if (messages.length < 100 || (!fullHistory && oldest < cutoff)) break;

@@ -9,6 +9,17 @@ const mentions = [
 const event = (id, content, users = mentions) => parseRegistryEvent({ id, content, mentions: users });
 const register = id => event(id, '팀명: Test GC\n팀장: <@11>\n팀원: <@12> <@13>\n팀 등록 신청합니다.');
 
+test('recognizes observed formal registration wording and equivalent explicit action labels', () => {
+  const registration = event('100', '팀명: WAK\n코치: <@14>\n팀장: <@11>\n팀원: <@12> <@13>\n정식 팀 등록 신청합니다.');
+  assert.equal(registration.type, 'register');
+  assert.deepEqual(registration.members.map(person => person.id), ['12', '13']);
+  const add = event('110', '팀명: WAK\n추가 팀원: <@14>\n팀원 추가 부탁드립니다.');
+  const remove = event('120', '팀명: WAK\n팀원: <@12>\n본인 팀 제외 신청합니다');
+  const result = replayRegistryEvents([registration, add, remove]);
+  assert.deepEqual(result.teams[0].members.map(person => person), ['Beta', 'Gamma']);
+  assert.equal(result.unmatchedChanges, 0);
+});
+
 test('replays additions, removals and captain transfer chronologically using stable Discord IDs', () => {
   const events = [register('100'),
     event('110', '팀명: Test GC\n팀원 추가: <@14>\n팀원 제외: <@12>\n팀원 추가 및 제외 신청합니다.'),
