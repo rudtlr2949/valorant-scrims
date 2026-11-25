@@ -2,6 +2,7 @@ import { registryCategories, registryCategory } from './kov-registry-category.js
 import { registryNewestFirst, registryPostDate, registryDateLabel } from './kov-registry-order.js';
 
 let cachedLookup;
+const rosterCache = new Map();
 
 function lookupTeams() {
   if (cachedLookup && Date.now() < cachedLookup.expiresAt) return cachedLookup.request;
@@ -28,29 +29,45 @@ function renderTeam(team) {
   category.dataset.category = registryCategory(team);
   category.textContent = category.dataset.category;
   const captain = document.createElement('p');
-  captain.textContent = `${team.registryType === 'premier' ? '신청인' : team.kind === '클랜' ? '클랜장' : '팀장'} · ${team.captain}`;
+  captain.className = 'kov-registry-captain';
+  captain.textContent = `${team.registryType === 'premier' ? '신청인' : team.kind === '클랜' ? '클랜장' : '팀장'} ${team.captain} · 총 ${(team.members?.length || 0) + (team.captain && team.captain !== '미지정' ? 1 : 0)}명`;
   const members = document.createElement('p');
   members.textContent = team.registryType === 'temporary'
-    ? `임시 등록 · ${new Date(team.expiresAt).toLocaleDateString('ko-KR')} 만료`
+    ? `임시 등록 · ${Math.max(0, Math.ceil((team.expiresAt - Date.now()) / 86400000))}일 남음`
     : team.registryType === 'premier'
     ? `신청 액트 · ${team.act}${team.actConfirmed ? '' : ' · 현재 액트 확인 필요'}`
-    : `${team.kind === '클랜' ? '클랜원' : '팀원'} · ${team.members.join(', ')}`;
+    : '정식 등록';
+  members.className = 'kp-badge kov-registry-state';
   const source = document.createElement('a');
   source.className = 'kp-button small';
   source.href = team.url;
   source.target = '_blank';
   source.rel = 'noopener noreferrer';
-  source.textContent = 'Discord 최신 내역 ↗';
+  source.textContent = 'Discord 원문 보기 ↗';
   const date = document.createElement('p');
   date.className = 'kp-meta';
-  date.textContent = '최근 내역 · ';
+  date.textContent = '최근 변경 · ';
   date.append(renderDate(team));
   const details = document.createElement('details');
   details.dataset.rosterSource = team.url;
   const summary = document.createElement('summary');
-  summary.className = 'kp-button small';
-  summary.textContent = '팀장·팀원 Discord 태그 보기';
+  summary.className = 'kov-registry-summary';
+  const monogram = document.createElement('span');
+  monogram.className = 'kov-registry-monogram';
+  monogram.setAttribute('aria-hidden', 'true');
+  monogram.textContent = [...team.name].slice(0, 2).join('').toUpperCase();
+  const heading = document.createElement('div');
+  heading.className = 'kov-registry-heading';
+  heading.append(name, captain, date);
+  const badges = document.createElement('div');
+  badges.className = 'kov-registry-badges';
+  badges.append(category, members);
+  const expand = document.createElement('span');
+  expand.className = 'kov-registry-expand';
+  expand.textContent = '명단 보기';
+  summary.append(monogram, heading, badges, expand);
   const roster = document.createElement('div');
+  roster.className = 'kov-registry-roster';
   roster.setAttribute('aria-live', 'polite');
   details.append(summary, roster);
   details.addEventListener('toggle', async () => {
@@ -58,20 +75,38 @@ function renderTeam(team) {
     details.dataset.loaded = 'true';
     roster.textContent = 'Discord 태그를 확인하고 있습니다…';
     try {
-      const response = await fetch('/api/kov-registry-roster?source=' + encodeURIComponent(team.url));
-      if (!response.ok) throw new Error();
-      const data = await response.json();
+      let entry = rosterCache.get(team.url);
+      if (!entry || entry.expiresAt < Date.now()) {
+        const request = fetch('/api/kov-registry-roster?source=' + encodeURIComponent(team.url)).then(response => {
+          if (!response.ok) throw new Error();
+          return response.json();
+        });
+        entry = { request, expiresAt: Date.now() + 60_000 };
+        rosterCache.set(team.url, entry);
+        request.catch(() => rosterCache.delete(team.url));
+      }
+      const data = await entry.request;
       roster.replaceChildren();
       for (const person of data.people) {
-        const row = document.createElement('p');
-        row.append(`${person.role === 'captain' ? (team.kind === '클랜' ? '클랜장' : '팀장') : (team.kind === '클랜' ? '클랜원' : '팀원')} · ${person.name} · `);
+        const row = document.createElement('div');
+        row.className = 'kov-registry-person';
+        const role = document.createElement('span');
+        role.className = 'kov-registry-role';
+        role.textContent = person.role === 'captain' ? (team.registryType === 'premier' ? '신청인' : team.kind === '클랜' ? '클랜장' : '팀장') : (team.kind === '클랜' ? '클랜원' : '팀원');
+        const nickname = document.createElement('strong');
+        nickname.textContent = person.name;
+        row.append(role, nickname);
         if (person.id) {
           const link = document.createElement('a');
           link.href = 'https://discord.com/users/' + person.id;
           link.target = '_blank'; link.rel = 'noopener noreferrer';
+          link.className = 'kov-registry-tag';
           link.textContent = person.tag || 'Discord 프로필 ↗';
           row.append(link);
-        } else row.append('태그 확인 불가');
+        } else {
+          const missing = document.createElement('span');
+          missing.className = 'kov-registry-tag'; missing.textContent = '태그 확인 불가'; row.append(missing);
+        }
         roster.append(row);
       }
     } catch {
@@ -79,9 +114,8 @@ function renderTeam(team) {
       delete details.dataset.loaded;
     }
   });
-  name.style.cursor = 'pointer';
-  name.addEventListener('click', () => { details.open = !details.open; });
-  card.append(category, name, captain, members, date, details, source);
+  details.append(source);
+  card.append(details);
   return card;
 }
 
@@ -97,8 +131,12 @@ function renderDate(item) {
 class RegisteredTeams extends HTMLElement {
   selectedCategory = '전체';
   selectedRegistryType = 'formal';
+  searchQuery = '';
+  sortOrder = 'recent';
 
   renderList() {
+    const focusedSearch = this.contains(document.activeElement) && document.activeElement.matches('[data-registry-search]');
+    const searchPosition = focusedSearch ? document.activeElement.selectionStart : null;
     const openRosters = new Set([...this.querySelectorAll('details[data-roster-source][open]')].map(item => item.dataset.rosterSource));
     const rulesOpen = this.querySelector('.kov-registry-rules')?.open || false;
     const reviewOpen = this.querySelector('.kov-registry-review')?.open || false;
@@ -128,7 +166,7 @@ class RegisteredTeams extends HTMLElement {
     filters.setAttribute('role', 'group');
     filters.setAttribute('aria-label', '등록 유형 필터');
     const list = document.createElement('div');
-    list.className = 'kp-grid three kp-section';
+    list.className = 'kp-grid three kov-registry-list';
     list.id = 'kov-registry-list';
     for (const category of ['전체', ...registryCategories]) {
       const count = category === '전체' ? teams.length : teams.filter(team => registryCategory(team) === category).length;
@@ -146,7 +184,10 @@ class RegisteredTeams extends HTMLElement {
       button.dataset.category = category;
       filters.append(button);
     }
-    const visible = teams.filter(team => this.selectedCategory === '전체' || registryCategory(team) === this.selectedCategory);
+    const query = this.searchQuery.normalize('NFKC').toLocaleLowerCase().trim();
+    const visible = teams.filter(team => (this.selectedCategory === '전체' || registryCategory(team) === this.selectedCategory)
+      && [team.name, team.captain].some(value => (value || '').normalize('NFKC').toLocaleLowerCase().includes(query)));
+    if (this.sortOrder === 'name') visible.sort((a, b) => a.name.localeCompare(b.name, 'ko', { numeric: true, sensitivity: 'base' }));
     list.append(...visible.map(team => {
       const card = renderTeam(team);
       if (openRosters.has(team.url)) card.querySelector('details').open = true;
@@ -155,7 +196,7 @@ class RegisteredTeams extends HTMLElement {
     if (!visible.length) {
       const empty = document.createElement('p');
       empty.className = 'kp-empty';
-      empty.textContent = this.registryData.syncing
+      empty.textContent = query ? '검색 결과가 없습니다. 팀명·클랜명 또는 대표 이름을 확인해 주세요.' : this.registryData.syncing
         ? `${this.selectedCategory} 등록 목록을 확인하고 있습니다.`
         : `${this.selectedCategory} 유형에 관리자 승인이 확인된 등록이 없습니다.`;
       list.append(empty);
@@ -166,8 +207,32 @@ class RegisteredTeams extends HTMLElement {
     results.setAttribute('aria-label', '유형별 등록 목록');
     const order = document.createElement('p');
     order.className = 'kp-meta';
-    order.textContent = 'Discord 최근 내역순 · 한국시간';
-    results.append(modes, filters, order, list);
+    order.textContent = `${visible.length}개 표시 · ${this.sortOrder === 'name' ? '가나다순' : '최근 변경순'} · 한국시간`;
+    order.setAttribute('role', 'status');
+    const toolbar = document.createElement('div');
+    toolbar.className = 'kov-registry-toolbar';
+    const searchLabel = document.createElement('label');
+    searchLabel.className = 'kp-field'; searchLabel.textContent = '팀·클랜 검색';
+    const search = document.createElement('input');
+    search.type = 'search'; search.placeholder = '팀명, 클랜명 또는 팀장 이름'; search.value = this.searchQuery;
+    search.dataset.registrySearch = 'true';
+    search.addEventListener('input', () => {
+      const position = search.selectionStart;
+      this.searchQuery = search.value; this.renderList();
+      const next = this.querySelector('[data-registry-search]');
+      next.focus(); next.setSelectionRange(position, position);
+    });
+    searchLabel.append(search);
+    const sortLabel = document.createElement('label');
+    sortLabel.className = 'kp-field'; sortLabel.textContent = '정렬';
+    const sort = document.createElement('select');
+    for (const [value, label] of [['recent', '최근 변경순'], ['name', '가나다순']]) {
+      const option = document.createElement('option'); option.value = value; option.textContent = label; sort.append(option);
+    }
+    sort.value = this.sortOrder;
+    sort.addEventListener('change', () => { this.sortOrder = sort.value; this.renderList(); this.querySelector('.kov-registry-toolbar select').focus(); });
+    sortLabel.append(sort); toolbar.append(searchLabel, sortLabel);
+    results.append(modes, filters, toolbar, order, list);
     const rules = document.createElement('details');
     rules.className = 'kp-panel kp-pad kp-section kov-registry-rules';
     rules.open = rulesOpen;
@@ -206,6 +271,9 @@ class RegisteredTeams extends HTMLElement {
       results.append(review);
     }
     this.append(results);
+    if (focusedSearch) {
+      search.focus(); search.setSelectionRange(searchPosition, searchPosition);
+    }
   }
 
   disconnectedCallback() {
