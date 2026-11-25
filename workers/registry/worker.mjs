@@ -115,6 +115,14 @@ async function main() {
     await sleep(Math.max(250, result.retryAfter * 1000));
   }
   await store.recover();
+  // Source-verified missed forms: inspect fresh content AND administrator reactions
+  // before applying; these are references, never approval or roster overrides.
+  const repairKey = store.prefix + ':source-verified-form-repair:v1';
+  if (!await registryRedis(['EXISTS', repairKey])) {
+    await store.enqueue(['1461039009030475869', '1358825950279762070',
+      '1345767844905746515', '1353615750660886632'], true);
+    await registryRedis(['SET', repairKey, '1']);
+  }
   // Catch-up runs separately so newly approved messages always take priority.
   let auditRunning = false;
   const audit = () => {
