@@ -177,6 +177,7 @@ export async function readLivePublic(token, redis, now = Date.now) {
   }
   if (managed) {
     data.teams = managed.teams;
+    if (managed.temporaryTeams) data.temporaryTeams = managed.temporaryTeams.filter(team => team.expiresAt > now());
     data.reviewChanges = managed.reviewChanges;
     data.unmatchedChanges = managed.reviewChanges.length;
     data.directorySource = 'admin-management';
