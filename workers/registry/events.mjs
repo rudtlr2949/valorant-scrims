@@ -44,6 +44,7 @@ export function parseRegistryEvent(message) {
   if (temporary || premier) {
     const captains = people(values(premier ? '신청인' : kind + '장'));
     if (captains.length !== 1 || !captains[0].id) return null;
+    if (temporary && people(values(kind + '원')).length) return null;
     if (premier && message.author?.id && captains[0].id !== message.author.id) return null;
     if (premier) {
       const acts = values('신청액트');

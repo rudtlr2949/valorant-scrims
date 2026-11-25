@@ -113,6 +113,8 @@ export class RegistryLiveStore {
     return true;
   }
   async mutate(id, event) {
+    if (event && event.id !== id) throw new Error('Registry event ID mismatch');
+    event = event ? JSON.parse(JSON.stringify(event)) : null;
     const key = this.prefix + ':mutation';
     const owner = randomUUID();
     let locked = false;

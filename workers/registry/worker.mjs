@@ -80,6 +80,7 @@ async function main() {
     onConnection: connected => { if (connected) lastError = null; console.info('KOV registry gateway:', connected ? 'connected' : 'reconnecting'); },
     onDispatch: async (type, data) => {
       const ids = registryMessageIds(type, data);
+      if (ids.length && type.startsWith('MESSAGE_REACTION_') && data.user_id) discord.memberCache.delete(data.user_id);
       if (ids.length) { await store.enqueue(ids); notify(); }
       if (type === 'READY') { auditRequested = true; notify(); }
       if (type === 'GUILD_DELETE' && data.id === guildId) lastError = 'KOV Discord server unavailable';

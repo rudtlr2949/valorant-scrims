@@ -12,7 +12,7 @@ function lookupTeams() {
   const entry = { request, expiresAt: Date.now() + 60_000 };
   cachedLookup = entry;
   request.then(data => {
-    entry.expiresAt = Date.now() + (data.syncing ? data.retryAfter * 1000 : 60_000);
+    entry.expiresAt = Date.now() + (data.syncing || 'liveConnected' in data ? data.retryAfter * 1000 : 60_000);
   }, () => { if (cachedLookup === entry) cachedLookup = null; });
   return request;
 }
@@ -49,6 +49,8 @@ class RegisteredTeams extends HTMLElement {
   selectedRegistryType = 'formal';
 
   renderList() {
+    const rulesOpen = this.querySelector('.kov-registry-rules')?.open || false;
+    const reviewOpen = this.querySelector('.kov-registry-review')?.open || false;
     const groups = [
       { id: 'formal', label: '정식 등록', teams: this.registryData.teams },
       { id: 'temporary', label: '임시 등록', teams: this.registryData.temporaryTeams || [] },
@@ -109,7 +111,8 @@ class RegisteredTeams extends HTMLElement {
     results.setAttribute('aria-label', '유형별 등록 목록');
     results.append(modes, filters, list);
     const rules = document.createElement('details');
-    rules.className = 'kp-panel kp-pad kp-section';
+    rules.className = 'kp-panel kp-pad kp-section kov-registry-rules';
+    rules.open = rulesOpen;
     const ruleTitle = document.createElement('summary');
     ruleTitle.textContent = 'KOV 등록 규정과 반영 기준'; rules.append(ruleTitle);
     for (const text of [
@@ -127,7 +130,8 @@ class RegisteredTeams extends HTMLElement {
     results.append(rules);
     if (!this.registryData.syncing && this.registryData.reviewChanges?.length) {
       const review = document.createElement('details');
-      review.className = 'kp-panel kp-pad kp-section';
+      review.className = 'kp-panel kp-pad kp-section kov-registry-review';
+      review.open = reviewOpen;
       const summary = document.createElement('summary');
       summary.textContent = `명단 확인이 필요한 변경 ${this.registryData.reviewChanges.length}건`;
       review.append(summary);
