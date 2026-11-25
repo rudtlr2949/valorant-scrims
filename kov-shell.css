@@ -61,6 +61,11 @@ button, input, select, textarea { font: inherit; }
 kov-registered-teams { display: block; }
 .kov-registry-card { padding: 16px; overflow-wrap: anywhere; }
 .kov-registry-card .kp-button { margin-top: 10px; }
+.kov-registry-category { margin-bottom: 10px; }
+.kov-registry-category[data-category="GC"] { color: #e6a9d5; background: #b958a51a; }
+.kov-registry-category[data-category="CLAN"] { color: #a1aff8; background: #8999ff18; }
+.kov-registry-category[data-category="Academy"] { color: #eac57f; background: #e0a84f18; }
+.kov-registry-filters { gap: 24px; }
 
 .kov-event-heading {
   display: flex;
