@@ -297,4 +297,4 @@ window.addEventListener('message', event => {
   else toast('브라우저의 저장소 접근을 허용해 주세요.');
 });
 window.addEventListener('storage',e=>{if(demo&&e.key==='kov-demo-v2'){try{state=JSON.parse(e.newValue);render();}catch{}}else if(e.key==='discordToken')fetchState(true);});
-if(demo)loadDemo();render();if(!demo)fetchState(true);setInterval(updateTimer,250);setInterval(()=>{if(document.visibilityState==='visible')fetchState();},4000);
+if(demo)loadDemo();render();if(!demo)fetchState(true);setInterval(updateTimer,250);setInterval(()=>{if(document.visibilityState==='visible'&&route[0]!=='registry')fetchState();},4000);
