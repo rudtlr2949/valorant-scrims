@@ -5,8 +5,6 @@ import { openUserReport } from './kov-user-reports.js';
 
 let cachedLookup;
 const rosterCache = new Map();
-// Explicit display fixture requested to preview the champion badge; no Discord registration.
-const trialRioTeam = {name:'Rio Company',kind:'팀',category:'TEAM',registryType:'formal',captain:'미지정',members:[],source:'admin-management',isTrial:true,url:'trial:rio-company',createdAt:'2026-11-27T00:00:00.000Z'};
 
 
 function lookupTeams() {
@@ -47,7 +45,7 @@ function renderTeam(team) {
   captain.className = 'kov-registry-captain';
   captain.textContent = `${team.registryType === 'premier' ? '신청인' : team.kind === '클랜' ? '클랜장' : '팀장'} ${team.captain} · 총 ${(team.members?.length || 0) + (team.captain && team.captain !== '미지정' ? 1 : 0)}명`;
   const members = document.createElement('p');
-  members.textContent = team.isTrial ? '시험용 · 실제 등록 아님' : team.registryType === 'temporary'
+  members.textContent = team.registryType === 'temporary'
     ? `임시 등록 · ${Math.max(0, Math.ceil((team.expiresAt - Date.now()) / 86400000))}일 남음`
     : team.registryType === 'premier'
     ? `신청 액트 · ${team.act}${team.source === 'admin-management' ? ' · 운영진 기록' : team.actConfirmed ? '' : ' · 현재 액트 확인 필요'}`
@@ -89,7 +87,6 @@ function renderTeam(team) {
   details.addEventListener('toggle', async () => {
     if (!details.open || details.dataset.loaded) return;
     details.dataset.loaded = 'true';
-    if (team.isTrial) { roster.textContent = '우승 로고 확인을 위한 시험용 팀입니다. 팀장·팀원은 등록하지 않았습니다.'; return; }
     roster.textContent = 'Discord 태그를 확인하고 있습니다…';
     try {
       let entry = rosterCache.get(team.url);
@@ -352,7 +349,7 @@ class RegisteredTeams extends HTMLElement {
       if (data.stale) status.textContent = `마지막 정상 명단 표시 · 저장소 연결 대기 · ${new Date(data.snapshotAt || data.updatedAt).toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' })} 기준`;
       if (data.managementSync?.state === 'syncing') status.textContent += ` · 관리자 기록 정리 중 (${data.managementSync.processed}/${data.managementSync.total})`;
       if (data.managementSync?.state === 'access-denied') status.textContent += ' · 봇의 관리자 관리 채널 읽기 권한이 필요합니다';
-      this.registryData = { ...data, teams: data.teams.some(team => team.name.trim().toLowerCase() === 'rio company') ? data.teams : [trialRioTeam, ...data.teams] };
+      this.registryData = data;
       this.renderList();
       if (data.syncing || 'liveConnected' in data) {
         this.refreshTimer = setTimeout(() => {
