@@ -36,7 +36,7 @@ export function createReportsHandler({ authenticate = identity, directory = read
           if (!/^reports\/\d{4}-\d{2}-\d{2}\/\d{5,25}\/\d{5,25}\.json$/.test(query.evidence)) throw fail('잘못된 증거 요청입니다.', 400);
           const report = await storage.read(query.evidence);
           if (!report?.attachment) throw fail('첨부된 증거가 없습니다.', 404);
-          const attachment = await storage.read(query.evidence.replace('reports/', 'evidence/'));
+          const attachment = await storage.read(report.attachment.path || query.evidence.replace('reports/', 'evidence/'));
           if (!attachment) throw fail('증거 파일을 불러오지 못했습니다.', 404);
           return res.status(200).json(attachment);
         }
@@ -82,11 +82,12 @@ export function createReportsHandler({ authenticate = identity, directory = read
         catch (error) { if (!existsError(error)) throw error; }
       }
       if (!reserved) throw fail('오늘 신고 가능 횟수를 모두 사용했습니다. 내일 다시 접수해 주세요.', 429);
-      if (attachment) await storage.write(id.replace('reports/', 'evidence/'), attachment);
+      const attachmentPath = id.replace('reports/', 'evidence/').replace('.json', '-' + receipt + '.json');
+      if (attachment) await storage.write(attachmentPath, attachment);
       await storage.write(id, { id, receipt, createdAt: now(), status: 'pending',
         reporter: { id: actor.id, name: actor.name }, target: { id: target.id, name: target.name },
         team: { name: team.name, source: team.url }, reason: body.reason, details, evidence,
-        ...(attachment ? { attachment: { name: attachment.name } } : {}) });
+        ...(attachment ? { attachment: { name: attachment.name, path: attachmentPath } } : {}) });
       return res.status(201).json({ ok: true, receipt });
     } catch (error) {
       if (existsError(error)) return res.status(409).json({ error: '오늘 이미 해당 유저를 신고했습니다.' });

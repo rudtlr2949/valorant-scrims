@@ -69,7 +69,8 @@ test('local image evidence is stored separately and can only be fetched by an ad
   const image = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aS8sAAAAASUVORK5CYII=';
   assert.equal((await f.request('POST', { ...f.body, attachment: { name: 'screenshot.png', image } })).code, 201);
   const report = [...f.saved.values()].find(x => x.target);
-  assert.deepEqual(report.attachment, { name: 'screenshot.png' });
+  assert.equal(report.attachment.name, 'screenshot.png');
+  assert.ok(report.attachment.path.startsWith('evidence/'));
   assert.ok(!JSON.stringify(report).includes('base64'));
   assert.equal((await f.request('GET', null, { evidence: report.id })).code, 403);
   f.actor({ id: '111111111', name: 'Staff', isAdmin: true });
