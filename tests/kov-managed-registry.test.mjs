@@ -79,9 +79,11 @@ test('managed clan snapshots, captain transfers, closure flags, and missing base
   const result = projectManagedThread({ ...thread, name: 'Orbit' }, messages, '클랜');
   assert.equal(result.team.captain, 'Gamma');
   assert.deepEqual(result.team.members, ['Alpha', 'Beta', 'Captain']);
-  for (const name of ['Orbit - 해체', 'Orbit - 역할회수', 'Orbit - 등급회수']) {
+  for (const name of ['Orbit - 해체', 'Orbit - 역할회수', 'Orbit - 등급회수', 'Orbit (해체)', 'Orbit - 등급회수, 내부 메모', 'Orbit - 권한 회수']) {
     assert.equal(projectManagedThread({ ...thread, name }, messages, '클랜').closed, true);
   }
+  const publicName = projectManagedThread({ ...thread, name: 'Orbit - 내부 운영 메모' }, messages, '클랜').team.name;
+  assert.equal(publicName, 'Orbit');
   assert.ok(projectManagedThread(thread, [message('102', '팀원 추가\n<@14>')], '팀').review);
 });
 

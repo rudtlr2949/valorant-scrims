@@ -11,7 +11,10 @@ const temporaryCollections = new Map([
 ]);
 const foreignCollection = '1163717383366651956';
 const ascending = (a, b) => BigInt(a.id) < BigInt(b.id) ? -1 : 1;
-const closedTitle = name => /(?:^|[-–—|/\s])(?:해체|역할\s*회수|등급\s*회수)(?:$|[\s)\]])/.test(name);
+const closedTitle = name => /(?:^|[-–—|/\s(\[])(?:해체|역할\s*회수|등급\s*회수|권한\s*회수)(?:$|[\s()[\],，·/])/.test(name);
+// Staff suffixes describe operational decisions, not the public organization name.
+const publicTeamName = title => title.replace(/\s+[-–—]\s+.*$/, '')
+  .replace(/\s+(?:클랜|GC팀|팀)\s*으로\s*변경\s*$/, '').trim();
 const normalizedName = name => name.normalize('NFKC').toLowerCase().replace(/[\s()[\]{}._-]/g, '');
 
 export function newestManagedTeams(teams) {
@@ -90,7 +93,7 @@ export function projectManagedPremier(messages) {
 // message content never enter the public snapshot or the public review list.
 export function projectManagedThread(thread, messages, kind) {
   const title = thread.name.trim();
-  const name = title.replace(/\s*[-–—]\s*(?:추가\s*등록\s*대기중?|보류).*$/, '').trim();
+  const name = publicTeamName(title);
   if (closedTitle(title)) return { closed: true, name };
   let captain = null, members = new Map(), initialized = false, incomplete = false, lastId = thread.id;
   const unique = people => [...new Map(people.map(person => [person.id, person])).values()];
