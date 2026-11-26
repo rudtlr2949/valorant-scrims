@@ -1,16 +1,12 @@
 import {createHash,randomUUID} from 'node:crypto';
 import {initialState,applyCommand,publicState,getMatch,isParticipant,RuleError,ensure} from '../lib/kov-core.mjs';
+import {createTournamentRedis} from '../lib/kov-storage.mjs';
 
 const sessions=new Map();
 const namespace=()=>process.env.KOV_DATA_NAMESPACE||(process.env.VERCEL_ENV==='preview'?`preview-${process.env.VERCEL_GIT_COMMIT_REF||'local'}`:'production');
 const key=suffix=>`kov:{${namespace()}}:${suffix}`;
 const configured=()=>!!(process.env.UPSTASH_REDIS_REST_URL&&process.env.UPSTASH_REDIS_REST_TOKEN);
-async function redis(command){
-  ensure(configured(),'대회 저장소가 연결되지 않았습니다. Upstash 환경변수를 확인해 주세요.',503);
-  let response;
-  try{response=await fetch(process.env.UPSTASH_REDIS_REST_URL,{method:'POST',headers:{Authorization:`Bearer ${process.env.UPSTASH_REDIS_REST_TOKEN}`,'Content-Type':'application/json'},body:JSON.stringify(command),signal:globalThis.AbortSignal?.timeout?.(10000)});}catch{throw new RuleError('기존 Upstash Redis에 연결하지 못했습니다. Vercel의 REST URL·토큰과 데이터베이스 활성 상태를 확인해 주세요.',503);}
-  ensure(response.ok,'대회 저장소 인증 또는 연결에 실패했습니다. Upstash 연결 상태를 확인해 주세요.',503);const json=await response.json();ensure(!json.error,'대회 저장소 명령을 처리할 수 없습니다.',503);return json.result;
-}
+const redis=createTournamentRedis();
 async function identity(req){
   const token=(req.headers.authorization||'').replace(/^Bearer\s+/i,'');if(!token)return null;
   ensure(token.length<250,'유효하지 않은 로그인 토큰입니다.',401);
@@ -67,9 +63,9 @@ export default async function handler(req,res){
         ensure(actor,'로그인이 필요합니다.',401);const {state}=await readState();const sub=state.submissions.find(x=>x.evidenceId===query.evidence);ensure(sub,'증빙 자료를 찾을 수 없습니다.',404);const m=getMatch(state,sub.matchId);ensure(actor.isAdmin||isParticipant(m,actor),'해당 경기 참가자와 운영진만 증빙을 볼 수 있습니다.',403);
         const item=await redis(['GET',key(`evidence:${query.evidence}`)]);ensure(item,'증빙 보관 기간이 만료되었습니다.',404);const evidence=JSON.parse(item);return res.status(200).json({image:evidence.image});
       }
-      phase='storage';let state=initialState();let storageError='';
-      if(configured())try{state=(await readState()).state;}catch(error){if(error.status!==503)throw error;storageError=error.message;}
-      phase='projection';return res.status(200).json({state:publicState(state,actor),actor,storageReady:configured()&&!storageError,storageError,webhookReady:!!process.env.KOV_DISCORD_WEBHOOK_URL});
+      phase='storage';let state=initialState();let storageError='',storageCode='';
+      if(configured())try{state=(await readState()).state;}catch(error){if(error.status!==503)throw error;storageError=error.message;storageCode=error.code||'STORAGE_UNAVAILABLE';}
+      phase='projection';return res.status(200).json({state:publicState(state,actor),actor,storageReady:configured()&&!storageError,storageError,storageCode,stateUnavailable:Boolean(storageError),retryAfter:storageError?300:4,webhookReady:!!process.env.KOV_DISCORD_WEBHOOK_URL});
     }
     ensure(actor,'Discord 로그인이 필요합니다.',401);ensure(configured(),'대회 저장소가 연결되지 않았습니다.',503);
     if(req.headers.origin)ensure(new URL(req.headers.origin).host===req.headers.host,'허용되지 않은 출처입니다.',403);
