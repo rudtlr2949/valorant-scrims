@@ -1,3 +1,4 @@
+import {championBadge} from './lib/kov-vlr-champions.mjs';
 import { registryCategories, registryCategory } from './kov-registry-category.js';
 import { registryNewestFirst, registryPostDate, registryDateLabel } from './kov-registry-order.js';
 import { openUserReport } from './kov-user-reports.js';
@@ -34,6 +35,8 @@ function renderTeam(team) {
   card.className = 'kp-panel kov-registry-card';
   const name = document.createElement('h3');
   name.textContent = team.name;
+  const champion = championBadge(team.name);
+  if (champion) name.insertAdjacentHTML('beforeend', champion);
   const category = document.createElement('span');
   category.className = 'kp-badge kov-registry-category';
   category.dataset.category = registryCategory(team);

@@ -177,3 +177,8 @@ kov-user-report-inbox { display: grid; gap: 16px; margin: 26px 0; }
 .kov-event-result { color: #b7b2c7; }
 .kov-event-result strong { color: #efeaf5; margin-left: 5px; }
 .kov-event-actions { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 7px; margin-top: auto; padding-top: 12px; }
+
+/* Official KOV Masters mark, sized to the team name and tinted gold. */
+.kov-registry-heading h3,.kov-event-result{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.kov-masters-champion{display:inline-flex;align-items:center;justify-content:center;width:42px;height:32px;flex:0 0 42px;vertical-align:middle;border:1px solid #d8ad4e55;border-radius:6px;background:#d8ad4e0c}
+.kov-masters-champion-logo{display:block;width:34px;height:26px;background:url("https://owcdn.net/img/6a92db172e112.png") center/contain no-repeat;filter:invert(1) sepia(1) saturate(2.5) hue-rotate(350deg);mix-blend-mode:screen}
