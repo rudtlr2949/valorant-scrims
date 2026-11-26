@@ -74,8 +74,8 @@ function tournamentCard(event) {
   const poster = https(posterUrl);
   const label = tournamentFilters.find(([key]) => key === status)?.[1] || '종료';
   return `<article class="kov-event-card" data-status="${esc(status)}">
-    <div class="kov-event-cover">${poster
-      ? `<img src="${esc(poster)}" alt="" loading="lazy">`
+    <div class="kov-event-cover${poster ? ' has-poster' : ''}">${poster
+      ? `<a href="${esc(poster)}" target="_blank" rel="noopener noreferrer" aria-label="${esc(name)} 포스터 크게 보기"><img src="${esc(poster)}" alt="${esc(name)} 대회 포스터" loading="lazy"></a>`
       : `<span aria-hidden="true">${esc(name)}</span>`}</div>
     <div class="kov-event-body">
       <div class="kov-event-meta"><span class="kov-event-status">${label}</span><span>${esc(dateLabel)}</span></div>
