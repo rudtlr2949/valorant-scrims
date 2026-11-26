@@ -91,6 +91,7 @@ details[open] > .kov-registry-summary .kov-registry-expand::after { content: ' â
 .kov-user-report-button:disabled { opacity: .35; cursor: not-allowed; }
 .kov-report-dialog { width: min(460px, calc(100vw - 28px)); max-height: calc(100dvh - 40px); overflow: auto; box-sizing: border-box; color: #eceaf3; background: #15131e; border: 1px solid #ff465540; border-radius: 14px; padding: 24px; box-shadow: 0 24px 90px #0009; }
 .kov-report-dialog::backdrop { background: #06050bbd; }
+.kov-report-dialog [hidden], kov-user-report-inbox [hidden] { display: none !important; }
 .kov-report-dialog h2 { margin: 0; font-size: 20px; }
 .kov-report-dialog .kp-meta { margin: 0; }
 .kov-report-dialog .kp-actions { justify-content: flex-end; }
