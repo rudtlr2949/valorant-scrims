@@ -166,7 +166,7 @@ kov-user-report-inbox { display: grid; gap: 16px; margin: 26px 0; }
 .kov-event-cover img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .kov-event-cover.has-poster{aspect-ratio:4 / 3;padding:0;background:#0c0d13}
 .kov-event-cover.has-poster a{position:absolute;inset:0;display:block}
-.kov-event-card .kov-event-cover.has-poster img{object-fit:contain;filter:none}
+.kov-event-card[data-status] .kov-event-cover.has-poster img{object-fit:contain;filter:none}
 .kov-event-cover.has-poster a:focus-visible{outline:2px solid #ff4655;outline-offset:-3px}
 .kov-event-card[data-status="finished"] { background: #12131b; border-color: #ffffff16; }
 .kov-event-card[data-status="finished"] .kov-event-cover { background: linear-gradient(150deg, #2a2a38, #1a1b25 72%); }
