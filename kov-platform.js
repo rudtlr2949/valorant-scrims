@@ -70,12 +70,14 @@ const tournamentFilters = [
 ];
 
 function tournamentCard(event) {
-  const { name, status, posterUrl, dateLabel, summary, actions } = event;
+  const { name, status, posterUrl, coverUrl, dateLabel, summary, actions } = event;
   const poster = https(posterUrl);
+  const cover = https(coverUrl);
+  const artwork = cover || poster;
   const label = tournamentFilters.find(([key]) => key === status)?.[1] || '종료';
   return `<article class="kov-event-card" data-status="${esc(status)}">
-    <div class="kov-event-cover${poster ? ' has-poster' : ''}">${poster
-      ? `<a href="${esc(poster)}" target="_blank" rel="noopener noreferrer" aria-label="${esc(name)} 포스터 크게 보기"><img src="${esc(poster)}" alt="${esc(name)} 대회 포스터" loading="lazy"></a>`
+    <div class="kov-event-cover${artwork ? ' has-poster' : ''}${cover ? ' has-cover' : ''}">${artwork
+      ? `<a href="${esc(poster || artwork)}" target="_blank" rel="noopener noreferrer" aria-label="${esc(name)} ${poster ? '당시 포스터' : '커버 이미지'} 크게 보기"><img src="${esc(artwork)}" alt="${esc(name)} ${cover ? '카드 커버' : '대회 포스터'}" loading="lazy"></a>`
       : `<span aria-hidden="true">${esc(name)}</span>`}</div>
     <div class="kov-event-body">
       <div class="kov-event-meta"><span class="kov-event-status">${label}</span><span>${esc(dateLabel)}</span></div>

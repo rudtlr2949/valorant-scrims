@@ -1,0 +1,74 @@
+{
+  "tool": "Built-in image_gen",
+  "purpose": "New card covers inspired by historical posters; not historical originals",
+  "base": "Premium landscape 16:9 esports website tournament card cover, large legible central title and year/season, 8% safe margins, no prize lists/dates/UI/borders; preserve reference atmosphere.",
+  "final": {
+    "title": "KOV ASCEND LEAGUE",
+    "subtitle": "2026 · FINAL",
+    "style": "black/crimson torn-paper energy, silver trophy, tactical fantasy smoke",
+    "reference": "poster-research/final-2026.webp"
+  },
+  "jobs": [
+    {
+      "key": "summer",
+      "ref": "summer-2026.webp",
+      "title": "KOV MASTERS",
+      "subtitle": "2026 · SUMMER",
+      "style": "aqua teal and icy mint, translucent angular glass, a dark futuristic trophy, summer light, elegant pale cyan illustrated texture"
+    },
+    {
+      "key": "winter",
+      "ref": "winter-2026.webp",
+      "title": "KOV MASTERS",
+      "subtitle": "2026 · WINTER",
+      "style": "deep burgundy and charcoal, icy silver angular trophy, winter blue edge light, subtle red atmospheric mountains"
+    },
+    {
+      "key": "wallhack",
+      "ref": "wallhack.png",
+      "title": "WALLHACK × KOV",
+      "subtitle": "2026 · EVENT BATTLE",
+      "style": "black and white collage, vivid acid green diagonal tape accents, glass material and halftone tactical silhouettes"
+    },
+    {
+      "key": "wdblack",
+      "ref": "wd-black-final.webp",
+      "title": "WD_BLACK × KOV",
+      "subtitle": "2025 · EVENT BATTLE",
+      "style": "jet black brushed metal, orange amber edges, abstract SSD circuit pathways, premium angular silver trophy"
+    },
+    {
+      "key": "masters2025",
+      "ref": "masters-2025.png",
+      "title": "KOV MASTERS III",
+      "subtitle": "2025",
+      "style": "lavender and electric purple, pale crystalline shards, silver trophy and lilac mist, clean bright contrast"
+    },
+    {
+      "key": "cup2024",
+      "ref": "cup-2024.png",
+      "title": "KOV VALORANT CUP",
+      "subtitle": "2024",
+      "style": "charcoal black and violet, warm gold orange rim light, abstract angular fantasy architecture and a silver competition trophy"
+    },
+    {
+      "key": "masters2020",
+      "title": "KOV MASTERS",
+      "subtitle": "2020 · I",
+      "style": "original reference crimson red and navy black, angular red diagonal ribbons, white silver esports trophy shield, clean classic tournament identity",
+      "ref": "masters-2020.jpg"
+    },
+    {
+      "key": "masters2024",
+      "title": "KOV MASTERS II",
+      "subtitle": "2024",
+      "style": "charcoal and deep red with silver and white trophy, sharp modern esports angular geometry. A NEW branded cover, not a recreation of an unverified historical poster"
+    },
+    {
+      "key": "lvup2020",
+      "title": "LVUP INVITATIONAL",
+      "subtitle": "2020 · VALORANT",
+      "style": "deep black and crimson red with off-white bold lettering, abstract rising steps and electric geometric arena, premium competition mood. A NEW cover, not an official historical poster"
+    }
+  ]
+}
