@@ -211,7 +211,16 @@ export async function registryRedis(command) {
     body: JSON.stringify(command),
     signal: AbortSignal.timeout(8000),
   });
-  if (!response.ok) throw new Error('Registry storage connection failed');
+  if (!response.ok) {
+    const body = await response.text().catch(() => '');
+    // Classify provider failures without logging URLs, tokens, or raw responses.
+    const code = /bandwidth/i.test(body) ? 'STORAGE_BANDWIDTH_LIMIT'
+      : /limit|quota|too many requests/i.test(body) ? 'STORAGE_USAGE_LIMIT'
+      : response.status === 401 || response.status === 403 ? 'STORAGE_AUTH_FAILED' : 'STORAGE_UNAVAILABLE';
+    const error = new Error(`Registry storage ${code} (HTTP ${response.status})`);
+    error.code = code;
+    throw error;
+  }
   const data = await response.json();
   if (data.error) throw new Error('Registry storage command failed');
   return data.result;
@@ -244,6 +253,6 @@ export default async function handler(req, res) {
       retryAfter: result.syncing ? result.retryAfter : 15 });
   } catch (error) {
     console.error('KOV registry:', error.message);
-    return res.status(502).json({ error: 'Discord 등록 목록을 불러오지 못했습니다.' });
+    return res.status(502).json({ error: '등록 명단 저장소에 연결하지 못했습니다. 잠시 후 다시 확인해 주세요.', code: error.code || 'STORAGE_UNAVAILABLE' });
   }
 }

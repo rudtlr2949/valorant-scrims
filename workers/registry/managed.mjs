@@ -182,6 +182,7 @@ export class ManagedRegistry {
   constructor(discord, redis, prefix, { now = Date.now } = {}) {
     this.discord = discord; this.redis = redis; this.prefix = prefix; this.now = now;
     this.cache = new Map(); this.threadIds = new Set();
+    this.lastPremierPayload = null; this.lastDirectoryPayload = null;
   }
   invalidate(id) { this.cache.delete(id); }
   async inventory() {
@@ -236,7 +237,11 @@ export class ManagedRegistry {
       before = next;
     } while (true);
     const result = { ...projectManagedPremier(messages), updatedAt: this.now() };
-    await this.redis(['SET', this.prefix + ':managed:premier', JSON.stringify(result)]);
+    const payload = JSON.stringify({ ...result, updatedAt: undefined });
+    if (payload !== this.lastPremierPayload) {
+      await this.redis(['SET', this.prefix + ':managed:premier', JSON.stringify(result)]);
+      this.lastPremierPayload = payload;
+    }
     return result;
   }
   async sync() {
@@ -251,7 +256,7 @@ export class ManagedRegistry {
       }
       const threads = await this.inventory();
       status.total = threads.length; this.threadIds = new Set(threads.map(thread => thread.id));
-      const teams = [], temporaryTeams = [], reviewChanges = []; let closed = 0;
+      const teams = [], temporaryTeams = [], reviewChanges = []; let closed = 0, cacheChanged = false, progressAt = this.now();
       for (const thread of threads) {
         const signature = `v2:${thread.name}:${thread.last_message_id || ''}`;
         let cached = this.cache.get(thread.id);
@@ -259,6 +264,7 @@ export class ManagedRegistry {
           || (temporaryCollections.has(thread.id) || thread.id === foreignCollection) && !cached.result.collection) {
           cached = { signature, at: this.now(), result: await this.readThread(thread) };
           this.cache.set(thread.id, cached);
+          cacheChanged = true;
         }
         if (cached.result.team) teams.push(cached.result.team);
         if (cached.result.teams) teams.push(...cached.result.teams);
@@ -266,9 +272,9 @@ export class ManagedRegistry {
         if (cached.result.review) reviewChanges.push(cached.result.review);
         if (cached.result.closed) closed++;
         status.processed++;
-        if (status.processed % 10 === 0) {
+        if (this.now() - progressAt >= 30000) {
           await this.redis(['SET', statusKey, JSON.stringify(status)]);
-          await this.redis(['SET', this.prefix + ':managed:cache', JSON.stringify([...this.cache])]);
+          progressAt = this.now();
         }
       }
       if (!threads.length || !teams.length && !closed) throw new Error('No managed rosters verified');
@@ -277,7 +283,12 @@ export class ManagedRegistry {
       const snapshot = { teams: finalTeams, temporaryTeams: temporaryTeams.filter(team => team.expiresAt > this.now()
         && !finalTeams.some(formal => normalizedName(formal.name) === normalizedName(team.name))),
         reviewChanges, closed, threadCount: threads.length, updatedAt: this.now() };
-      await this.redis(['SET', this.prefix + ':managed:public', JSON.stringify(snapshot)]);
+      const payload = JSON.stringify({ ...snapshot, updatedAt: undefined });
+      if (payload !== this.lastDirectoryPayload) {
+        await this.redis(['SET', this.prefix + ':managed:public', JSON.stringify(snapshot)]);
+        this.lastDirectoryPayload = payload;
+      }
+      if (cacheChanged) await this.redis(['SET', this.prefix + ':managed:cache', JSON.stringify([...this.cache])]);
       await this.redis(['SET', statusKey, JSON.stringify({ ...status, state: 'ready', at: this.now() })]);
       console.info('KOV managed directory published:', teams.length, 'active;', closed, 'closed;', reviewChanges.length, 'review');
       return snapshot;
