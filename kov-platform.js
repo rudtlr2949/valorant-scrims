@@ -1,4 +1,3 @@
-import {championBadge} from './lib/kov-vlr-champions.mjs';
 import {MAPS,AGENTS,initialState,demoState,applyCommand,standings,metrics,matchSide,currentVeto,eligibleForFinal,parseScoreboard,https,activePlayers,blankScoreboard} from './lib/kov-core.mjs';
 import {renderManualBracket} from './lib/kov-bracket-view.mjs';
 import {bracketEditor} from './lib/kov-bracket-editor.mjs';
@@ -92,7 +91,7 @@ function historicalCard(event) {
     ...event,
     status: 'finished',
     dateLabel: [event.year, event.date].filter(Boolean).join(' · '),
-    summary: `<p class="kov-event-result">우승 <strong>${esc(event.winner)}</strong>${championBadge(event.winner)}</p>`
+    summary: `<p class="kov-event-result">우승 <strong>${esc(event.winner)}</strong></p>`
       + (event.runnerUp ? `<p class="kp-meta">결승 ${esc(event.score)} · 준우승 ${esc(event.runnerUp)}</p>` : ''),
     actions: event.links.map(([label, url]) => external(label, url)).join(''),
   });
@@ -106,7 +105,7 @@ function liveTournamentCard(tournament) {
     ...tournament,
     dateLabel: status === 'registration' ? `접수 마감 · ${date(tournament.deadline, true)}` : date(tournament.startAt, true),
     summary: champion
-      ? `<p class="kov-event-result">우승 <strong>${esc(champion)}</strong>${championBadge(champion)}</p>`
+      ? `<p class="kov-event-result">우승 <strong>${esc(champion)}</strong></p>`
       : `<p class="kp-meta">${esc(tournament.season)} · ${approved} / ${tournament.capacity}팀</p>`,
     actions: go(status === 'finished' ? '대회 기록' : '대회 상세', `tournament/${id}`)
       + (status === 'registration' ? go('참가 신청', `apply/${id}`, 'primary') : '')
