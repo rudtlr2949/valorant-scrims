@@ -32,7 +32,7 @@ async function saveState(raw,state){
   return Number(await redis(['EVAL',"local v=redis.call('GET',KEYS[1]); if (v or '')~=ARGV[1] then return 0 end;redis.call('SET',KEYS[1],ARGV[2]);return 1",1,key('state'),raw||'',json]))===1;
 }
 async function mutate(callback){for(let i=0;i<4;i++){const {raw,state}=await readState();const result=await callback(state);if(await saveState(raw,result.state))return result;}throw new RuleError('다른 사용자가 먼저 변경했습니다. 새로고침 후 다시 시도해 주세요.',409);}
-function validEvidence(image){
+export function validEvidence(image){
   ensure(typeof image==='string'&&/^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+/=]+$/.test(image),'PNG·JPEG·WebP 이미지를 첨부해 주세요.');
   const bytes=Buffer.from(image.split(',')[1],'base64');ensure(bytes.length>20&&bytes.length<=650000,'스크린샷은 압축 후 650KB 이하여야 합니다.');
   const valid=bytes.subarray(0,8).equals(Buffer.from([137,80,78,71,13,10,26,10]))||(bytes[0]===255&&bytes[1]===216&&bytes[2]===255)||(bytes.toString('ascii',0,4)==='RIFF'&&bytes.toString('ascii',8,12)==='WEBP');

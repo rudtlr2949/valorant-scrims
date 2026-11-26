@@ -3,6 +3,27 @@ const el = (tag, text, className) => {
   if (className) node.className = className; return node;
 };
 const token = () => { try { return localStorage.getItem('discordToken'); } catch { return null; } };
+async function prepareEvidence(file) {
+  if (!['image/png', 'image/jpeg', 'image/webp'].includes(file.type)) throw Error('PNG·JPG·WebP 이미지를 선택해 주세요.');
+  if (file.size > 12 * 1024 * 1024) throw Error('12MB 이하의 이미지를 선택해 주세요.');
+  const read = blob => new Promise((resolve, reject) => {
+    const reader = new FileReader(); reader.onload = () => resolve(reader.result); reader.onerror = () => reject(Error('파일을 읽지 못했습니다.')); reader.readAsDataURL(blob);
+  });
+  if (file.size <= 650000) return { name: file.name, image: await read(file) };
+  const bitmap = await createImageBitmap(file);
+  try {
+    const canvas = document.createElement('canvas');
+    let scale = Math.min(1, 1800 / Math.max(bitmap.width, bitmap.height));
+    for (let attempt = 0; attempt < 5; attempt++) {
+      canvas.width = Math.max(1, Math.round(bitmap.width * scale)); canvas.height = Math.max(1, Math.round(bitmap.height * scale));
+      const context = canvas.getContext('2d'); context.fillStyle = '#fff'; context.fillRect(0, 0, canvas.width, canvas.height); context.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+      const image = canvas.toDataURL('image/jpeg', .86 - attempt * .08);
+      if (image.length < 860000) return { name: file.name, image };
+      scale *= .8;
+    }
+    throw Error('이미지를 줄이지 못했습니다. 더 작은 이미지를 선택해 주세요.');
+  } finally { bitmap.close(); }
+}
 async function reportRequest(method, body, query = '') {
   const response = await fetch('/api/kov-user-reports' + query, { method, headers: {
     ...(token() ? { Authorization: 'Bearer ' + token() } : {}), ...(body ? { 'Content-Type': 'application/json' } : {}) },
@@ -28,12 +49,30 @@ export function openUserReport(team, person) {
   details.placeholder = '발생 일시와 상황을 구체적으로 적어 주세요. (10~1500자)'; details.rows = 5;
   const evidence = el('input'); evidence.name = 'evidence'; evidence.type = 'url'; evidence.maxLength = 500;
   evidence.placeholder = 'https://…';
+  const file = el('input'); file.type = 'file'; file.name = 'attachment'; file.accept = 'image/png,image/jpeg,image/webp';
+  file.setAttribute('aria-label', '증거 파일 선택');
+  const preview = el('img', '', 'kov-report-preview'); preview.alt = '선택한 증거 이미지 미리보기'; preview.hidden = true;
+  const remove = el('button', '첨부 취소', 'kp-button small'); remove.type = 'button'; remove.hidden = true;
+  const fileStatus = el('p', '내 컴퓨터에서 PNG·JPG·WebP 이미지 1장을 선택할 수 있습니다. 큰 이미지는 자동으로 줄입니다.', 'kp-meta');
+  let attachment = null, preparing = false, fileVersion = 0;
+  const clearFile = () => { fileVersion++; attachment = null; preparing = false; file.value = ''; preview.removeAttribute('src'); preview.hidden = remove.hidden = true; fileStatus.textContent = '첨부한 파일이 없습니다.'; };
+  remove.onclick = clearFile;
+  file.onchange = async () => {
+    const selected = file.files[0]; if (!selected) { clearFile(); return; }
+    const version = ++fileVersion; attachment = null; preparing = true; preview.hidden = remove.hidden = true;
+    fileStatus.textContent = '이미지를 준비하고 있습니다…';
+    try {
+      const result = await prepareEvidence(selected); if (version !== fileVersion) return;
+      attachment = result; preview.src = result.image; preview.hidden = remove.hidden = false; fileStatus.textContent = selected.name + ' · 첨부 준비 완료';
+    } catch (error) { if (version === fileVersion) { file.value = ''; fileStatus.textContent = error.message; } }
+    finally { if (version === fileVersion) preparing = false; }
+  };
   const status = el('p', '', 'kp-meta'); status.setAttribute('role', 'status');
   const actions = el('div', '', 'kp-actions');
   const cancel = el('button', '취소', 'kp-button'); cancel.type = 'button'; cancel.onclick = () => dialog.close();
   const submit = el('button', '신고 접수', 'kp-button danger'); submit.type = 'submit';
   actions.append(cancel, submit);
-  form.append(heading, target, notice, field('신고 사유', reason), field('상세 내용', details), field('증거 링크 (선택)', evidence), status, actions);
+  form.append(heading, target, notice, field('신고 사유', reason), field('상세 내용', details), field('증거 파일 선택 (선택)', file), fileStatus, preview, remove, field('증거 링크 (선택)', evidence), status, actions);
   if (!token()) {
     const login = el('button', 'Discord 로그인', 'kp-button primary'); login.type = 'button';
     status.textContent = '신고 접수에는 Discord 로그인이 필요합니다.';
@@ -42,11 +81,12 @@ export function openUserReport(team, person) {
   }
   form.onsubmit = async event => {
     event.preventDefault(); submit.disabled = true; status.textContent = '신고를 접수하고 있습니다…';
+    if (preparing) { status.textContent = '이미지 준비가 끝난 후 접수해 주세요.'; submit.disabled = false; return; }
     try {
       const result = await reportRequest('POST', { source: team.url, targetId: person.id,
-        reason: reason.value, details: details.value, evidence: evidence.value });
+        reason: reason.value, details: details.value, evidence: evidence.value, ...(attachment ? { attachment } : {}) });
       status.textContent = `신고가 접수됐습니다. 접수 번호 ${result.receipt}`;
-      reason.disabled = details.disabled = evidence.disabled = true; submit.remove(); cancel.textContent = '닫기';
+      reason.disabled = details.disabled = evidence.disabled = file.disabled = true; remove.hidden = true; submit.remove(); cancel.textContent = '닫기';
     } catch (error) { status.textContent = error.message; submit.disabled = false; }
   };
   dialog.append(form); document.body.append(dialog);
@@ -78,6 +118,17 @@ class UserReportInbox extends HTMLElement {
             el('p', `신고자 ${report.reporter.name} (${report.reporter.id}) · 대상 ${report.target.id}`, 'kp-meta'),
             el('p', report.details, 'kov-report-content'));
           if (report.evidence) { const link = el('a', '증거 링크 ↗', 'kp-button small'); link.href = report.evidence; link.target = '_blank'; link.rel = 'noopener noreferrer'; card.append(link); }
+          if (report.attachment) {
+            const show = el('button', '첨부 증거 보기 · ' + report.attachment.name, 'kp-button small'); show.type = 'button';
+            show.onclick = async () => {
+              show.disabled = true;
+              try {
+                const attachment = await reportRequest('GET', null, '?' + new URLSearchParams({ evidence: report.id }));
+                const image = el('img', '', 'kov-report-evidence'); image.alt = attachment.name; image.src = attachment.image;
+                show.replaceWith(image);
+              } catch (error) { status.textContent = error.message; show.disabled = false; }
+            }; card.append(show);
+          }
           const review = el('div', '', 'kp-actions');
           const current = el('span', '', 'kp-meta');
           const stateLabel = { pending: '검토 대기', handled: '처리 완료', dismissed: '반려' };

@@ -63,3 +63,27 @@ test('parallel submissions cannot overwrite the original report or bypass reserv
   assert.equal([...f.saved.keys()].filter(k => k.startsWith('reports/')).length, 1);
   assert.ok([...f.saved.keys()].filter(k => k.startsWith('limits/')).length <= 5);
 });
+
+test('local image evidence is stored separately and can only be fetched by an admin', async () => {
+  const f = fixture();
+  const image = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aS8sAAAAASUVORK5CYII=';
+  assert.equal((await f.request('POST', { ...f.body, attachment: { name: 'screenshot.png', image } })).code, 201);
+  const report = [...f.saved.values()].find(x => x.target);
+  assert.deepEqual(report.attachment, { name: 'screenshot.png' });
+  assert.ok(!JSON.stringify(report).includes('base64'));
+  assert.equal((await f.request('GET', null, { evidence: report.id })).code, 403);
+  f.actor({ id: '111111111', name: 'Staff', isAdmin: true });
+  const result = await f.request('GET', null, { evidence: report.id });
+  assert.equal(result.code, 200); assert.equal(result.body.image, image);
+  assert.equal(result.headers['Cache-Control'], 'private, no-store');
+  assert.ok(!JSON.stringify((await f.request('GET')).body.reports).includes('base64'));
+});
+
+test('HTML/SVG masquerading as evidence and oversized images are rejected before saving', async () => {
+  const f = fixture();
+  for (const image of ['data:image/svg+xml;base64,PHN2Zz48L3N2Zz4=', 'data:image/png;base64,' + Buffer.from('<script>alert(1)</script>').toString('base64'),
+    'data:image/png;base64,' + Buffer.alloc(650001).toString('base64')]) {
+    assert.equal((await f.request('POST', { ...f.body, attachment: { name: 'evidence.png', image } })).code, 400);
+  }
+  assert.equal(f.saved.size, 0);
+});
