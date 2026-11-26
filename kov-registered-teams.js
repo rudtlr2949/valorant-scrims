@@ -39,7 +39,6 @@ function renderTeam(team) {
   const name = document.createElement('h3');
   name.textContent = team.name;
   const champion = championBadge(team.name);
-  if (champion) name.insertAdjacentHTML('beforeend', champion);
   const category = document.createElement('span');
   category.className = 'kp-badge kov-registry-category';
   category.dataset.category = registryCategory(team);
@@ -82,6 +81,7 @@ function renderTeam(team) {
   expand.className = 'kov-registry-expand';
   expand.textContent = '명단 보기';
   summary.append(monogram, heading, badges, expand);
+  if (champion) summary.insertAdjacentHTML('beforeend', champion);
   const roster = document.createElement('div');
   roster.className = 'kov-registry-roster';
   roster.setAttribute('aria-live', 'polite');
