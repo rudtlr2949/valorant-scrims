@@ -1,0 +1,16 @@
+{
+  "name": "kov-tournament-platform",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test tests/*.test.mjs",
+    "registry:worker": "node workers/registry/worker.mjs"
+  },
+  "dependencies": {
+    "@vercel/blob": "2.9.0"
+  },
+  "overrides": {
+    "zod": "^4.6.6"
+  }
+}

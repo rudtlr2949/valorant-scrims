@@ -1,5 +1,7 @@
 import { parseRegistryEvent, replayRegistryEvents } from './events.mjs';
 import { readLivePublic } from './live.mjs';
+import { createMeter } from './budget.mjs';
+import { createDirectoryCache, loadSnapshot } from './snapshot.mjs';
 import { reactionDecision } from './config.mjs';
 import { createHash, randomUUID } from 'node:crypto';
 
@@ -201,7 +203,11 @@ export async function readChannel(token, redis, fetcher = fetch, now = Date.now)
   }
   return result();
 }
-export async function registryRedis(command) {
+let storageBlockedUntil = 0;
+async function sendRegistryCommand(command) {
+  if (Date.now() < storageBlockedUntil) {
+    const error = new Error('Registry storage cooling down'); error.code = 'STORAGE_USAGE_LIMIT'; throw error;
+  }
   const url = process.env.UPSTASH_REDIS_REST_URL;
   const token = process.env.UPSTASH_REDIS_REST_TOKEN;
   if (!url || !token) throw new Error('Registry storage unavailable');
@@ -219,12 +225,27 @@ export async function registryRedis(command) {
       : response.status === 401 || response.status === 403 ? 'STORAGE_AUTH_FAILED' : 'STORAGE_UNAVAILABLE';
     const error = new Error(`Registry storage ${code} (HTTP ${response.status})`);
     error.code = code;
+    if (/LIMIT/.test(code)) storageBlockedUntil = Date.now() + 300000;
     throw error;
   }
   const data = await response.json();
-  if (data.error) throw new Error('Registry storage command failed');
+  if (data.error) {
+    const error = new Error('Registry storage command failed');
+    if (/limit|quota/i.test(data.error)) { error.code = 'STORAGE_USAGE_LIMIT'; storageBlockedUntil = Date.now() + 300000; }
+    throw error;
+  }
   return data.result;
 }
+
+export const registryRedis = createMeter(sendRegistryCommand);
+const cachedDirectory = createDirectoryCache({
+  read: async () => {
+    const data = await readLivePublic(process.env.KOV_REGISTRY_BOT_TOKEN?.trim(), registryRedis, Date.now, { managedOnly: true });
+    if (data) { await registryRedis.flush().catch(() => {}); data.budget = registryRedis.policy(); data.retryAfter = data.budget.retryAfter; }
+    return data;
+  }, fallback: loadSnapshot,
+});
+export const readCachedDirectory = () => cachedDirectory();
 
 export default async function handler(req, res) {
   res.setHeader('Cache-Control', 'no-store');
@@ -235,22 +256,12 @@ export default async function handler(req, res) {
   const token = process.env.KOV_REGISTRY_BOT_TOKEN?.trim();
   if (!token) return res.status(503).json({ error: 'Discord 등록 채널 연동을 준비 중입니다.' });
   try {
-    const live = await readLivePublic(token, registryRedis);
+    const live = await readCachedDirectory();
     if (live) {
-      res.setHeader('Vercel-CDN-Cache-Control', 'max-age=5');
+      res.setHeader('Vercel-CDN-Cache-Control', `max-age=${live.stale ? 300 : live.retryAfter || 60}`);
       return res.status(200).json(live);
     }
-    const startedAt = Date.now();
-    let result = await readChannel(token, registryRedis);
-    // Do several short, rate-aware batches per request to avoid a network round trip
-    // for every checkpoint. Long Discord cooldowns remain client-side retries.
-    while (result.syncing && result.retryAfter <= 3 && Date.now() - startedAt < 8000) {
-      await new Promise(resolve => setTimeout(resolve, result.retryAfter * 1000));
-      result = await readChannel(token, registryRedis);
-    }
-    if (!result.syncing) res.setHeader('Vercel-CDN-Cache-Control', 'max-age=5');
-    return res.status(200).json({ ...result, liveConnected: false, liveConfigured: false,
-      retryAfter: result.syncing ? result.retryAfter : 15 });
+    return res.status(503).json({ error: '운영진 명단 동기화를 준비 중입니다.', retryAfter: 300 });
   } catch (error) {
     console.error('KOV registry:', error.message);
     return res.status(502).json({ error: '등록 명단 저장소에 연결하지 못했습니다. 잠시 후 다시 확인해 주세요.', code: error.code || 'STORAGE_UNAVAILABLE' });

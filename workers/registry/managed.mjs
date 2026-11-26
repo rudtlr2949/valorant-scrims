@@ -181,10 +181,14 @@ export function projectManagedThread(thread, messages, kind) {
 export class ManagedRegistry {
   constructor(discord, redis, prefix, { now = Date.now } = {}) {
     this.discord = discord; this.redis = redis; this.prefix = prefix; this.now = now;
-    this.cache = new Map(); this.threadIds = new Set();
+    this.cache = new Map(); this.threadIds = new Set(); this.threads = new Map();
+    this.dirty = new Set(); this.deleted = new Set(); this.premierDirty = true; this.premier = null;
     this.lastPremierPayload = null; this.lastDirectoryPayload = null;
   }
-  invalidate(id) { this.cache.delete(id); }
+  invalidate(id, deleted = false) {
+    if (id === premierManagementChannel) this.premierDirty = true;
+    else { this.dirty.add(id); if (deleted) this.deleted.add(id); }
+  }
   async inventory() {
     // These explicit channel probes distinguish no permission from an empty list.
     for (const id of managedChannels.keys()) await this.discord.request(`/channels/${id}/messages?limit=1`);
@@ -242,29 +246,51 @@ export class ManagedRegistry {
       await this.redis(['SET', this.prefix + ':managed:premier', JSON.stringify(result)]);
       this.lastPremierPayload = payload;
     }
+    this.premier = result;
     return result;
   }
-  async sync() {
+  async sync({ full = true } = {}) {
     const statusKey = this.prefix + ':managed:status';
     const status = { state: 'syncing', at: this.now(), processed: 0, total: 0 };
     await this.redis(['SET', statusKey, JSON.stringify(status)]);
     try {
-      await this.syncPremier();
+      if (full || this.premierDirty || !this.premier) { this.premierDirty = false; await this.syncPremier(); }
       if (!this.cache.size) {
-        const saved = await this.redis(['GET', this.prefix + ':managed:cache']);
-        if (saved) this.cache = new Map(JSON.parse(saved));
+        const fields = await this.redis(['HGETALL', this.prefix + ':managed:threads:v3']);
+        if (Array.isArray(fields)) for (let i = 0; i < fields.length; i += 2) this.cache.set(fields[i], JSON.parse(fields[i + 1]));
+        if (!this.cache.size) {
+          const saved = await this.redis(['GET', this.prefix + ':managed:cache']);
+          if (saved) this.cache = new Map(JSON.parse(saved));
+        }
+        for (const [id, value] of this.cache) if (value.thread) this.threads.set(id, value.thread);
       }
-      const threads = await this.inventory();
+      const dirty = new Set(this.dirty), deleted = new Set(this.deleted);
+      this.dirty.clear(); this.deleted.clear();
+      try {
+        if (full || !this.threads.size) this.threads = new Map((await this.inventory()).map(t => [t.id, t]));
+        else for (const id of dirty) {
+          if (deleted.has(id)) this.threads.delete(id);
+          else {
+            const thread = await this.discord.request(`/channels/${id}`, true);
+            if (thread && managedChannels.has(thread.parent_id)) this.threads.set(id, thread);
+            else this.threads.delete(id);
+          }
+        }
+      } catch (error) { for (const id of dirty) this.dirty.add(id); throw error; }
+      const threads = [...this.threads.values()];
+      const changedFields = [], removed = [...this.cache.keys()].filter(id => !this.threads.has(id));
+      for (const id of removed) this.cache.delete(id);
       status.total = threads.length; this.threadIds = new Set(threads.map(thread => thread.id));
       const teams = [], temporaryTeams = [], reviewChanges = []; let closed = 0, cacheChanged = false, progressAt = this.now();
       for (const thread of threads) {
         const signature = `v2:${thread.name}:${thread.last_message_id || ''}`;
         let cached = this.cache.get(thread.id);
-        if (!cached || cached.signature !== signature || this.now() - cached.at > 1800000
+        if (!cached || cached.signature !== signature || full || dirty.has(thread.id)
           || (temporaryCollections.has(thread.id) || thread.id === foreignCollection) && !cached.result.collection) {
-          cached = { signature, at: this.now(), result: await this.readThread(thread) };
+          cached = { signature, thread, at: this.now(), result: await this.readThread(thread) };
           this.cache.set(thread.id, cached);
           cacheChanged = true;
+          changedFields.push(thread.id, JSON.stringify(cached));
         }
         if (cached.result.team) teams.push(cached.result.team);
         if (cached.result.teams) teams.push(...cached.result.teams);
@@ -288,11 +314,14 @@ export class ManagedRegistry {
         await this.redis(['SET', this.prefix + ':managed:public', JSON.stringify(snapshot)]);
         this.lastDirectoryPayload = payload;
       }
-      if (cacheChanged) await this.redis(['SET', this.prefix + ':managed:cache', JSON.stringify([...this.cache])]);
+      if (cacheChanged) await this.redis(['HSET', this.prefix + ':managed:threads:v3', ...changedFields]);
+      if (removed.length) await this.redis(['HDEL', this.prefix + ':managed:threads:v3', ...removed]);
       await this.redis(['SET', statusKey, JSON.stringify({ ...status, state: 'ready', at: this.now() })]);
       console.info('KOV managed directory published:', teams.length, 'active;', closed, 'closed;', reviewChanges.length, 'review');
       return snapshot;
     } catch (error) {
+      this.premierDirty = true;
+      for (const id of this.threadIds) this.dirty.add(id);
       await this.redis(['SET', statusKey, JSON.stringify({ ...status, state: /HTTP 403|HTTP 404/.test(error.message) ? 'access-denied' : 'error', at: this.now() })]);
       throw error;
     }

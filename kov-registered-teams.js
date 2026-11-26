@@ -9,7 +9,16 @@ function lookupTeams() {
   const request = fetch('/api/kov-registered-teams').then(async response => {
     const data = await response.json();
     if (!response.ok) throw new Error(data.error);
+    if (!data.stale && !data.syncing) {
+      try { localStorage.setItem('kov:registry:last-good:v1', JSON.stringify(data)); } catch { /* Storage may be disabled. */ }
+    }
     return data;
+  }).catch(error => {
+    let previous;
+    try { previous = JSON.parse(localStorage.getItem('kov:registry:last-good:v1') || 'null'); } catch { /* No valid cache. */ }
+    if (!Array.isArray(previous?.teams)) throw error;
+    return { ...previous, temporaryTeams: (previous.temporaryTeams || []).filter(team => team.expiresAt > Date.now()),
+      stale: true, liveConnected: false, snapshotAt: previous.updatedAt, retryAfter: 300 };
   });
   const entry = { request, expiresAt: Date.now() + 60_000 };
   cachedLookup = entry;
@@ -81,7 +90,7 @@ function renderTeam(team) {
           if (!response.ok) throw new Error();
           return response.json();
         });
-        entry = { request, expiresAt: Date.now() + 60_000 };
+        entry = { request, expiresAt: Date.now() + 3_600_000 };
         rosterCache.set(team.url, entry);
         request.catch(() => rosterCache.delete(team.url));
       }
@@ -326,6 +335,7 @@ class RegisteredTeams extends HTMLElement {
       }
       if ('liveConnected' in data) status.textContent += data.liveConnected
         ? ' · Discord 실시간 연결됨' : ' · 실시간 봇 연결 대기';
+      if (data.stale) status.textContent = `마지막 정상 명단 표시 · 저장소 연결 대기 · ${new Date(data.snapshotAt || data.updatedAt).toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' })} 기준`;
       if (data.managementSync?.state === 'syncing') status.textContent += ` · 관리자 기록 정리 중 (${data.managementSync.processed}/${data.managementSync.total})`;
       if (data.managementSync?.state === 'access-denied') status.textContent += ' · 봇의 관리자 관리 채널 읽기 권한이 필요합니다';
       this.registryData = data;
@@ -337,6 +347,7 @@ class RegisteredTeams extends HTMLElement {
       }
     } catch (error) {
       status.textContent = error.message || '등록 목록을 불러오지 못했습니다.';
+      this.refreshTimer = setTimeout(() => { if (this.isConnected) void this.connectedCallback(); }, 300000);
     }
   }
 }

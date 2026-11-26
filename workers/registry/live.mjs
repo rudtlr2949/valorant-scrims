@@ -158,16 +158,17 @@ export class RegistryLiveStore {
   async acknowledge(id) { await this.redis(['LREM', this.prefix + ':processing', 1, id]); }
 }
 
-export async function readLivePublic(token, redis, now = Date.now) {
+export async function readLivePublic(token, redis, now = Date.now, { managedOnly = false } = {}) {
   const prefix = registryNamespace(token);
-  const raw = await redis(['GET', prefix + ':public']);
-  if (!raw) return null;
-  const data = JSON.parse(raw);
+  const managed = JSON.parse(await redis(['GET', prefix + ':managed:public']) || 'null');
+  if (!managed && managedOnly) return null;
+  const raw = managed ? null : await redis(['GET', prefix + ':public']);
+  if (!managed && !raw) return null;
+  const data = managed ? { ...managed, syncing: false, approvalVerified: true } : JSON.parse(raw);
   const heartbeat = JSON.parse(await redis(['GET', prefix + ':status']) || 'null');
   data.temporaryTeams = (data.temporaryTeams || []).filter(team => team.expiresAt > now());
-  data.liveConnected = Boolean(heartbeat?.connected && now() - heartbeat.at < 90000);
+  data.liveConnected = Boolean(heartbeat?.connected && now() - heartbeat.at < 180000);
   data.liveUpdatedAt = heartbeat?.at || null;
-  const managed = JSON.parse(await redis(['GET', prefix + ':managed:public']) || 'null');
   data.managementSync = JSON.parse(await redis(['GET', prefix + ':managed:status']) || 'null');
   const premier = JSON.parse(await redis(['GET', prefix + ':managed:premier']) || 'null');
   if (premier) {
@@ -185,6 +186,6 @@ export async function readLivePublic(token, redis, now = Date.now) {
     data.managedThreadCount = managed.threadCount;
     data.closedManagedTeams = managed.closed;
   }
-  data.retryAfter = 15;
+  data.retryAfter = 60;
   return data;
 }
