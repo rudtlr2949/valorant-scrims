@@ -2,6 +2,8 @@ import {MAPS,AGENTS,initialState,demoState,applyCommand,standings,metrics,matchS
 import {renderManualBracket} from './lib/kov-bracket-view.mjs';
 import {bracketEditor} from './lib/kov-bracket-editor.mjs';
 import {pastEvents} from './lib/kov-past-events.mjs';
+import {ascend2026} from './lib/kov-ascend-2026.mjs';
+import {renderArchive} from './lib/kov-archive-view.mjs';
 
 const $=s=>document.querySelector(s);
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -95,7 +97,7 @@ function historicalCard(event) {
     dateLabel: [event.year, event.date].filter(Boolean).join(' · '),
     summary: `<p class="kov-event-result">우승 <strong>${esc(event.winner)}</strong></p>`
       + (event.runnerUp ? `<p class="kp-meta">결승 ${esc(event.score)} · 준우승 ${esc(event.runnerUp)}</p>` : ''),
-    actions: event.links.map(([label, url]) => external(label, url)).join(''),
+    actions: (event.archiveId ? go('대회 기록',`archive/${event.archiveId}/overview`,'primary small')+go('대진표',`archive/${event.archiveId}/bracket`,'small') : '')+event.links.map(([label, url]) => external(label, url)).join(''),
   });
 }
 
@@ -175,8 +177,8 @@ function loginRequired(staff=false){return empty(staff?'운영진 권한이 필�
 function notFound(){return empty('요청한 대회 또는 경기를 찾을 수 없습니다.','대회 메인에서 다시 선택해 주세요.',go('대회 메인','tournaments'));}
 
 function render(){
-  let content='';try{switch(route[0]){case 'tournaments':content=tournamentMain();break;case 'tournament':content=tournamentDetail(route[1]);break;case 'apply':content=applicationPage(route[1]);break;case 'bracket':content=bracketPage(route[1]);break;case 'match':content=matchPage(route[1]);break;case 'veto':content=vetoPage(route[1]);break;case 'result':content=resultPage(route[1]);break;case 'registry':content=top('KOV','등록 팀·클랜','운영진 관리 기록을 기준으로 정리한 팀·클랜 명단입니다. 대회 참가 승인은 각 대회에서 확인할 수 있습니다.')+'<kov-registered-teams></kov-registered-teams>';break;case 'records':content=recordsPage();break;case 'hall':content=hallPage();break;case 'admin':content=adminPage();break;default:content=notFound();}}catch(error){content=empty('화면을 불러오지 못했습니다.',error.message,go('대회 메인','tournaments'));}
-  app.innerHTML=statusBar()+(!demo&&storageError?`<div class="kp-note red">${esc(storageError)} ${button('연결 재확인','refresh-server','','small')}</div>`:'')+routeNav()+content+`<footer class="kp-footer"><strong>KOV 발로란트 대회</strong></footer>`;
+  let content='';try{switch(route[0]){case 'archive':content=renderArchive(ascend2026,route[1],route[2],route[3]);break;case 'tournaments':content=tournamentMain();break;case 'tournament':content=tournamentDetail(route[1]);break;case 'apply':content=applicationPage(route[1]);break;case 'bracket':content=bracketPage(route[1]);break;case 'match':content=matchPage(route[1]);break;case 'veto':content=vetoPage(route[1]);break;case 'result':content=resultPage(route[1]);break;case 'registry':content=top('KOV','등록 팀·클랜','운영진 관리 기록을 기준으로 정리한 팀·클랜 명단입니다. 대회 참가 승인은 각 대회에서 확인할 수 있습니다.')+'<kov-registered-teams></kov-registered-teams>';break;case 'records':content=recordsPage();break;case 'hall':content=hallPage();break;case 'admin':content=adminPage();break;default:content=notFound();}}catch(error){content=empty('화면을 불러오지 못했습니다.',error.message,go('대회 메인','tournaments'));}
+  app.innerHTML=statusBar()+(!demo&&storageError&&route[0]!=='archive'?`<div class="kp-note red">${esc(storageError)} ${button('연결 재확인','refresh-server','','small')}</div>`:'')+routeNav()+content+`<footer class="kp-footer"><strong>KOV 발로란트 대회</strong></footer>`;
   const section = ['registry', 'records', 'hall', 'admin'].includes(route[0]) ? route[0] : 'tournaments';
   document.querySelectorAll('[data-kov-nav]').forEach(link => {
     if (link.dataset.kovNav === 'admin') link.hidden = !admin();
@@ -299,4 +301,4 @@ window.addEventListener('message', event => {
   else toast('브라우저의 저장소 접근을 허용해 주세요.');
 });
 window.addEventListener('storage',e=>{if(demo&&e.key==='kov-demo-v2'){try{state=JSON.parse(e.newValue);render();}catch{}}else if(e.key==='discordToken')fetchState(true);});
-if(demo)loadDemo();render();if(!demo)fetchState(true);setInterval(updateTimer,250);setInterval(()=>{if(document.visibilityState==='visible'&&route[0]!=='registry')fetchState();},4000);
+if(demo)loadDemo();render();if(!demo&&route[0]!=='archive')fetchState(true);setInterval(updateTimer,250);setInterval(()=>{if(document.visibilityState==='visible'&&!['registry','archive'].includes(route[0]))fetchState();},4000);
