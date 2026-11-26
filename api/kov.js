@@ -7,7 +7,7 @@ const namespace=()=>process.env.KOV_DATA_NAMESPACE||(process.env.VERCEL_ENV==='p
 const key=suffix=>`kov:{${namespace()}}:${suffix}`;
 const configured=()=>!!(process.env.UPSTASH_REDIS_REST_URL&&process.env.UPSTASH_REDIS_REST_TOKEN);
 const redis=createTournamentRedis();
-async function identity(req){
+export async function identity(req){
   const token=(req.headers.authorization||'').replace(/^Bearer\s+/i,'');if(!token)return null;
   ensure(token.length<250,'유효하지 않은 로그인 토큰입니다.',401);
   const hash=createHash('sha256').update(token).digest('hex');let user=sessions.get(hash);

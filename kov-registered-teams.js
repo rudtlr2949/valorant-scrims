@@ -1,5 +1,6 @@
 import { registryCategories, registryCategory } from './kov-registry-category.js';
 import { registryNewestFirst, registryPostDate, registryDateLabel } from './kov-registry-order.js';
+import { openUserReport } from './kov-user-reports.js';
 
 let cachedLookup;
 const rosterCache = new Map();
@@ -117,7 +118,13 @@ function renderTeam(team) {
           const missing = document.createElement('span');
           missing.className = 'kov-registry-tag'; missing.textContent = '태그 확인 불가'; row.append(missing);
         }
-        roster.append(row);
+        const report = document.createElement('button');
+        report.type = 'button'; report.className = 'kov-user-report-button';
+        report.title = `${person.name} 신고`; report.setAttribute('aria-label', `${person.name} 유저 신고`);
+        report.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 17v-6a5 5 0 0 1 10 0v6M5 17h14v3H5z" fill="currentColor" opacity=".85"/><path d="M12 2v2M4 5l2 2m14-2-2 2M2 12h2m16 0h2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
+        report.disabled = !person.id;
+        report.onclick = () => openUserReport(team, person);
+        row.append(report); roster.append(row);
       }
     } catch {
       roster.textContent = '태그를 불러오지 못했습니다. 다시 열어 재시도해 주세요.';
